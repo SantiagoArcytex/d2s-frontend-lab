@@ -1,0 +1,13 @@
+/**
+ * Grid Component (Wrapper)
+ * Based on Figma Design System
+ */
+
+import React from 'react';
+import { Grid as MuiGrid, GridProps as MuiGridProps } from '@mui/material';
+
+export interface GridProps extends MuiGridProps {}
+
+export const Grid: React.FC<GridProps> = (props) => {
+  return <MuiGrid {...props} />;
+};

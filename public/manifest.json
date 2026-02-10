@@ -1,0 +1,55 @@
+{
+  "name": "DeathToSaaS - Take Back Control",
+  "short_name": "DeathToSaaS",
+  "description": "Own your apps. Own your data. Own your future. No more monthly subscriptions, vendor lock-in, or lost control.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#007AFF",
+  "orientation": "portrait-primary",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Marketplace",
+      "short_name": "Marketplace",
+      "description": "Browse the marketplace",
+      "url": "/marketplace",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
+
+
