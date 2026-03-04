@@ -38,8 +38,9 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 
   const supabase = createClient();
 
-  const [trpcClient] = useState(() =>
-    (trpc as any).createClient({
+  const [trpcClient] = useState(() => {
+    // @ts-expect-error - trpc router types may not be fully synced yet
+    return trpc.createClient({
       links: [
         httpBatchLink({
           url: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/trpc`,
@@ -57,11 +58,12 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
           },
         }),
       ],
-    })
-  );
+    });
+  });
 
-  const TRPCProvider = (trpc as any).Provider;
-  
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const TRPCProvider = trpc.Provider;
+
   return (
     <TRPCProvider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

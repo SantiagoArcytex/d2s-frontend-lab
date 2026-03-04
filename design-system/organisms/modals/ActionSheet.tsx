@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Modal } from './Modal';
-import { ListItem } from '../../molecules/data-display';
 import { Button } from '../../atoms/buttons';
 import { spacing } from '../../tokens';
 
@@ -50,7 +49,7 @@ export const ActionSheet: React.FC<ActionSheetProps> = ({
             {title}
           </h3>
           {message && (
-            <p style={{ margin: 0, marginTop: spacing.scale.xs, fontSize: '15px', color: 'var(--text-secondary)' }}>
+            <p style={{ margin: 0, marginTop: spacing.scale.xs, fontSize: '15px', color: 'var(--muted-foreground)' }}>
               {message}
             </p>
           )}
@@ -58,21 +57,29 @@ export const ActionSheet: React.FC<ActionSheetProps> = ({
       )}
       <div style={{ padding: spacing.scale.sm }}>
         {options.map((option, index) => (
-          <ListItem
+          <div
             key={index}
-            leading={option.icon}
+            role="button"
+            tabIndex={0}
             onClick={() => {
               option.onClick();
               onClose();
             }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { option.onClick(); onClose(); } }}
             style={{
-              color: option.variant === 'destructive' ? 'var(--error)' : 'var(--text-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px 16px',
+              cursor: 'pointer',
+              color: option.variant === 'destructive' ? 'var(--destructive)' : 'var(--foreground)',
               borderRadius: '12px',
               marginBottom: spacing.scale.xs,
             }}
           >
-            {option.label}
-          </ListItem>
+            {option.icon && <span>{option.icon}</span>}
+            <span>{option.label}</span>
+          </div>
         ))}
         <Button
           variant="ghost"

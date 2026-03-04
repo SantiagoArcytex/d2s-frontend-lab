@@ -5,6 +5,7 @@ import { trpc } from '@/lib/trpc/client';
 import { Heading, Text, Container, Card, Label, Button, Badge } from '@/design-system';
 import { designTokens } from '@/lib/theme/tokens';
 import Link from 'next/link';
+import { useTheme, useMediaQuery } from '@mui/material';
 import {
   ShoppingBag as ShoppingBagIcon,
   Store as StoreIcon,
@@ -17,29 +18,36 @@ import {
 
 export default function HomePage() {
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Fetch data for account summary
-  const { data: tenant, isLoading: tenantLoading } = (trpc as any).tenant.get.useQuery();
-  const { data: purchases, isLoading: purchasesLoading } = (trpc as any).deal.getMyPurchases.useQuery();
-  const { data: deals, isLoading: dealsLoading } = (trpc as any).deal.getMyDeals.useQuery();
-  const { data: sellerStats, isLoading: sellerStatsLoading } = (trpc as any).seller.dashboard.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: tenant } = trpc.tenant.get.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: purchases, isLoading: purchasesLoading } = trpc.deal.getMyPurchases.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deals, isLoading: dealsLoading } = trpc.deal.getMyDeals.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: sellerStats, isLoading: sellerStatsLoading } = trpc.seller.dashboard.useQuery(
     undefined,
-    { 
-      enabled: !!deals && deals.length > 0,
-      retry: false,
-    }
+    { enabled: !!deals && deals.length > 0, retry: false }
   );
 
-  // Calculate stats
   const purchaseCount = purchases?.length || 0;
   const totalListings = deals?.length || 0;
-  const activeListings = deals?.filter((d: any) => d.status === 'live' || d.status === 'approved').length || 0;
+  const activeListings = deals?.filter((d: { status: string }) => d.status === 'live' || d.status === 'approved').length || 0;
   const totalSellerRevenue = sellerStats?.revenue?.totalSellerRevenue || 0;
 
+  const hasBuyer = purchaseCount > 0;
+  const hasSeller = totalListings > 0;
+  const gridCols = isMobile ? '1fr' : '2fr 1fr';
+  const buyerSpan = hasBuyer && hasSeller ? undefined : '1 / -1';
+  const sellerSpan = hasSeller && hasBuyer ? undefined : '1 / -1';
+
   return (
-    <Container 
+    <Container
       maxWidth={800}
-      style={{ 
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -48,7 +56,7 @@ export default function HomePage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing['2xl'] }}>
         {/* Welcome Section */}
         <div>
-          <Heading 
+          <Heading
             level={1}
             variant="largeTitle"
             style={{
@@ -59,29 +67,23 @@ export default function HomePage() {
           >
             Welcome back
           </Heading>
-          <Text 
-            variant="body"
-            style={{
-              color: designTokens.colors.text.secondary,
-            }}
-          >
+          <Text variant="body" style={{ color: designTokens.colors.text.secondary }}>
             {user?.email}
           </Text>
         </div>
 
-        {/* Account Summary Card */}
-        <Card 
-          variant="elevated"
+        {/* Asymmetric grid: hero card full width, then Buyer | Seller cards */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: gridCols,
+            gap: designTokens.spacing['2xl'],
+          }}
         >
-          <div style={{ 
-            padding: designTokens.spacing['2xl'],
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: designTokens.spacing.xl 
-          }}>
-            {/* Account Information Section */}
-            <div>
-              <Heading 
+          {/* Hero card: Account Information */}
+          <Card variant="elevated" style={{ gridColumn: '1 / -1' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xl }}>
+              <Heading
                 level={2}
                 variant="title2"
                 style={{
@@ -101,45 +103,17 @@ export default function HomePage() {
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.xs }}>
-                    <EmailIcon 
-                      style={{ 
-                        fontSize: '18px', 
-                        color: designTokens.colors.action.primary,
-                      }} 
-                    />
-                    <Label
-                      style={{
-                        color: designTokens.colors.text.secondary,
-                      }}
-                    >
-                      Email
-                    </Label>
+                    <EmailIcon style={{ fontSize: '18px', color: designTokens.colors.action.primary }} />
+                    <Label style={{ color: designTokens.colors.text.secondary }}>Email</Label>
                   </div>
-                  <Text
-                    variant="body"
-                    weight="medium"
-                    style={{
-                      color: designTokens.colors.text.primary,
-                    }}
-                  >
+                  <Text variant="body" weight="medium" style={{ color: designTokens.colors.text.primary }}>
                     {user?.email}
                   </Text>
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.xs }}>
-                    <PersonIcon 
-                      style={{ 
-                        fontSize: '18px', 
-                        color: designTokens.colors.action.primary,
-                      }} 
-                    />
-                    <Label
-                      style={{
-                        color: designTokens.colors.text.secondary,
-                      }}
-                    >
-                      User ID
-                    </Label>
+                    <PersonIcon style={{ fontSize: '18px', color: designTokens.colors.action.primary }} />
+                    <Label style={{ color: designTokens.colors.text.secondary }}>User ID</Label>
                   </div>
                   <Text
                     variant="caption1"
@@ -155,78 +129,35 @@ export default function HomePage() {
                 {tenant && (
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.xs }}>
-                      <BusinessIcon 
-                        style={{ 
-                          fontSize: '18px', 
-                          color: designTokens.colors.action.primary,
-                        }} 
-                      />
-                      <Label
-                        style={{
-                          color: designTokens.colors.text.secondary,
-                        }}
-                      >
-                        Tenant
-                      </Label>
+                      <BusinessIcon style={{ fontSize: '18px', color: designTokens.colors.action.primary }} />
+                      <Label style={{ color: designTokens.colors.text.secondary }}>Tenant</Label>
                     </div>
-                    <Text
-                      variant="body"
-                      weight="medium"
-                      style={{
-                        color: designTokens.colors.text.primary,
-                      }}
-                    >
+                    <Text variant="body" weight="medium" style={{ color: designTokens.colors.text.primary }}>
                       {tenant.name}
                     </Text>
                     <span style={{ marginTop: designTokens.spacing.xs, display: 'inline-block' }}>
-                      <Badge 
-                        variant="default" 
-                        size="sm"
-                      >
-                        Free Plan
-                      </Badge>
+                      <Badge variant="default" size="sm">Free Plan</Badge>
                     </span>
                   </div>
                 )}
               </div>
             </div>
+          </Card>
 
-            {/* Divider */}
-            {(purchaseCount > 0 || totalListings > 0) && (
-              <div 
-                style={{ 
-                  height: '1px', 
-                  background: designTokens.colors.surface.border,
-                  margin: `${designTokens.spacing.lg} 0`,
-                }} 
-              />
-            )}
-
-            {/* Buyer Stats Section */}
-            {purchaseCount > 0 && (
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.lg }}>
-                  <ShoppingBagIcon 
-                    style={{ 
-                      fontSize: '24px', 
-                      color: designTokens.colors.action.primary,
-                    }} 
-                  />
-                  <Heading 
-                    level={3}
-                    variant="headline"
-                    style={{
-                      fontSize: 'clamp(1.125rem, 1.25rem, 1.25rem)',
-                      color: designTokens.colors.text.primary,
-                    }}
-                  >
+          {/* Buyer Activity card */}
+          {hasBuyer && (
+            <Card variant="elevated" style={buyerSpan ? { gridColumn: buyerSpan } : undefined}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.lg }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.md }}>
+                  <ShoppingBagIcon style={{ fontSize: '24px', color: designTokens.colors.action.primary }} />
+                  <Heading level={3} variant="headline" style={{ fontSize: 'clamp(1.125rem, 1.25rem, 1.25rem)', color: designTokens.colors.text.primary }}>
                     Buyer Activity
                   </Heading>
                 </div>
-                <div 
-                  style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
                     gap: designTokens.spacing.lg,
                     padding: designTokens.spacing.lg,
                     background: designTokens.colors.surface.subtle,
@@ -234,211 +165,86 @@ export default function HomePage() {
                   }}
                 >
                   <div>
-                    <Text
-                      variant="body"
-                      style={{
-                        color: designTokens.colors.text.secondary,
-                        marginBottom: designTokens.spacing.xs,
-                      }}
-                    >
+                    <Text variant="body" style={{ color: designTokens.colors.text.secondary, marginBottom: designTokens.spacing.xs }}>
                       Total Purchases
                     </Text>
-                    <Text
-                      variant="subheadline"
-                      weight="semibold"
-                      style={{
-                        color: designTokens.colors.action.primary,
-                        fontSize: '2rem',
-                      }}
-                    >
+                    <Text variant="subheadline" weight="semibold" style={{ color: designTokens.colors.action.primary, fontSize: '2rem' }}>
                       {purchasesLoading ? '...' : purchaseCount}
                     </Text>
                   </div>
-                  <Link 
-                    href="/dashboard/purchases" 
-                    style={{ 
-                      textDecoration: 'none', 
-                      display: 'inline-block',
-                    }}
-                  >
-                    <Button 
-                      variant="primary" 
-                      size="small"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: designTokens.spacing.sm,
-                      }}
-                    >
+                  <Link href="/dashboard/purchases" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                    <Button variant="primary" size="small" style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm }}>
                       View All Purchases
                       <ArrowForwardIcon style={{ fontSize: '16px' }} />
                     </Button>
                   </Link>
                 </div>
               </div>
-            )}
+            </Card>
+          )}
 
-            {/* Seller Stats Section */}
-            {totalListings > 0 && (
-              <>
-                {purchaseCount > 0 && (
-                  <div 
-                    style={{ 
-                      height: '1px', 
-                      background: designTokens.colors.surface.border,
-                      margin: `${designTokens.spacing.lg} 0`,
-                    }} 
-                  />
-                )}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.lg }}>
-                    <StoreIcon 
-                      style={{ 
-                        fontSize: '24px', 
-                        color: designTokens.colors.action.primary,
-                      }} 
-                    />
-                    <Heading 
-                      level={3}
-                      variant="headline"
-                      style={{
-                        fontSize: 'clamp(1.125rem, 1.25rem, 1.25rem)',
-                        color: designTokens.colors.text.primary,
-                      }}
-                    >
-                      Seller Activity
-                    </Heading>
-                  </div>
-                  <div 
-                    style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      gap: designTokens.spacing.lg,
-                      padding: designTokens.spacing.lg,
-                      background: designTokens.colors.surface.subtle,
-                      borderRadius: designTokens.borderRadius.md,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                        gap: designTokens.spacing.lg,
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
-                          <StoreIcon 
-                            style={{ 
-                              fontSize: '16px', 
-                              color: designTokens.colors.text.secondary,
-                            }} 
-                          />
-                          <Text
-                            variant="body"
-                            style={{
-                              color: designTokens.colors.text.secondary,
-                            }}
-                          >
-                            Total Listings
-                          </Text>
-                        </div>
-                        <Text
-                          variant="subheadline"
-                          weight="semibold"
-                          style={{
-                            color: designTokens.colors.text.primary,
-                            fontSize: '1.75rem',
-                          }}
-                        >
-                          {dealsLoading ? '...' : totalListings}
-                        </Text>
-                      </div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
-                          <TrendingUpIcon 
-                            style={{ 
-                              fontSize: '16px', 
-                              color: designTokens.colors.success.main,
-                            }} 
-                          />
-                          <Text
-                            variant="body"
-                            style={{
-                              color: designTokens.colors.text.secondary,
-                            }}
-                          >
-                            Active Listings
-                          </Text>
-                        </div>
-                        <Text
-                          variant="subheadline"
-                          weight="semibold"
-                          style={{
-                            color: designTokens.colors.success.main,
-                            fontSize: '1.75rem',
-                          }}
-                        >
-                          {dealsLoading ? '...' : activeListings}
-                        </Text>
-                      </div>
-                      {sellerStats && totalSellerRevenue > 0 && (
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
-                            <TrendingUpIcon 
-                              style={{ 
-                                fontSize: '16px', 
-                                color: designTokens.colors.action.primary,
-                              }} 
-                            />
-                            <Text
-                              variant="body"
-                              style={{
-                                color: designTokens.colors.text.secondary,
-                              }}
-                            >
-                              Total Revenue
-                            </Text>
-                          </div>
-                          <Text
-                            variant="subheadline"
-                            weight="semibold"
-                            style={{
-                              color: designTokens.colors.action.primary,
-                              fontSize: '1.75rem',
-                            }}
-                          >
-                            {sellerStatsLoading ? '...' : `$${totalSellerRevenue.toFixed(2)}`}
-                          </Text>
-                        </div>
-                      )}
-                    </div>
-                    <Link 
-                      href="/dashboard/my-apps" 
-                      style={{ 
-                        textDecoration: 'none', 
-                        display: 'inline-block',
-                      }}
-                    >
-                      <Button 
-                        variant="primary" 
-                        size="small"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: designTokens.spacing.sm,
-                        }}
-                      >
-                        Manage Listings
-                        <ArrowForwardIcon style={{ fontSize: '16px' }} />
-                      </Button>
-                    </Link>
-                  </div>
+          {/* Seller Activity card */}
+          {hasSeller && (
+            <Card variant="elevated" style={sellerSpan ? { gridColumn: sellerSpan } : undefined}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.lg }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm, marginBottom: designTokens.spacing.md }}>
+                  <StoreIcon style={{ fontSize: '24px', color: designTokens.colors.action.primary }} />
+                  <Heading level={3} variant="headline" style={{ fontSize: 'clamp(1.125rem, 1.25rem, 1.25rem)', color: designTokens.colors.text.primary }}>
+                    Seller Activity
+                  </Heading>
                 </div>
-              </>
-            )}
-          </div>
-        </Card>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: designTokens.spacing.lg,
+                    padding: designTokens.spacing.lg,
+                    background: designTokens.colors.surface.subtle,
+                    borderRadius: designTokens.borderRadius.md,
+                  }}
+                >
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: designTokens.spacing.lg }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
+                        <StoreIcon style={{ fontSize: '16px', color: designTokens.colors.text.secondary }} />
+                        <Text variant="body" style={{ color: designTokens.colors.text.secondary }}>Total Listings</Text>
+                      </div>
+                      <Text variant="subheadline" weight="semibold" style={{ color: designTokens.colors.text.primary, fontSize: '1.75rem' }}>
+                        {dealsLoading ? '...' : totalListings}
+                      </Text>
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
+                        <TrendingUpIcon style={{ fontSize: '16px', color: designTokens.colors.success.main }} />
+                        <Text variant="body" style={{ color: designTokens.colors.text.secondary }}>Active Listings</Text>
+                      </div>
+                      <Text variant="subheadline" weight="semibold" style={{ color: designTokens.colors.success.main, fontSize: '1.75rem' }}>
+                        {dealsLoading ? '...' : activeListings}
+                      </Text>
+                    </div>
+                    {sellerStats && totalSellerRevenue > 0 && (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.xs, marginBottom: designTokens.spacing.xs }}>
+                          <TrendingUpIcon style={{ fontSize: '16px', color: designTokens.colors.action.primary }} />
+                          <Text variant="body" style={{ color: designTokens.colors.text.secondary }}>Total Revenue</Text>
+                        </div>
+                        <Text variant="subheadline" weight="semibold" style={{ color: designTokens.colors.action.primary, fontSize: '1.75rem' }}>
+                          {sellerStatsLoading ? '...' : `$${totalSellerRevenue.toFixed(2)}`}
+                        </Text>
+                      </div>
+                    )}
+                  </div>
+                  <Link href="/dashboard/my-apps" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                    <Button variant="primary" size="small" style={{ display: 'flex', alignItems: 'center', gap: designTokens.spacing.sm }}>
+                      Manage Listings
+                      <ArrowForwardIcon style={{ fontSize: '16px' }} />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     </Container>
   );

@@ -112,7 +112,7 @@ export const TextField: React.FC<TextFieldProps> = ({
           width: '100%', // Ensure full width
           minWidth: { xs: '100%', md: '200px' }, // Full-width on mobile, min 200px on desktop
           '& .MuiOutlinedInput-root': {
-            borderRadius: { xs: designTokens.mobile.borderRadius.input, md: designTokens.borderRadius.sm },
+            borderRadius: '12px',
             backgroundColor: designTokens.colors.surface.subtle,
             height: { xs: '48px', md: '48px' }, // HIG standard on mobile
             transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,

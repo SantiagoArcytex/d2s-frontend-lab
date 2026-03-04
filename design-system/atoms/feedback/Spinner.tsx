@@ -19,7 +19,7 @@ const sizeMap = {
 
 export const Spinner: React.FC<SpinnerProps> = ({
   size = 'md',
-  color = 'var(--action-primary)',
+  color = 'var(--primary)',
   className = '',
 }) => {
   const spinnerSize = sizeMap[size];

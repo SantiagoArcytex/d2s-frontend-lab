@@ -33,7 +33,7 @@ export const Text: React.FC<TextProps> = ({
     lineHeight: iosStyle.lineHeight,
     fontWeight: typography.fontWeight[weight],
     letterSpacing: iosStyle.letterSpacing,
-    color: 'var(--text-primary)',
+    color: 'var(--foreground)',
     margin: 0,
   };
 

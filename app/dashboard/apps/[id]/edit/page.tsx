@@ -19,12 +19,14 @@ export default function EditAppPage() {
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<{ name?: string }>({});
 
-  const { data: app, isLoading, error } = (trpc as any).app.get.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: app, isLoading, error } = trpc.app.get.useQuery(
     { id: appId },
     { enabled: !!appId }
   );
 
-  const updateApp = (trpc as any).app.update.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const updateApp = trpc.app.update.useMutation({
     onSuccess: () => {
       router.push('/dashboard/apps');
     },
@@ -33,6 +35,7 @@ export default function EditAppPage() {
   // Populate form when app data loads
   useEffect(() => {
     if (app) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(app.name || '');
       setDescription(app.description || '');
     }
@@ -60,9 +63,9 @@ export default function EditAppPage() {
 
   if (isLoading) {
     return (
-      <Container 
-        maxWidth={600} 
-        style={{ 
+      <Container
+        maxWidth={600}
+        style={{
           padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
           width: '100%',
           boxSizing: 'border-box',
@@ -84,9 +87,9 @@ export default function EditAppPage() {
 
   if (error || !app) {
     return (
-      <Container 
-        maxWidth={600} 
-        style={{ 
+      <Container
+        maxWidth={600}
+        style={{
           padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
           width: '100%',
           boxSizing: 'border-box',
@@ -106,9 +109,9 @@ export default function EditAppPage() {
   }
 
   return (
-    <Container 
-      maxWidth={600} 
-      style={{ 
+    <Container
+      maxWidth={600}
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -136,7 +139,7 @@ export default function EditAppPage() {
               >
                 Edit App
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Update your application details
               </Text>
             </div>

@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AppBar, Toolbar, Box, IconButton, useTheme, useMediaQuery, Menu, MenuItem, Typography, Divider, Badge } from '@mui/material';
+import { AppBar, Toolbar, Box, IconButton, Menu, MenuItem, Typography, Divider, Badge } from '@mui/material';
 import { Notifications as NotificationsIcon, Menu as MenuIcon, Person as PersonIcon, ExitToApp as ExitToAppIcon } from '@mui/icons-material';
 import { designTokens } from '@/lib/theme/tokens';
 import { Avatar } from '@/components/data/Avatar';
@@ -30,8 +30,6 @@ export const StatusNavbar: React.FC<StatusNavbarProps> = ({
   onNotificationsClick,
   onMenuClick,
 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const router = useRouter();
   const { signOut } = useAuth();
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
@@ -124,7 +122,7 @@ export const StatusNavbar: React.FC<StatusNavbarProps> = ({
           >
             <Box
               component="img"
-              src="/logod2s.svg"
+              src="/Type=Primary.svg"
               alt="DeathToSaaS"
               sx={{
                 height: { xs: '20px', sm: '24px', md: '28px' },
@@ -206,11 +204,11 @@ export const StatusNavbar: React.FC<StatusNavbarProps> = ({
             </Box>
             {notifications.length === 0 ? (
               <Box sx={{ px: 2, py: 3, textAlign: 'center' }}>
-                <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                   No notifications
                 </Text>
                 <Text variant="caption1" style={{ color: 'var(--text-muted)', marginTop: '0.5rem', display: 'block' }}>
-                  You're all caught up!
+                  You&apos;re all caught up!
                 </Text>
               </Box>
             ) : (
@@ -294,7 +292,7 @@ export const StatusNavbar: React.FC<StatusNavbarProps> = ({
                 py: 1,
               }}
             >
-              <Text variant="body" style={{ color: 'var(--action-primary)', fontSize: '14px' }}>
+              <Text variant="body" style={{ color: 'var(--primary)', fontSize: '14px' }}>
                 View all notifications
               </Text>
             </MenuItem>

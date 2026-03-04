@@ -4,13 +4,13 @@
  */
 
 import React from 'react';
-import { hig } from '../../tokens';
 
 export interface BadgeProps {
   children: React.ReactNode;
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'premium';
   size?: 'sm' | 'md';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -18,16 +18,17 @@ export const Badge: React.FC<BadgeProps> = ({
   variant = 'default',
   size = 'md',
   className = '',
+  style: styleProp,
 }) => {
   const getVariantStyles = (): React.CSSProperties => {
     const base: React.CSSProperties = {
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: hig.borderRadius.chip,
+      borderRadius: '9999px',
       fontSize: size === 'sm' ? '11px' : '13px',
       fontWeight: 600,
-      padding: size === 'sm' ? '2px 8px' : '4px 12px',
+      padding: '8px 14px',
       lineHeight: 1.2,
     };
 
@@ -35,45 +36,45 @@ export const Badge: React.FC<BadgeProps> = ({
       case 'primary':
         return {
           ...base,
-          backgroundColor: 'var(--action-primary)',
-          color: 'var(--text-primary)',
+          backgroundColor: 'var(--primary)',
+          color: 'var(--foreground)',
         };
       case 'success':
         return {
           ...base,
           backgroundColor: 'var(--success)',
-          color: 'var(--text-primary)',
+          color: 'var(--foreground)',
         };
       case 'warning':
         return {
           ...base,
           backgroundColor: 'var(--warning)',
-          color: 'var(--text-primary)',
+          color: 'var(--foreground)',
         };
       case 'error':
         return {
           ...base,
-          backgroundColor: 'var(--error)',
-          color: 'var(--text-primary)',
+          backgroundColor: 'var(--destructive)',
+          color: 'var(--foreground)',
         };
       case 'premium':
         return {
           ...base,
           backgroundColor: 'var(--rebel-red, #FF2E2E)',
-          color: 'var(--text-primary)',
+          color: 'var(--foreground)',
         };
       default:
         return {
           ...base,
-          backgroundColor: 'var(--surface-elevated)',
-          color: 'var(--text-secondary)',
-          border: `1px solid var(--surface-border)`,
+          backgroundColor: 'var(--card)',
+          color: 'var(--muted-foreground)',
+          border: `1px solid var(--border)`,
         };
     }
   };
 
   return (
-    <span className={className} style={getVariantStyles()}>
+    <span className={className} style={{ ...getVariantStyles(), ...styleProp }}>
       {children}
     </span>
   );

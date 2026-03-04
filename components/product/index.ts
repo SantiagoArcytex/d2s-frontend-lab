@@ -1,0 +1,16 @@
+export type { DealProduct } from "./types";
+export { HeroCarousel } from "./HeroCarousel";
+export { StatBar } from "./StatBar";
+export { DealIdentity } from "./DealIdentity";
+export { TagChips } from "./TagChips";
+export { DescriptionSection } from "./DescriptionSection";
+export { MockupShowcase } from "./MockupShowcase";
+export { KillsSection } from "./KillsSection";
+export { PricingTable } from "./PricingTable";
+export { DealInfoSection } from "./DealInfoSection";
+export { DeveloperSection } from "./DeveloperSection";
+export { InteractionSection } from "./InteractionSection";
+export { PricingCard } from "./PricingCard";
+export { MobileBottomBar } from "./MobileBottomBar";
+export { DealCtaCard } from "./DealCtaCard";
+export type { DealCtaCardProps } from "./DealCtaCard";

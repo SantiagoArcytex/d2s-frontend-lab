@@ -1,0 +1,113 @@
+
+> frontend@0.1.0 lint
+> eslint --max-warnings 0
+
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/apps/[subdomain]/page.tsx
+  292:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  349:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/auth/confirm/page.tsx
+  83:19  warning  'data' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+  83:19  warning  'data' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/[id]/edit/page.tsx
+  38:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/[id]/edit/page.tsx:38:7
+  36 |   useEffect(() => {
+  37 |     if (app) {
+> 38 |       setName(app.name || '');
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  39 |       setDescription(app.description || '');
+  40 |     }
+  41 |   }, [app]);  react-hooks/set-state-in-effect
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/page.tsx
+  119:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  330:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  375:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  437:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  481:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/developer-tools/page.tsx
+   345:10  warning  'nextStepsPromptCopied' is assigned a value but never used                                            @typescript-eslint/no-unused-vars
+   345:10  warning  'nextStepsPromptCopied' is assigned a value but never used. Allowed unused vars must match /^_/u      unused-imports/no-unused-vars
+   509:9   warning  'handleCopyNextStepsPrompt' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+   509:9   warning  'handleCopyNextStepsPrompt' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+  1003:44  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/my-apps/page.tsx
+  121:9   warning  'router' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  121:9   warning  'router' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    unused-imports/no-unused-vars
+  145:32  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `dashboardData.recent_purchases`, but the source dependencies were [dashboardData?.recent_purchases]. Inferred different dependency than source.
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/my-apps/page.tsx:145:32
+  143 |   // Get purchases from dashboard data for line chart
+  144 |   // The dashboard query already includes purchase data
+> 145 |   const allPurchases = useMemo(() => {
+      |                                ^^^^^^^
+> 146 |     if (!dashboardData?.recent_purchases) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 164 |     );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 165 |   }, [dashboardData?.recent_purchases]);
+      | ^^^^ Could not preserve existing manual memoization
+  166 |
+  167 |   // @ts-expect-error - TRPC router types incomplete
+  168 |   const submitMutation = trpc.deal.submitForReview.useMutation({                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/preserve-manual-memoization
+  202:9   warning  'pendingPayoutsCount' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  202:9   warning  'pendingPayoutsCount' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       unused-imports/no-unused-vars
+  203:40  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `dashboardData.pending_payouts`, but the source dependencies were [dashboardData?.pending_payouts]. Inferred different dependency than source.
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/my-apps/page.tsx:203:40
+  201 |   const activeDeals = dashboardData?.active_deals || 0;
+  202 |   const pendingPayoutsCount = dashboardData?.pending_payouts?.length || 0;
+> 203 |   const pendingPayoutsAmount = useMemo(() => {
+      |                                        ^^^^^^^
+> 204 |     if (!dashboardData?.pending_payouts) return 0;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 205 |     return dashboardData.pending_payouts.reduce((sum: number, payout: { payout_amount: string | number }) => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 206 |       const amount = typeof payout.payout_amount === 'string'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 207 |         ? parseFloat(payout.payout_amount)
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 208 |         : payout.payout_amount;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 209 |       return sum + amount;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 210 |     }, 0);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 211 |   }, [dashboardData?.pending_payouts]);
+      | ^^^^ Could not preserve existing manual memoization
+  212 |
+  213 |   const isLoading = dealsLoading || dashboardLoading;
+  214 |  react-hooks/preserve-manual-memoization
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/purchases/page.tsx
+  24:10  warning  'editingReview' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+  24:10  warning  'editingReview' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/seller/deals/new/page.tsx
+  34:55  warning  'status' is defined but never used                                        @typescript-eslint/no-unused-vars
+  34:55  warning  'status' is defined but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/embed/auth/page.tsx
+  79:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 26 problems (12 errors, 14 warnings)
+

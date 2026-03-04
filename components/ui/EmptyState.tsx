@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import { Typography } from '@mui/material';
 import { designTokens } from '@/lib/theme/tokens';
 import { Button } from './Button';
 
@@ -25,38 +25,39 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   action,
 }) => {
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        py: designTokens.spacing['4xl'],
-        px: designTokens.spacing.lg,
+        padding: `${designTokens.spacing['4xl']} ${designTokens.spacing.lg}`,
         textAlign: 'center',
         backgroundColor: designTokens.colors.surface.base,
       }}
     >
-      <Stack spacing={3} alignItems="center"> {/* 24px gap between elements */}
-        {/* Icon/illustration - Token-colored, 48-64px */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 24,
+        }}
+      >
         {icon && (
-          <Box
-            sx={{
+          <div
+            style={{
               color: designTokens.colors.action.primary,
-              fontSize: '56px', // Between 48-64px
+              fontSize: '56px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              '& svg': {
-                fontSize: 'inherit',
-              },
             }}
           >
             {icon}
-          </Box>
+          </div>
         )}
 
-        {/* Headline - Heading 3, Text/Primary */}
         <Typography
           sx={{
             fontFamily: designTokens.typography.fontFamily.primary,
@@ -69,7 +70,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {title}
         </Typography>
 
-        {/* Subtext - Body Small, Text/Secondary */}
         {description && (
           <Typography
             sx={{
@@ -85,13 +85,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           </Typography>
         )}
 
-        {/* CTA - Primary button with Action/Primary or Gradient.Primary */}
         {action && (
           <Button variant="primary" onClick={action.onClick}>
             {action.label}
           </Button>
         )}
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 };

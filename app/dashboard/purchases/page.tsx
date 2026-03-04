@@ -8,29 +8,30 @@ import { SectionLoader } from '@/components/feedback/SectionLoader';
 import { ReviewForm } from '@/components/marketplace/ReviewForm';
 import { ReviewCard } from '@/components/marketplace/ReviewCard';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ContentCopy as ContentCopyIcon,
   CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
   RateReview as RateReviewIcon,
   Edit as EditIcon,
+  ShoppingBag as ShoppingBagIcon,
 } from '@mui/icons-material';
 
 export default function PurchasesPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<string | null>(null);
-  const [editingReview, setEditingReview] = useState(false);
-  const { data: purchases, isLoading } = (trpc as any).purchase.getMyPurchases.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: purchases, isLoading } = trpc.purchase.getMyPurchases.useQuery();
 
   if (isLoading) {
     return <SectionLoader />;
   }
 
   return (
-    <Container 
-      maxWidth={1200} 
-      style={{ 
+    <Container
+      maxWidth={1200}
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -42,7 +43,7 @@ export default function PurchasesPage() {
 
       {!purchases || purchases.length === 0 ? (
         <Card variant="elevated">
-          <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--muted-foreground)' }}>
             No purchases yet
           </Heading>
           <Link href="/marketplace" style={{ textDecoration: 'none' }}>
@@ -50,8 +51,8 @@ export default function PurchasesPage() {
           </Link>
         </Card>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {purchases.map((purchase: any) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xl }}>
+          {purchases.map((purchase: PurchaseItem) => (
             <PurchaseCard
               key={purchase.id}
               purchase={purchase}
@@ -78,12 +79,10 @@ export default function PurchasesPage() {
           onClose={() => {
             setReviewModalOpen(false);
             setSelectedPurchase(null);
-            setEditingReview(false);
           }}
           onSuccess={() => {
             setReviewModalOpen(false);
             setSelectedPurchase(null);
-            setEditingReview(false);
           }}
         />
       )}
@@ -91,26 +90,42 @@ export default function PurchasesPage() {
   );
 }
 
-function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: { 
-  purchase: any; 
+type PurchaseItem = {
+  id: string;
+  status: string;
+  redemption_code_id?: string;
+  amount_paid: string | number;
+  created_at: string;
+  currency: string;
+  stripe_subscription_id?: string;
+  deal?: { cover_image_url?: string; title?: string };
+  deal_id?: string;
+  refund_reason?: string;
+};
+
+function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
+  purchase: PurchaseItem;
   copiedCode: string | null;
   onCopyCode: (code: string) => void;
   onOpenReview: () => void;
 }) {
-  const { data: validationCode, isLoading: codeLoading } = (trpc as any).purchase.getValidationCode.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: validationCode, isLoading: codeLoading } = trpc.purchase.getValidationCode.useQuery(
     { purchase_id: purchase.id },
     { enabled: purchase.status === 'completed' && !!purchase.redemption_code_id }
   );
 
-  const { data: myReview } = (trpc as any).marketplace.getMyReview.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: myReview } = trpc.marketplace.getMyReview.useQuery(
     { purchase_id: purchase.id },
     { enabled: purchase.status === 'completed' }
   );
 
-  const cancelSubscriptionMutation = (trpc as any).purchase.cancelSubscription.useMutation();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const cancelSubscriptionMutation = trpc.purchase.cancelSubscription.useMutation();
 
-  const amount = typeof purchase.amount_paid === 'string' 
-    ? parseFloat(purchase.amount_paid) 
+  const amount = typeof purchase.amount_paid === 'string'
+    ? parseFloat(purchase.amount_paid)
     : purchase.amount_paid;
 
   const handleCancelSubscription = async () => {
@@ -128,14 +143,46 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
   };
 
   return (
-    <Card variant="elevated">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1 }}>
-            <Heading level={3} variant="headline" style={{ marginBottom: '0.5rem' }}>
+    <Card variant="elevated" style={{ borderRadius: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: designTokens.spacing.lg }}>
+        {/* Row: avatar left, labels center, value right */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: designTokens.spacing.lg,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              backgroundColor: designTokens.colors.surface.subtle,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}
+          >
+            {purchase.deal?.cover_image_url ? (
+              <Image
+                src={purchase.deal.cover_image_url}
+                alt=""
+                width={48}
+                height={48}
+                style={{ objectFit: 'cover' }}
+              />
+            ) : (
+              <ShoppingBagIcon style={{ fontSize: 24, color: designTokens.colors.action.primary }} />
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: designTokens.spacing.xs }}>
+            <Heading level={3} variant="headline" style={{ margin: 0, fontSize: '1rem' }}>
               {purchase.deal?.title || `Purchase #${purchase.id.substring(0, 8)}`}
             </Heading>
-            <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+            <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
               {new Date(purchase.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -143,40 +190,39 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
               })}
             </Text>
           </div>
-          <Badge
-            variant={
-              purchase.status === 'completed' ? 'success' :
-              purchase.status === 'pending' ? 'warning' :
-              purchase.status === 'refunded' ? 'error' : 'default'
-            }
-          >
-            {purchase.status}
-          </Badge>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <Text variant="body">
-            Amount: <strong>${amount.toFixed(2)}</strong> {purchase.currency}
-          </Text>
-          {purchase.stripe_subscription_id && (
-            <Badge variant="primary" size="sm">Subscription</Badge>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: designTokens.spacing.xs, flexShrink: 0 }}>
+            <Text variant="body" weight="semibold">
+              ${amount.toFixed(2)} {purchase.currency}
+            </Text>
+            <Badge
+              variant={
+                purchase.status === 'completed' ? 'success' :
+                  purchase.status === 'pending' ? 'warning' :
+                    purchase.status === 'refunded' ? 'error' : 'default'
+              }
+            >
+              {purchase.status}
+            </Badge>
+            {purchase.stripe_subscription_id && (
+              <Badge variant="primary" size="sm">Subscription</Badge>
+            )}
+          </div>
         </div>
 
         {/* Validation Code Display */}
         {purchase.status === 'completed' && (
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: 'var(--surface-base)', 
+          <div style={{
+            padding: '1rem',
+            backgroundColor: 'var(--background)',
             borderRadius: '8px',
-            border: '1px solid var(--surface-border)'
+            border: '1px solid var(--border)'
           }}>
             {codeLoading ? (
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>Loading validation code...</Text>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>Loading validation code...</Text>
             ) : validationCode ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="caption1" style={{ color: 'var(--text-secondary)', fontWeight: 'bold' }}>
+                  <Text variant="caption1" style={{ color: 'var(--muted-foreground)', fontWeight: 'bold' }}>
                     Validation Code:
                   </Text>
                   <Button
@@ -204,7 +250,7 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
                     fontFamily: 'monospace',
                     fontSize: '1rem',
                     padding: '0.5rem',
-                    backgroundColor: 'var(--surface-elevated)',
+                    backgroundColor: 'var(--card)',
                     borderRadius: '4px',
                     wordBreak: 'break-all',
                   }}
@@ -219,13 +265,13 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
                   </Link>
                 )}
                 {validationCode.expires_at && (
-                  <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+                  <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
                     Expires: {new Date(validationCode.expires_at).toLocaleDateString()}
                   </Text>
                 )}
               </div>
             ) : (
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Validation code not available
               </Text>
             )}
@@ -234,11 +280,11 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
 
         {/* Review Section */}
         {purchase.status === 'completed' && purchase.deal_id && (
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: 'var(--surface-base)', 
+          <div style={{
+            padding: '1rem',
+            backgroundColor: 'var(--background)',
             borderRadius: '8px',
-            border: '1px solid var(--surface-border)'
+            border: '1px solid var(--border)'
           }}>
             {myReview ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -263,7 +309,7 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                   Share your experience with this app
                 </Text>
                 <Button
@@ -299,7 +345,7 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
         )}
 
         {purchase.status === 'refunded' && purchase.refund_reason && (
-          <Text variant="body" style={{ color: 'var(--error)' }}>
+          <Text variant="body" style={{ color: 'var(--destructive)' }}>
             Refunded: {purchase.refund_reason}
           </Text>
         )}
@@ -319,21 +365,25 @@ function ReviewModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { data: purchase } = (trpc as any).purchase.getMyPurchases.useQuery();
-  const currentPurchase = purchase?.find((p: any) => p.id === purchaseId);
-  const { data: myReview, refetch: refetchMyReview } = (trpc as any).marketplace.getMyReview.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: purchase } = trpc.purchase.getMyPurchases.useQuery();
+  const currentPurchase = purchase?.find((p: { id: string; deal_id?: string }) => p.id === purchaseId);
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: myReview, refetch: refetchMyReview } = trpc.marketplace.getMyReview.useQuery(
     { purchase_id: purchaseId },
     { enabled: open && !!purchaseId }
   );
 
-  const submitReviewMutation = (trpc as any).marketplace.submitReview.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const submitReviewMutation = trpc.marketplace.submitReview.useMutation({
     onSuccess: () => {
       onSuccess();
       refetchMyReview();
     },
   });
 
-  const updateReviewMutation = (trpc as any).marketplace.updateReview.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const updateReviewMutation = trpc.marketplace.updateReview.useMutation({
     onSuccess: () => {
       onSuccess();
       refetchMyReview();

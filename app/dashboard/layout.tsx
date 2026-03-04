@@ -58,7 +58,7 @@ export default function DashboardLayout({
               flexGrow: 1,
               paddingTop: isMobile ? '56px' : '64px',
               paddingBottom: isMobile ? '72px' : 0,
-              backgroundColor: 'var(--surface-base)',
+              backgroundColor: 'var(--background)',
               minHeight: '100vh',
             }}
           >

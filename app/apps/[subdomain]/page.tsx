@@ -36,8 +36,8 @@ export default function AppPage() {
         <Heading level={1} variant="title1" style={{ marginBottom: '1rem' }}>
           App Not Found
         </Heading>
-        <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-          The app you're looking for doesn't exist.
+        <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '2rem' }}>
+          The app you&apos;re looking for doesn&apos;t exist.
         </Text>
         <Link href="/dashboard/apps" style={{ textDecoration: 'none' }}>
           <Button variant="primary">Back to Marketplace</Button>
@@ -63,7 +63,7 @@ export default function AppPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         paddingTop: '2rem',
         paddingBottom: '4rem',
       }}
@@ -85,15 +85,15 @@ export default function AppPage() {
                 <Badge variant="default" size="sm">{app.category}</Badge>
                 <Badge variant="default" size="sm">Available</Badge>
               </div>
-              
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <div
                   style={{
                     width: '80px',
                     height: '80px',
                     borderRadius: '16px',
-                    backgroundColor: 'var(--surface-elevated)',
-                    color: 'var(--text-secondary)',
+                    backgroundColor: 'var(--card)',
+                    color: 'var(--muted-foreground)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -118,7 +118,7 @@ export default function AppPage() {
                       level={2}
                       variant="headline"
                       style={{
-                        color: 'var(--text-secondary)',
+                        color: 'var(--muted-foreground)',
                       }}
                     >
                       {app.tagline}
@@ -130,7 +130,7 @@ export default function AppPage() {
               <Text
                 variant="body"
                 style={{
-                  color: 'var(--text-secondary)',
+                  color: 'var(--muted-foreground)',
                   maxWidth: '700px',
                   fontSize: '1.125rem',
                   lineHeight: 1.7,
@@ -192,13 +192,13 @@ export default function AppPage() {
                     <div key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
                       <CheckIcon
                         style={{
-                          color: 'var(--text-primary)',
+                          color: 'var(--foreground)',
                           marginTop: '2px',
                           fontSize: '20px',
                           flexShrink: 0,
                         }}
                       />
-                      <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                      <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                         {feature}
                       </Text>
                     </div>
@@ -225,12 +225,12 @@ export default function AppPage() {
                           width: '8px',
                           height: '8px',
                           borderRadius: '50%',
-                          backgroundColor: 'var(--text-secondary)',
+                          backgroundColor: 'var(--muted-foreground)',
                           marginTop: '6px',
                           flexShrink: 0,
                         }}
                       />
-                      <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                      <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                         {useCase}
                       </Text>
                     </div>
@@ -253,21 +253,21 @@ export default function AppPage() {
                 </Heading>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
-                    <Text variant="caption1" style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
+                    <Text variant="caption1" style={{ color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.25rem' }}>
                       Category
                     </Text>
                     <Badge variant="default" size="sm">{app.category}</Badge>
                   </div>
-                  <div style={{ height: '1px', background: 'var(--surface-border)' }} />
+                  <div style={{ height: '1px', background: 'var(--border)' }} />
                   <div>
-                    <Text variant="caption1" style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
+                    <Text variant="caption1" style={{ color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.25rem' }}>
                       Subdomain
                     </Text>
                     <Text
                       variant="body"
                       style={{
                         fontFamily: 'monospace',
-                        backgroundColor: 'var(--surface-base)',
+                        backgroundColor: 'var(--background)',
                         padding: '0.5rem',
                         borderRadius: '8px',
                         wordBreak: 'break-all',
@@ -276,20 +276,20 @@ export default function AppPage() {
                       {app.subdomain}
                     </Text>
                   </div>
-                  <div style={{ height: '1px', background: 'var(--surface-border)' }} />
+                  <div style={{ height: '1px', background: 'var(--border)' }} />
                   <div>
-                    <Text variant="caption1" style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>
+                    <Text variant="caption1" style={{ color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.25rem' }}>
                       Status
                     </Text>
                     <Badge variant="default" size="sm">{app.status}</Badge>
                   </div>
-                  <div style={{ height: '1px', background: 'var(--surface-border)' }} />
+                  <div style={{ height: '1px', background: 'var(--border)' }} />
                   <div>
-                    <Text variant="caption1" style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '0.5rem' }}>
+                    <Text variant="caption1" style={{ color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.5rem' }}>
                       Tags
                     </Text>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {app.tags.map((tag: any) => (
+                      {app.tags.map((tag: string) => (
                         <Badge key={tag} variant="default" size="sm">{tag}</Badge>
                       ))}
                     </div>
@@ -346,7 +346,7 @@ export default function AppPage() {
                   gap: '1.5rem',
                 }}
               >
-                {relatedApps.map((relatedApp: any) => {
+                {relatedApps.map((relatedApp: NonNullable<ReturnType<typeof getMockAppBySubdomain>>) => {
                   const relatedIcon = categoryIcons[relatedApp.category] || <AppsIcon />;
                   return (
                     <div
@@ -355,51 +355,51 @@ export default function AppPage() {
                       onClick={() => router.push(`/apps/${relatedApp.subdomain}`)}
                     >
                       <Card variant="elevated">
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                          <div
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div
+                              style={{
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '12px',
+                                backgroundColor: 'var(--card)',
+                                color: 'var(--muted-foreground)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '24px',
+                                flexShrink: 0,
+                              }}
+                            >
+                              {relatedIcon}
+                            </div>
+                            <div style={{ flexGrow: 1, minWidth: 0 }}>
+                              <Heading level={3} variant="headline" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {relatedApp.name}
+                              </Heading>
+                              <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
+                                {relatedApp.category}
+                              </Text>
+                            </div>
+                          </div>
+                          <Text
+                            variant="body"
                             style={{
-                              width: '48px',
-                              height: '48px',
-                              borderRadius: '12px',
-                              backgroundColor: 'var(--surface-elevated)',
-                              color: 'var(--text-secondary)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '24px',
-                              flexShrink: 0,
+                              color: 'var(--muted-foreground)',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
                             }}
                           >
-                            {relatedIcon}
-                          </div>
-                          <div style={{ flexGrow: 1, minWidth: 0 }}>
-                            <Heading level={3} variant="headline" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {relatedApp.name}
-                            </Heading>
-                            <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
-                              {relatedApp.category}
-                            </Text>
-                          </div>
+                            {relatedApp.description}
+                          </Text>
+                          <Link href={`/apps/${relatedApp.subdomain}`} style={{ textDecoration: 'none', width: '100%' }}>
+                            <Button variant="outline" size="small" fullWidth>
+                              View Details
+                            </Button>
+                          </Link>
                         </div>
-                        <Text
-                          variant="body"
-                          style={{
-                            color: 'var(--text-secondary)',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {relatedApp.description}
-                        </Text>
-                        <Link href={`/apps/${relatedApp.subdomain}`} style={{ textDecoration: 'none', width: '100%' }}>
-                          <Button variant="outline" size="small" fullWidth>
-                            View Details
-                          </Button>
-                        </Link>
-                      </div>
                       </Card>
                     </div>
                   );

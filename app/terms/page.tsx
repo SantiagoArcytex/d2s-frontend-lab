@@ -1,24 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Container, Heading, Text, Card } from '@/design-system';
 import Link from 'next/link';
 
 // Client-only component to avoid hydration mismatch
 function LastUpdatedDate() {
-  const [date, setDate] = useState('');
-
-  useEffect(() => {
-    setDate(
-      new Date().toLocaleDateString('en-US', {
+  return (
+    <span suppressHydrationWarning>
+      {new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-      })
-    );
-  }, []);
-
-  return <>{date || 'Loading...'}</>;
+      })}
+    </span>
+  );
 }
 
 export default function TermsOfServicePage() {
@@ -26,7 +22,7 @@ export default function TermsOfServicePage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: 'clamp(2rem, 4rem, 4rem) 1rem',
       }}
     >
@@ -35,7 +31,7 @@ export default function TermsOfServicePage() {
           <Link
             href="/"
             style={{
-              color: 'var(--action-primary)',
+              color: 'var(--primary)',
               textDecoration: 'none',
               fontSize: '15px',
               fontWeight: 500,
@@ -52,7 +48,7 @@ export default function TermsOfServicePage() {
               <Heading level={1} variant="title1" style={{ marginBottom: '0.5rem' }}>
                 Terms of Service
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Last updated: <LastUpdatedDate />
               </Text>
             </div>
@@ -63,8 +59,8 @@ export default function TermsOfServicePage() {
                 1. Introduction
               </Heading>
               <Text variant="body" style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
-                Welcome to DeathToSaaS. These Terms of Service ("Terms") govern your access to and use of our platform,
-                services, and applications (collectively, the "Service"). By accessing or using our Service, you agree to
+                Welcome to DeathToSaaS. These Terms of Service (&quot;Terms&quot;) govern your access to and use of our platform,
+                services, and applications (collectively, the &quot;Service&quot;). By accessing or using our Service, you agree to
                 be bound by these Terms.
               </Text>
               <Text variant="body" style={{ lineHeight: 1.6 }}>
@@ -172,7 +168,7 @@ export default function TermsOfServicePage() {
                 8. Disclaimer of Warranties
               </Heading>
               <Text variant="body" style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
-                THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+                THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED,
                 INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
                 NON-INFRINGEMENT.
               </Text>
@@ -217,7 +213,7 @@ export default function TermsOfServicePage() {
             </section>
 
             {/* Footer */}
-            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)' }}>
+            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
               <Text variant="caption1" style={{ color: 'var(--text-muted)' }}>
                 By using our Service, you acknowledge that you have read and understood these Terms of Service.
               </Text>

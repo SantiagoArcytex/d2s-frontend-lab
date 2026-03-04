@@ -1,642 +1,488 @@
 'use client';
 
-import Image from 'next/image';
-import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations/framer';
-import { Heading, Text, Button, Container, Card } from '@/design-system';
-import { Section } from '@/components/layout/Section';
-import { LandingNavbar } from '@/components/layout/LandingNavbar';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
+import { ChevronRight } from 'lucide-react';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import ShieldIcon from '@mui/icons-material/Shield';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import ForumIcon from '@mui/icons-material/Forum';
+import LockIcon from '@mui/icons-material/Lock';
+import SearchIcon from '@mui/icons-material/Search';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
+
 import {
-  Lock as LockIcon,
-  CloudOff as CloudOffIcon,
-  AttachMoney as MoneyIcon,
-  Build as BuildIcon,
-  Security as SecurityIcon,
-  Speed as SpeedIcon,
-  Close as CloseIcon,
-  ArrowForward as ArrowForwardIcon
-} from '@mui/icons-material';
+  Navbar,
+  PageFooter,
+  Button,
+  Badge,
+  SectionHeading,
+  OverlineLabel,
+  SearchBar,
+  FeatureCard,
+  TestimonialCard,
+  FAQItem,
+  DealCard,
+} from '@/components/ds';
+import { HelpdeskMini, InvoiceMini, BookingMini, CRMMini } from '@/components/product/mockups/CardScreenMockups';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function Home() {
+const VALUE_PROPS = [
+  { Icon: CheckCircleOutlineIcon, headline: 'Apps that work', description: 'Every app is reviewed before listing — no experiments, no broken code.' },
+  { Icon: SupportAgentIcon, headline: 'Clear support policy', description: 'Know exactly what support you\'ll get before you buy.' },
+  { Icon: RocketLaunchIcon, headline: 'Deploy in minutes', description: 'Guided setup, integrations, and documentation included.' },
+  { Icon: ShieldIcon, headline: 'Buyer protection', description: 'Transparent refund policy and dispute resolution.' },
+];
+
+const COLLECTION_TABS = ['Popular', 'New & noteworthy', 'Best for teams', 'Under $49', 'Dev Tools', 'AI'];
+
+const MARKETPLACE_DEALS = [
+  { name: 'FlowDesk', value: 'Streamlined helpdesk for small teams', rating: 5 as const, category: 'Support', initials: 'FD', gradientIdx: 0, price: '$39', mockup: 'helpdesk' },
+  { name: 'InvoiceNinja', value: 'Automated invoicing and payment tracking', rating: 5 as const, category: 'Finance', initials: 'IN', gradientIdx: 1, price: '$29', mockup: 'invoice' },
+  { name: 'BookItPro', value: 'Appointment scheduling with smart reminders', rating: 4 as const, category: 'Scheduling', initials: 'BP', gradientIdx: 2, price: '$19', mockup: 'booking' },
+  { name: 'CRMPulse', value: 'Lightweight CRM built for solopreneurs', rating: 4 as const, category: 'CRM', initials: 'CP', gradientIdx: 4, price: '$49', mockup: 'crm' },
+];
+
+const HOW_STEPS = [
+  { number: '01', headline: 'Find', description: 'Browse by category or search for what you need.', Icon: SearchIcon },
+  { number: '02', headline: 'Buy & deploy', description: 'Secure checkout with guided setup and documentation.', Icon: ShoppingCartIcon },
+  { number: '03', headline: 'Get support', description: 'Every listing includes creator support backed by marketplace standards.', Icon: HeadsetMicIcon },
+];
+
+const TRUST_BLOCKS = [
+  { Icon: VerifiedUserIcon, headline: 'Vetted listings', description: 'Every app goes through our review process before it\'s listed.' },
+  { Icon: ForumIcon, headline: 'Transparent support', description: 'Support response times and maintenance expectations are clearly listed on every app.' },
+  { Icon: LockIcon, headline: 'Buyer protection', description: 'Clear refund policy, secure payments, and license transparency.' },
+];
+
+const TESTIMONIALS = [
+  { quote: 'VCI replaced five different marketplaces for me. One login, one license manager, one update feed. Exactly what the dev tool space needed.', author: 'Jamie Rivera', role: 'Staff Engineer, Vercel', avatar: 'J' },
+  { quote: 'Listed my CLI tool on Vibe Coding Incubator and hit 10K downloads in the first month. The developer audience here actually pays for quality tools.', author: 'Kai Zhang', role: 'Indie Developer', avatar: 'K' },
+  { quote: 'The curation quality is insane. Every app I\'ve bought on VCI has been legitimately excellent. No shovelware.', author: 'Sarah Kim', role: 'CTO, Nimbly', avatar: 'S' },
+];
+
+const FAQ_ITEMS_DATA = [
+  { q: 'What is VCI?', a: 'VCI (Vibe Coding Incubator) is a curated marketplace of production-ready apps built by vetted creators. We review every listing for quality, security, and documentation before it goes live.' },
+  { q: 'How do I know an app is safe to use?', a: 'Every app goes through our multi-step review process before listing. We verify the creator, audit the code for security issues, and ensure documentation meets our standards.' },
+  { q: "What's the refund policy?", a: "We offer a clear, transparent refund policy. If an app doesn't work as described, you can request a refund within the support window listed on each product page." },
+  { q: 'How do I become a creator?', a: "Apply through our creator portal — it takes about 5 minutes. We'll review your application and, once approved, you can start listing apps immediately." },
+  { q: 'What cut does VCI take?', a: 'Creators keep 85% of every sale — one of the highest revenue shares in the marketplace industry. We handle payments, distribution, and promotion.' },
+];
+
+function HeroSection() {
   const { user } = useAuth();
-  const problemPoints = [
-    {
-      icon: <CloseIcon />,
-      title: 'Vendor Lock-In',
-      description: 'Trapped in subscriptions with no way out. Your data, their platform.',
-    },
-    {
-      icon: <MoneyIcon />,
-      title: 'Endless Subscriptions',
-      description: 'Monthly fees that never end. Pay forever for software you should own.',
-    },
-    {
-      icon: <LockIcon />,
-      title: 'Lost Control',
-      description: 'Your data lives on their servers. You have no say in how it\'s used.',
-    },
-    {
-      icon: <CloudOffIcon />,
-      title: 'Limited Customization',
-      description: 'Stuck with their features. Can\'t adapt software to your needs.',
-    },
-  ];
-
-  const solutionPoints = [
-    {
-      icon: <SecurityIcon />,
-      title: 'Own Your Data',
-      description: 'Your infrastructure, your rules. Complete control over your information.',
-    },
-    {
-      icon: <BuildIcon />,
-      title: 'Full Customization',
-      description: 'Modify, extend, and adapt apps to fit your exact requirements.',
-    },
-    {
-      icon: <SpeedIcon />,
-      title: 'No Vendor Lock-In',
-      description: 'Self-hosted options. Your apps, your servers, your freedom.',
-    },
-    {
-      icon: <MoneyIcon />,
-      title: 'Fair Pricing',
-      description: 'One-time payments or transparent pricing. No hidden subscription traps.',
-    },
-  ];
-
-  const features = [
-    {
-      title: 'Take Back Control',
-      description: 'Own your apps, own your data, own your future. No more software landlords.',
-      icon: <SecurityIcon />,
-    },
-    {
-      title: 'Self-Hosted Freedom',
-      description: 'Deploy on your infrastructure. Complete independence from external vendors.',
-      icon: <CloudOffIcon />,
-    },
-    {
-      title: 'Customize Everything',
-      description: 'Modify and extend apps to match your workflow. No limitations.',
-      icon: <BuildIcon />,
-    },
-    {
-      title: 'Lightning Fast',
-      description: 'Powered by Vercel Edge Config for sub-5ms routing and global CDN delivery.',
-      icon: <SpeedIcon />,
-    },
-  ];
-
   return (
-    <div
-      className="landing-page"
-      style={{
-        minHeight: '100vh',
-        background: 'var(--surface-base-rebel)',
-        position: 'relative',
-      }}
-    >
-      {/* Landing Navbar */}
-      <LandingNavbar />
+    <section className="relative flex items-end justify-center overflow-hidden bg-background" style={{ minHeight: '100vh', paddingBottom: 96 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 800px 600px at 50% 60%, rgba(60,131,245,0.04) 0%, transparent 70%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 1200px 800px at 60% 45%, rgba(0,209,160,0.02) 0%, transparent 70%)' }} />
 
-      {/* Hero Section - Centered (Rebel doc: 80vh min) */}
-      <Section spacing="xl" style={{ position: 'relative', zIndex: 1, minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 'clamp(2rem, 4rem, 4rem)', paddingBottom: 'clamp(3rem, 6rem, 6rem)' }}>
-        <Container maxWidth={1200}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              animation: 'fadeIn 1s ease-out',
-              maxWidth: '900px',
-              margin: '0 auto',
-              gap: 'clamp(1.5rem, 3rem, 3rem)',
-            }}
+      <div className="relative max-w-[1280px] mx-auto px-6">
+        <div className="flex flex-col items-center text-center" style={{ maxWidth: 800, margin: '0 auto' }}>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4, ease: 'easeOut' }}>
+            <Badge variant="outline" style={{ padding: '6px 16px', borderRadius: 8, marginBottom: 20 }}>
+              <OverlineLabel>Deal Marketplace</OverlineLabel>
+            </Badge>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6, ease: 'easeOut' }}
+            className="font-heading text-primary"
+            style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em', margin: 0 }}
           >
-            <div
-              style={{
-                position: 'relative',
-                width: 'clamp(48px, 120px, 120px)',
-                height: 'clamp(48px, 120px, 120px)',
-                marginBottom: 'clamp(0.75rem, 1rem, 1rem)',
-              }}
-            >
-              <Image
-                src="/logod2s.svg"
-                alt="DeathToSaaS"
-                fill
-                priority
-                style={{ objectFit: 'contain' }}
-              />
-            </div>
+            Ready-to-use apps you can trust.
+          </motion.h1>
 
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ delay: 0.2 }}
-              style={{ maxWidth: '900px' }}
-            >
-              <Heading
-                level={3}
-                variant="title1"
-                style={{
-                  fontSize: 'clamp(1.5rem, 3rem, 3rem)',
-                  lineHeight: 1.3,
-                  marginBottom: 'clamp(0.75rem, 1rem, 1rem)',
-                }}
-              >
-                Take Back Control from Software Landlords
-              </Heading>
-            </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
+            className="font-body text-muted-foreground"
+            style={{ fontSize: 'clamp(16px, 1.8vw, 18px)', fontWeight: 400, lineHeight: 1.6, marginTop: 24, maxWidth: 600 }}
+          >
+            VCI is a curated marketplace of production-ready apps built by vetted creators. Buy, deploy, and get real support — without the usual risk.
+          </motion.p>
 
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ delay: 0.4 }}
-              style={{ maxWidth: '700px' }}
-            >
-              <Text
-                variant="body"
-                style={{
-                  fontSize: 'clamp(1rem, 1.25rem, 1.25rem)',
-                  color: 'var(--text-secondary)',
-                  marginBottom: '2rem',
-                }}
-              >
-                Own your apps. Own your data. Own your future. No more monthly subscriptions, vendor lock-in, or lost control.
-              </Text>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ delay: 0.6 }}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'clamp(1rem, 1.5rem, 1.5rem)',
-                width: '100%',
-                alignItems: 'center',
-                marginTop: 'clamp(1.5rem, 1rem, 1rem)',
-              }}
-              className="hero-buttons"
-            >
-              {user ? (
-                <Link href="/dashboard/home" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)' }}>
-                  <Button
-                    variant="premium"
-                    size="large"
-                    fullWidth
-                  >
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.4, ease: 'easeOut' }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8"
+          >
+            {user ? (
+              <>
+                <Link href="/dashboard/home">
+                  <Button variant="primary" leadingIcon={<StorefrontOutlinedIcon style={{ fontSize: 20 }} />}>
                     Go to Dashboard
-                    <ArrowForwardIcon style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }} />
                   </Button>
                 </Link>
-              ) : (
-                <>
-                  <Link href="/register" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)' }}>
-                    <Button
-                      variant="premium"
-                      size="large"
-                      fullWidth
-                    >
-                      Join the Revolution
-                      <ArrowForwardIcon style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }} />
-                    </Button>
-                  </Link>
-                  <Link href="/marketplace" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)' }}>
-                    <Button
-                      variant="outline"
-                      size="large"
-                      fullWidth
-                    >
-                      See How It Works
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </motion.div>
-          </div>
-        </Container>
-      </Section>
+                <Link href="/marketplace">
+                  <Button variant="outlined" leadingIcon={<RocketLaunchOutlinedIcon style={{ fontSize: 20 }} />}>
+                    Browse deals
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/register">
+                  <Button variant="primary" leadingIcon={<StorefrontOutlinedIcon style={{ fontSize: 20 }} />}>
+                    Join the Revolution
+                  </Button>
+                </Link>
+                <Link href="/marketplace">
+                  <Button variant="outlined" leadingIcon={<RocketLaunchOutlinedIcon style={{ fontSize: 20 }} />}>
+                    Browse deals
+                  </Button>
+                </Link>
+              </>
+            )}
+          </motion.div>
 
-      {/* Problem Section - Centered Cards */}
-      <Section spacing="section" style={{ position: 'relative', zIndex: 1 }}>
-        <Container maxWidth={1200}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(2rem, 4rem, 4rem)', width: '100%' }}>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}
-            >
-              <Heading
-                level={2}
-                variant="title1"
-                style={{
-                  fontSize: 'clamp(1.375rem, 3rem, 3rem)',
-                  marginBottom: 'clamp(0.75rem, 1rem, 1rem)',
-                }}
-              >
-                The Problem with SaaS
-              </Heading>
-              <Text
-                variant="body"
-                style={{
-                  maxWidth: '700px',
-                  margin: '0 auto',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                Software as a Service has become Software as a Trap. Here&apos;s what&apos;s wrong:
-              </Text>
-            </motion.div>
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: 'clamp(1rem, 2rem, 2rem)',
-                justifyContent: 'center',
-                maxWidth: '1200px',
-                width: '100%',
-                margin: '0 auto',
-              }}
-            >
-              {problemPoints.map((point, index) => (
-                <motion.div
-                  key={index}
-                  variants={staggerItem}
-                  style={{ display: 'flex' }}
-                >
-                  <div
-                    style={{
-                      width: '100%',
-                      minHeight: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <Card
-                      variant="elevated"
-                    >
-                    <div
-                      style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '50%',
-                        backgroundColor: 'var(--surface-elevated)',
-                        color: 'var(--text-secondary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 1.5rem',
-                        fontSize: '28px',
-                      }}
-                    >
-                      {point.icon}
-                    </div>
-                    <Heading
-                      level={3}
-                      variant="headline"
-                      style={{
-                        marginBottom: '1rem',
-                      }}
-                    >
-                      {point.title}
-                    </Heading>
-                    <Text
-                      variant="body"
-                      style={{
-                        lineHeight: 1.7,
-                        flex: 1,
-                        color: 'var(--text-secondary)',
-                      }}
-                    >
-                      {point.description}
-                    </Text>
-                    </Card>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </Container>
-      </Section>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0, duration: 0.4 }}
+            className="font-body text-muted-foreground mt-4"
+            style={{ fontSize: 12, fontWeight: 400, lineHeight: 1.4, letterSpacing: '0.01em' }}
+          >
+            Secure checkout &middot; Verified creators &middot; Clear support policy
+          </motion.p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      {/* Solution Section - Centered Cards */}
-      <Section spacing="section" style={{ position: 'relative', zIndex: 1 }}>
-        <Container maxWidth={1200}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(2rem, 4rem, 4rem)', width: '100%' }}>
-            <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-              <Heading
-                level={2}
-                variant="title1"
-                style={{
-                  fontSize: 'clamp(2rem, 3rem, 3rem)',
-                  marginBottom: '1rem',
-                }}
+function ProofBar() {
+  return (
+    <section className="bg-card py-5 px-6" style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--primary-faint)" }}>
+      <p className="font-mono text-center text-muted-foreground uppercase m-0" style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.08em' }}>
+        Trusted by <span className="text-foreground">2,400+</span> teams &middot; <span className="text-foreground">1,200</span> verified deals &middot; <span className="text-foreground">98%</span> buyer satisfaction
+      </p>
+    </section>
+  );
+}
+
+function ValueProps() {
+  return (
+    <section id="value-props" className="bg-background py-20 relative">
+      <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
+      <div className="max-w-[1280px] mx-auto px-6">
+        <SectionHeading>Why VCI</SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {VALUE_PROPS.map((prop, i) => (
+            <FeatureCard
+              key={prop.headline}
+              icon={<prop.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 16 }} />}
+              headline={prop.headline}
+              description={prop.description}
+              variant="card"
+              index={i}
+            />
+          ))}
+        </div>
+        <div className="flex justify-center mt-8">
+          <Link href="/marketplace">
+            <Button variant="primary">Browse deals</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MarketplacePreview() {
+  const [activeTab, setActiveTab] = useState('Popular');
+
+  return (
+    <section id="marketplace" className="bg-background py-20 relative">
+      <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
+      <div className="max-w-[1280px] mx-auto px-6">
+        <SectionHeading subtitle="Find the right tool for your workflow.">Explore deals</SectionHeading>
+
+        <div className="flex justify-center -mt-2">
+          <SearchBar placeholder="Search deals... (e.g., booking, CRM, invoicing)" />
+        </div>
+
+        <div className="flex flex-wrap justify-center mt-4 gap-2">
+          {COLLECTION_TABS.map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`font-body cursor-pointer transition-all duration-150 rounded-full border ${isActive ? 'bg-primary text-white border-primary shadow-[0_0_8px_var(--primary-dim)]' : 'bg-popover text-muted-foreground border-border hover:border-border-hover hover:bg-card'}`}
+                style={{ padding: '7px 15px', fontSize: 14, fontWeight: isActive ? 600 : 400 }}
               >
-                Our Solution
-              </Heading>
-              <Text
-                variant="body"
-                style={{
-                  maxWidth: '700px',
-                  margin: '0 auto',
-                  color: 'var(--text-secondary)',
-                }}
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          {MARKETPLACE_DEALS.map((deal, i) => {
+            const mockupMap: Record<string, React.ReactNode> = {
+              helpdesk: <HelpdeskMini />,
+              invoice: <InvoiceMini />,
+              booking: <BookingMini />,
+              crm: <CRMMini />,
+            };
+            return (
+              <motion.div
+                key={deal.name}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
+                style={{ height: '100%' }}
               >
-                DeathToSaaS gives you the freedom to own and control your software:
-              </Text>
-            </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: 'clamp(1rem, 2rem, 2rem)',
-                justifyContent: 'center',
-                maxWidth: '1200px',
-                width: '100%',
-                margin: '0 auto',
-              }}
-            >
-              {solutionPoints.map((point, index) => (
-                <div key={index} style={{ display: 'flex' }}>
-                  <div
-                    style={{
-                      width: '100%',
-                      minHeight: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'center',
-                    }}
+                <Link href="/marketplace" style={{ height: '100%', display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
+                  <DealCard
+                    title={deal.name}
+                    description={deal.value}
+                    category={deal.category}
+                    rating={deal.rating}
+                    iconInitials={deal.initials}
+                    iconGradientIndex={deal.gradientIdx}
+                    hasScreenshot={true}
+                    ctaLabel={`Get — ${deal.price}`}
                   >
-                    <Card
-                      variant="elevated"
-                    >
-                    <div
-                      style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '50%',
-                        backgroundColor: 'var(--surface-elevated)',
-                        color: 'var(--text-secondary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 1.5rem',
-                        fontSize: '28px',
-                      }}
-                    >
-                      {point.icon}
-                    </div>
-                    <Heading
-                      level={3}
-                      variant="headline"
-                      style={{
-                        marginBottom: '1rem',
-                      }}
-                    >
-                      {point.title}
-                    </Heading>
-                    <Text
-                      variant="body"
-                      style={{
-                        lineHeight: 1.7,
-                        flex: 1,
-                        color: 'var(--text-secondary)',
-                      }}
-                    >
-                      {point.description}
-                    </Text>
-                    </Card>
+                    {mockupMap[deal.mockup]}
+                  </DealCard>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <Link href="/marketplace">
+            <Button variant="outlined" trailingIcon={<ChevronRight className="w-4 h-4" />}>
+              Browse all deals
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksSection() {
+  return (
+    <section id="how-it-works" className="bg-background py-20 relative">
+      <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
+      <div className="max-w-[1280px] mx-auto px-6">
+        <SectionHeading>How it works</SectionHeading>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {HOW_STEPS.map((step, i) => (
+            <motion.div
+              key={step.headline}
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
+              className="relative flex flex-col items-center text-center"
+            >
+              <span className="font-heading text-primary/20" style={{ fontSize: 48, fontWeight: 700, lineHeight: 1, marginBottom: 8 }}>{step.number}</span>
+              <step.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 12 }} />
+              <h3 className="font-heading text-foreground" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.3, margin: '0 0 8px 0' }}>{step.headline}</h3>
+              <p className="font-body text-muted-foreground" style={{ fontSize: 16, fontWeight: 400, lineHeight: 1.5, margin: 0, maxWidth: 320 }}>{step.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap justify-center mt-8 gap-6">
+          {['Source files', 'Setup guide', 'Support window', 'Update policy'].map((item) => (
+            <Badge key={item} variant="neutral">{item}</Badge>
+          ))}
+        </div>
+        <div className="flex justify-center mt-8">
+          <Link href="/marketplace">
+            <Button variant="primary">Browse deals</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustSafety() {
+  return (
+    <section id="trust" className="bg-background py-20 relative">
+      <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
+      <div className="max-w-[1280px] mx-auto px-6">
+        <SectionHeading>Trust & safety</SectionHeading>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TRUST_BLOCKS.map((block, i) => (
+            <FeatureCard
+              key={block.headline}
+              icon={<block.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 12 }} />}
+              headline={block.headline}
+              description={block.description}
+              variant="centered"
+              index={i}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SocialProof() {
+  return (
+    <section className="bg-card py-20 border-y border-border">
+      <div className="max-w-[1280px] mx-auto px-6">
+        <SectionHeading>Loved by makers</SectionHeading>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {TESTIMONIALS.map((t, i) => (
+            <TestimonialCard key={t.author} quote={t.quote} author={t.author} role={t.role} avatarInitials={t.avatar} gradientIndex={i} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ForCreators() {
+  const { user } = useAuth();
+  return (
+    <section id="for-creators" className="bg-card py-20 border-y border-border">
+      <div className="max-w-[1280px] mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="flex flex-col justify-center">
+            <OverlineLabel color="var(--primary)" style={{ marginBottom: 12 }}>For Creators</OverlineLabel>
+            <h2 className="font-heading text-foreground" style={{ fontSize: 'clamp(28px, 3.5vw, 36px)', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-0.01em', margin: '0 0 16px 0' }}>
+              Sell your apps to buyers who want quality.
+            </h2>
+            <p className="font-body text-muted-foreground" style={{ fontSize: 16, fontWeight: 400, lineHeight: 1.6, margin: '0 0 32px 0' }}>
+              Distribution, payments, reviews, and promotion — handled. You build, we sell.
+            </p>
+
+            <div className="flex flex-col gap-3 mb-8">
+              {[
+                '85% revenue share — industry-leading',
+                'Built-in license management & analytics',
+                'Featured placement for quality tools',
+                'Direct customer feedback & reviews',
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-primary/12">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
                   </div>
+                  <span className="font-body text-[14px] text-muted-foreground">{item}</span>
                 </div>
               ))}
             </div>
-          </div>
-        </Container>
-      </Section>
 
-      {/* Features Section - Centered */}
-      <Section spacing="section" style={{ position: 'relative', zIndex: 1 }}>
-      <Container maxWidth={1200}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(2rem, 4rem, 4rem)', width: '100%' }}>
-      <Heading
-      level={2}
-      variant="title1"
-      style={{
-      fontSize: 'clamp(2rem, 3rem, 3rem)',
-      textAlign: 'center',
-      maxWidth: '800px',
-      }}
-      >
-      Why Choose DeathToSaaS?
-      </Heading>
-      <div
-      style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-      gap: 'clamp(1rem, 2rem, 2rem)',
-      justifyContent: 'center',
-      maxWidth: '1200px',
-      width: '100%',
-      margin: '0 auto',
-      }}
-      >
-      {features.map((feature, index) => (
-      <div key={index} style={{ display: 'flex' }}>
-      <div
-        style={{
-          width: '100%',
-          minHeight: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          textAlign: 'center',
-        }}
-      >
-        <Card variant="elevated">
-          <div
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--surface-elevated)',
-              color: 'var(--text-secondary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              fontSize: '28px',
-            }}
-          >
-            {feature.icon}
-          </div>
-          <Heading
-            level={3}
-            variant="headline"
-            style={{
-              marginBottom: '1rem',
-            }}
-          >
-            {feature.title}
-          </Heading>
-          <Text
-            variant="body"
-            style={{
-              lineHeight: 1.7,
-              flex: 1,
-              color: 'var(--text-secondary)',
-            }}
-          >
-            {feature.description}
-          </Text>
-        </Card>
-      </div>
-      </div>
-      ))}
-      </div>
-      </div>
-      </Container>
-      </Section>
-
-      {/* Final CTA Section - Centered */}
-      <Section spacing="sectionLg" style={{ position: 'relative', zIndex: 1 }}>
-        <Container maxWidth={800}>
-          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <div
-              style={{
-                padding: 'clamp(3rem, 5rem, 5rem)',
-                width: '100%',
-                maxWidth: '800px',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                animation: 'scaleIn 0.8s ease-out',
-              }}
-            >
-              <Card variant="elevated">
-              <Heading
-                level={2}
-                variant="title1"
-                style={{
-                  marginBottom: '1.5rem',
-                  fontSize: 'clamp(2rem, 3rem, 3rem)',
-                }}
-              >
-                Ready to Break Free?
-              </Heading>
-              <Text
-                variant="body"
-                style={{
-                  marginBottom: '2.5rem',
-                  color: 'var(--text-secondary)',
-                  maxWidth: '600px',
-                  margin: '0 auto 2.5rem',
-                  lineHeight: 1.7,
-                }}
-              >
-                Join thousands of developers who&apos;ve taken back control. Browse our marketplace of lifetime deals or join free to start selling your own apps.
-              </Text>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1.5rem',
-                  justifyContent: 'center',
-                  width: '100%',
-                }}
-                className="cta-buttons"
-              >
-                {user ? (
-                  <>
-                    <Link href="/dashboard/home" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)', margin: '0 auto' }}>
-                      <Button
-                        variant="premium"
-                        size="large"
-                        fullWidth
-                      >
-                        Go to Dashboard
-                      </Button>
-                    </Link>
-                    <Link href="/marketplace" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)', margin: '0 auto' }}>
-                      <Button
-                        variant="outline"
-                        size="large"
-                        fullWidth
-                      >
-                        Browse Marketplace
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/register" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)', margin: '0 auto' }}>
-                      <Button
-                        variant="premium"
-                        size="large"
-                        fullWidth
-                      >
-                        Join Free
-                      </Button>
-                    </Link>
-                    <Link href="/marketplace" style={{ textDecoration: 'none', width: '100%', maxWidth: 'clamp(100%, 220px, 220px)', margin: '0 auto' }}>
-                      <Button
-                        variant="outline"
-                        size="large"
-                        fullWidth
-                      >
-                        Browse Marketplace
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
-              <Text
-                variant="caption1"
-                style={{
-                  marginTop: '2rem',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                Free to join • Unlimited apps • Earn through commissions
-              </Text>
-              </Card>
+            <div>
+              <Link href={user ? '/dashboard/apps/new' : '/register'}>
+                <Button variant="outlined" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}>Sell your app</Button>
+              </Link>
+              <p className="font-body text-[13px] text-muted-foreground mt-3">Apply in ~5 minutes</p>
             </div>
           </div>
-        </Container>
-      </Section>
 
-      <style jsx>{`
-        @media (min-width: 640px) {
-          .hero-buttons,
-          .cta-buttons {
-            flex-direction: row;
-          }
-        }
-        
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
-        
-        @media (min-width: 600px) {
-          .stats-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-      `}</style>
+          <div className="hidden md:flex items-center justify-center">
+            <div className="w-full max-w-[460px] rounded-[12px] overflow-hidden border border-border bg-background">
+              <div className="flex items-center px-4 py-3 gap-2 border-b border-border">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-warning" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-success" />
+                </div>
+                <span className="font-mono text-[12px] text-muted-foreground ml-2">vci-cli — zsh</span>
+              </div>
+              <div className="font-mono text-[13px] leading-[2] p-5 tracking-[0.01em]">
+                <p className="text-muted-foreground m-0">
+                  <span className="text-primary">~</span> <span className="text-muted-foreground/60">$</span>{' '}
+                  <span className="animate-pulse text-primary">|</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  return (
+    <section id="faq" className="bg-background py-20 relative">
+      <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
+      <div className="max-w-[720px] mx-auto px-6">
+        <SectionHeading>Frequently asked questions</SectionHeading>
+        <div className="flex flex-col">
+          {FAQ_ITEMS_DATA.map((item, i) => (
+            <FAQItem key={i} question={item.q} answer={item.a} isOpen={openIndex === i} onToggle={() => setOpenIndex(openIndex === i ? null : i)} variant="flat" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCTA() {
+  const { user } = useAuth();
+  return (
+    <section className="relative overflow-hidden bg-background py-24">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 800px 500px at 50% 50%, rgba(60,131,245,0.04) 0%, transparent 70%)' }} />
+      <div className="relative max-w-[1280px] mx-auto px-6">
+        <div className="flex flex-col items-center text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="font-heading text-foreground"
+            style={{ fontSize: 'clamp(28px, 3.5vw, 36px)', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-0.01em', margin: 0 }}
+          >
+            Find a deal you can deploy this week.
+          </motion.h2>
+          <div className="mt-6">
+            <Link href="/marketplace">
+              <Button variant="primary">Browse deals</Button>
+            </Link>
+          </div>
+          <Link href={user ? '/dashboard/apps/new' : '/register'}>
+            <Button variant="ghost" style={{ marginTop: 12, color: 'var(--primary)', fontWeight: 400 }}>Sell your app</Button>
+          </Link>
+          <p className="font-body text-muted-foreground mt-4" style={{ fontSize: 13, fontWeight: 400, lineHeight: 1.4, letterSpacing: '0.01em' }}>
+            Verified creators &middot; Clear support &middot; Buyer protection
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar variant="landing" />
+      <HeroSection />
+      <ProofBar />
+      <ValueProps />
+      <MarketplacePreview />
+      <HowItWorksSection />
+      <TrustSafety />
+      <SocialProof />
+      <ForCreators />
+      <FAQSection />
+      <FinalCTA />
+      <PageFooter />
     </div>
   );
 }

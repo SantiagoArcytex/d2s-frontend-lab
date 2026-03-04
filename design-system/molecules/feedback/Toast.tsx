@@ -39,26 +39,26 @@ export const Toast: React.FC<ToastProps> = ({
       case 'success':
         return {
           ...base,
-          backgroundColor: 'var(--surface-elevated)',
+          backgroundColor: 'var(--card)',
           border: '1px solid var(--success)',
         };
       case 'warning':
         return {
           ...base,
-          backgroundColor: 'var(--surface-elevated)',
+          backgroundColor: 'var(--card)',
           border: '1px solid var(--warning)',
         };
       case 'error':
         return {
           ...base,
-          backgroundColor: 'var(--surface-elevated)',
-          border: '1px solid var(--error)',
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--destructive)',
         };
       default:
         return {
           ...base,
-          backgroundColor: 'var(--surface-elevated)',
-          border: '1px solid var(--surface-border)',
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--border)',
         };
     }
   };
@@ -82,7 +82,7 @@ export const Toast: React.FC<ToastProps> = ({
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'var(--text-secondary)',
+            color: 'var(--muted-foreground)',
             cursor: 'pointer',
             padding: '4px',
             marginLeft: 'auto',

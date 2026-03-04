@@ -1,15 +1,17 @@
 /**
  * Design Tokens extracted from Figma Design System
  * DeathToSaaS App Design System
- * 
+ *
  * Based on Figma file: nPFh2cjtLLU2ofVjdaOoXX
  */
+
+import { breakpoints } from '@/design-system/tokens/breakpoints';
 
 export const designTokens = {
   // Typography - Figma Design System
   typography: {
     fontFamily: {
-      primary: 'Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      primary: 'var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       heading: 'Space Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       mono: 'var(--font-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
     },
@@ -112,22 +114,30 @@ export const designTokens = {
     brand: {
       accent: '#FF2000', // Wordmark SVG only - DO NOT use for buttons, links, or UI
     },
-    // Action colors - Primary interactive elements
+    // Action colors - Primary interactive elements (VCI brand blue)
     action: {
-      primary: '#007AFF', // Primary CTAs, buttons, links, interactive elements
+      primary: '#3C83F5', // Primary CTAs, buttons, links, interactive elements
       highlight: '#BFFF00', // Very rare - special emphasis, use sparingly
+    },
+    // Primary opacity scale (matches CSS tokens in globals.css)
+    primaryAlpha: {
+      faint: 'rgba(60, 131, 245, 0.02)',
+      dim: 'rgba(60, 131, 245, 0.07)',
+      soft: 'rgba(60, 131, 245, 0.15)',
+      medium: 'rgba(60, 131, 245, 0.19)',
+      hover: 'rgba(60, 131, 245, 0.30)',
     },
     // Surface colors - Background surfaces
     surface: {
-      base: '#0D0D0D', // Primary background
-      elevated: '#141414', // Card backgrounds, modals
+      base: '#121212', // Primary background
+      elevated: '#1E1E1E', // Card backgrounds, modals
       subtle: '#1A1A1A', // Input fields, secondary cards
-      border: '#262626', // Card borders, dividers
+      border: '#333333', // Card borders, dividers
     },
     // Text colors
     text: {
       primary: '#FFFFFF', // Headlines, primary content
-      secondary: '#A3A3A3', // Body text, descriptions
+      secondary: '#B0B0B0', // Body text, descriptions
       muted: '#525252', // Disabled states, placeholders
     },
     // Semantic colors
@@ -140,18 +150,18 @@ export const designTokens = {
     error: {
       main: '#EF4444', // Errors, destructive actions
     },
-    // Rebel Tools Collective palette - primary CTA and landing accent
+    // Rebel / landing accent — aligned to VCI primary
     rebel: {
-      accent: '#FF3D00', // Aggressive primary CTA (Rebel doc)
-      accentHover: '#FF6B35', // Hover state
+      accent: '#3C83F5', // VCI primary (replaces orange)
+      accentHover: '#5A9AFF', // Hover state
       secondaryAccent: '#00F5D4', // Optional digital/tech highlight
       red: '#FF2E2E', // Premium CTAs, brand highlights (legacy)
     },
     // Legacy MUI compatibility (map to new tokens)
     primary: {
-      main: '#007AFF', // Maps to Action/Primary
-      light: '#4DA3FF',
-      dark: '#0056CC',
+      main: '#3C83F5', // Maps to Action/Primary (VCI blue)
+      light: '#5A9AFF',
+      dark: '#2B6BE8',
       contrastText: '#ffffff',
     },
     accent: {
@@ -160,13 +170,13 @@ export const designTokens = {
       dark: '#CC1A00',
     },
     secondary: {
-      main: '#A3A3A3', // Maps to Text/Secondary
+      main: '#B0B0B0', // Maps to Text/Secondary
       light: '#C7C7C7',
       dark: '#7F7F7F',
     },
     background: {
-      default: '#0D0D0D', // Maps to Surface/Base
-      paper: '#141414', // Maps to Surface/Elevated
+      default: '#121212', // Maps to Surface/Base
+      paper: '#1E1E1E', // Maps to Surface/Elevated
       elevated: '#1A1A1A', // Maps to Surface/Subtle
     },
   },
@@ -198,7 +208,10 @@ export const designTokens = {
   // Shadows - Figma Design System (use sparingly, no colored shadows)
   shadows: {
     none: 'none',
-    card: '0 1px 2px rgba(0, 0, 0, 0.4)', // Cards
+    card: '0 4px 12px rgba(0, 0, 0, 0.20)',
+    cardHover: '0 20px 40px rgba(0, 0, 0, 0.40), 0 0 20px rgba(60, 131, 245, 0.08)',
+    buttonGlow: '0 0 20px rgba(60, 131, 245, 0.15)',
+    uiButton: '0 2px 8px rgba(0, 0, 0, 0.12)',
     modal: '0 4px 12px rgba(0, 0, 0, 0.5)', // Elevated modals
     hover: '0 2px 8px rgba(0, 0, 0, 0.3)', // Hover elevation
     // Legacy tokens for backward compatibility
@@ -211,14 +224,8 @@ export const designTokens = {
     '3xl': '0 4px 12px rgba(0, 0, 0, 0.5)',
   },
 
-  // Breakpoints (Material-UI default, can be adjusted)
-  breakpoints: {
-    xs: 0,
-    sm: 600,
-    md: 900,
-    lg: 1200,
-    xl: 1536,
-  },
+  // Breakpoints (single source: design-system/tokens/breakpoints.ts)
+  breakpoints: breakpoints.values,
 
   // Mobile-First Design Tokens (Apple HIG aligned)
   mobile: {
@@ -356,20 +363,18 @@ export const designTokens = {
 
   // Gradients - Minimal, token-based only (opacity 2-10% max)
   gradients: {
-    // Gradient.Primary - Linear gradient for primary CTA buttons only
-    // Angle: 20-35°, From: Action/Primary, To: Action/Primary at higher brightness
+    // Gradient.Primary - Linear gradient for primary CTA buttons only (VCI blue)
     primary: {
-      default: 'linear-gradient(25deg, #007AFF 0%, #4DA3FF 100%)', // Subtle shift for depth
+      default: 'linear-gradient(25deg, #3C83F5 0%, #4DA3FF 100%)',
     },
     // Gradient.Surface.Radius - Radial micro-gradient for card depth
     // Center: Surface/Elevated at 2-4% opacity, Edge: transparent
     surface: {
       radius: 'radial-gradient(circle at center, rgba(20, 20, 20, 0.03) 0%, transparent 70%)',
     },
-    // Gradient.Halo.Accent - Radial halo glow for hero elements
-    // Center: Action/Primary at 5-10% opacity, Outer: transparent, large radius
+    // Gradient.Halo.Accent - Radial halo glow for hero elements (VCI blue)
     halo: {
-      accent: 'radial-gradient(circle, rgba(0, 122, 255, 0.08) 0%, transparent 70%)',
+      accent: 'radial-gradient(circle, rgba(60, 131, 245, 0.08) 0%, transparent 70%)',
     },
     // Gradient.Divider - Linear fade gradient for section transitions
     // Top: Surface/Border at 3-5% opacity, Bottom: transparent

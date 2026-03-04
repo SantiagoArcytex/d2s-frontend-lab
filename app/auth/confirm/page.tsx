@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { EmailOtpType } from '@supabase/supabase-js';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 import { Container, Card, Heading, Text, Alert, Button } from '@/design-system';
 import Link from 'next/link';
@@ -48,10 +49,10 @@ export default function AuthConfirmPage() {
         // Handle OTP-based verification first (query params)
         if (code && tokenHash) {
           const { error: verifyError } = await supabase.auth.verifyOtp({
-            type: (queryType || 'email') as any,
+            type: (queryType || 'email') as EmailOtpType,
             token_hash: tokenHash,
             token: code,
-          } as any);
+          });
 
           if (verifyError) {
             throw verifyError;
@@ -79,7 +80,7 @@ export default function AuthConfirmPage() {
 
         // If we have hash-based tokens, set the session
         if (accessToken && refreshToken) {
-          const { data, error: sessionError } = await supabase.auth.setSession({
+          const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
@@ -124,10 +125,10 @@ export default function AuthConfirmPage() {
             setMessage('No authentication tokens found. Please use the link from your email.');
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Auth callback error:', err);
         setStatus('error');
-        setMessage(err.message || 'Authentication failed. Please try again.');
+        setMessage(err instanceof Error ? err.message : 'Authentication failed. Please try again.');
       }
     };
 
@@ -141,7 +142,7 @@ export default function AuthConfirmPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: '1rem',
       }}
     >
@@ -151,7 +152,7 @@ export default function AuthConfirmPage() {
             {status === 'loading' && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                 <LoadingSpinner size="medium" />
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{message}</span>
+                <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>{message}</span>
               </div>
             )}
 
@@ -160,7 +161,7 @@ export default function AuthConfirmPage() {
                 <Heading level={2} variant="headline">
                   Success!
                 </Heading>
-                <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                   {message}
                 </Text>
               </>

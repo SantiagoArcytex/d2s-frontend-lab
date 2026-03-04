@@ -30,8 +30,8 @@ export const RevenueDistributionChart: React.FC<RevenueDistributionChartProps> =
     return dealStats
       .filter((deal) => deal.totalSellerRevenue > 0)
       .map((deal) => ({
-        name: deal.deal_title.length > 30 
-          ? `${deal.deal_title.substring(0, 30)}...` 
+        name: deal.deal_title.length > 30
+          ? `${deal.deal_title.substring(0, 30)}...`
           : deal.deal_title,
         value: typeof deal.totalSellerRevenue === 'string'
           ? parseFloat(deal.totalSellerRevenue)
@@ -74,7 +74,7 @@ export const RevenueDistributionChart: React.FC<RevenueDistributionChartProps> =
         textStyle: {
           color: designTokens.colors.text.primary,
         },
-        formatter: (params: any) => {
+        formatter: (params: { data: { fullName: string; value: number; purchases: number } }) => {
           const data = params.data;
           const percentage = ((data.value / totalRevenue) * 100).toFixed(1);
           return `
@@ -116,7 +116,7 @@ export const RevenueDistributionChart: React.FC<RevenueDistributionChartProps> =
           },
           label: {
             show: true,
-            formatter: (params: any) => {
+            formatter: (params: { value: number }) => {
               const percentage = ((params.value / totalRevenue) * 100).toFixed(1);
               return `${percentage}%`;
             },

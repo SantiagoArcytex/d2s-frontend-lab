@@ -32,21 +32,21 @@ export const Table: React.FC<TableProps> = ({
   const tableStyle: React.CSSProperties = {
     width: '100%',
     borderCollapse: 'collapse',
-    backgroundColor: 'var(--surface-elevated)',
+    backgroundColor: 'var(--card)',
     borderRadius: '16px',
     overflow: 'hidden',
   };
 
   const headerStyle: React.CSSProperties = {
-    backgroundColor: 'var(--surface-subtle)',
+    backgroundColor: 'var(--popover)',
     padding: spacing.scale.lg, // 16px = 2x grid unit
     textAlign: 'left',
-    borderBottom: '1px solid var(--surface-border)',
+    borderBottom: '1px solid var(--border)',
   };
 
   const cellStyle: React.CSSProperties = {
     padding: spacing.scale.lg, // 16px = 2x grid unit
-    borderBottom: '1px solid var(--surface-border)',
+    borderBottom: '1px solid var(--border)',
   };
 
   return (

@@ -3,19 +3,23 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppThemeProvider } from "@/lib/theme/theme";
 import { TRPCProvider } from "@/lib/trpc/provider";
-import { manrope, spaceGrotesk, jetbrainsMono } from "@/lib/theme/mui-theme";
+import { inter, manrope, spaceGrotesk, jetbrainsMono } from "@/lib/theme/mui-theme";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { LenisProvider } from "@/components/layout/LenisProvider";
 import { WebVitals } from "@/components/analytics/WebVitals";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "DeathToSaaS - Take Back Control",
-  description: "Own your apps. Own your data. Own your future. No more monthly subscriptions, vendor lock-in, or lost control.",
+  title: "Vibe Coding Incubator (VCI) — Deal Marketplace",
+  description: "Curated marketplace of production-ready apps from vetted creators. Own your apps, own your data.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/Type=Primary.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "DeathToSaaS",
+    title: "VCI",
   },
 };
 
@@ -25,7 +29,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#007AFF",
+  themeColor: "#3C83F5",
 };
 
 export default function RootLayout({
@@ -40,7 +44,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="DeathToSaaS" />
+        <meta name="apple-mobile-web-app-title" content="VCI" />
         {/* iOS Splash Screens */}
         <link rel="apple-touch-startup-image" href="/icons/splash-iphone-se.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
         <link rel="apple-touch-startup-image" href="/icons/splash-iphone-6-7-8.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
@@ -50,14 +54,16 @@ export default function RootLayout({
         <link rel="apple-touch-startup-image" href="/icons/splash-ipad-pro.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" />
       </head>
       <body
-        className={`${manrope.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${manrope.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <AppThemeProvider>
           <TRPCProvider>
             <AuthProvider>
-              <PageTransition>
-                {children}
-              </PageTransition>
+              <LenisProvider>
+                <PageTransition>
+                  {children}
+                </PageTransition>
+              </LenisProvider>
             </AuthProvider>
           </TRPCProvider>
         </AppThemeProvider>

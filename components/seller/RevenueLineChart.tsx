@@ -33,7 +33,7 @@ export const RevenueLineChart: React.FC<RevenueLineChartProps> = ({
     const filtered = purchases.filter((p) => {
       if (p.status !== 'completed') return false;
       if (!startDate && !endDate) return true;
-      
+
       const purchaseDate = new Date(p.created_at);
       if (startDate && purchaseDate < new Date(startDate)) return false;
       if (endDate && purchaseDate > new Date(endDate)) return false;
@@ -42,13 +42,13 @@ export const RevenueLineChart: React.FC<RevenueLineChartProps> = ({
 
     // Group by date and calculate cumulative revenue
     const dateMap = new Map<string, number>();
-    
+
     filtered.forEach((p) => {
       const date = new Date(p.created_at).toISOString().split('T')[0];
-      const revenue = typeof p.seller_revenue === 'string' 
-        ? parseFloat(p.seller_revenue) 
+      const revenue = typeof p.seller_revenue === 'string'
+        ? parseFloat(p.seller_revenue)
         : p.seller_revenue;
-      
+
       dateMap.set(date, (dateMap.get(date) || 0) + revenue);
     });
 
@@ -90,7 +90,7 @@ export const RevenueLineChart: React.FC<RevenueLineChartProps> = ({
         textStyle: {
           color: designTokens.colors.text.primary,
         },
-        formatter: (params: any) => {
+        formatter: (params: Array<{ axisValue: string; value: number; dataIndex: number }>) => {
           const param = params[0];
           return `
             <div style="padding: 8px;">

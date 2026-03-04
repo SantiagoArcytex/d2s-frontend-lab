@@ -1,24 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Container, Heading, Text, Card } from '@/design-system';
 import Link from 'next/link';
 
 // Client-only component to avoid hydration mismatch
 function LastUpdatedDate() {
-  const [date, setDate] = useState('');
-
-  useEffect(() => {
-    setDate(
-      new Date().toLocaleDateString('en-US', {
+  return (
+    <span suppressHydrationWarning>
+      {new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-      })
-    );
-  }, []);
-
-  return <>{date || 'Loading...'}</>;
+      })}
+    </span>
+  );
 }
 
 export default function PrivacyPolicyPage() {
@@ -26,7 +22,7 @@ export default function PrivacyPolicyPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: 'clamp(2rem, 4rem, 4rem) 1rem',
       }}
     >
@@ -35,7 +31,7 @@ export default function PrivacyPolicyPage() {
           <Link
             href="/"
             style={{
-              color: 'var(--action-primary)',
+              color: 'var(--primary)',
               textDecoration: 'none',
               fontSize: '15px',
               fontWeight: 500,
@@ -52,7 +48,7 @@ export default function PrivacyPolicyPage() {
               <Heading level={1} variant="title1" style={{ marginBottom: '0.5rem' }}>
                 Privacy Policy
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Last updated: <LastUpdatedDate />
               </Text>
             </div>
@@ -77,7 +73,7 @@ export default function PrivacyPolicyPage() {
               <Heading level={2} variant="title2" style={{ marginBottom: '1rem' }}>
                 2. Information We Collect
               </Heading>
-              
+
               <Heading level={3} variant="headline" style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
                 2.1 Information You Provide
               </Heading>
@@ -201,7 +197,7 @@ export default function PrivacyPolicyPage() {
                 </li>
               </ul>
               <Text variant="body" style={{ lineHeight: 1.6 }}>
-                To exercise these rights, please contact us using the information provided in the "Contact Us" section.
+                To exercise these rights, please contact us using the information provided in the &quot;Contact Us&quot; section.
               </Text>
             </section>
 
@@ -222,7 +218,7 @@ export default function PrivacyPolicyPage() {
             {/* Children's Privacy */}
             <section>
               <Heading level={2} variant="title2" style={{ marginBottom: '1rem' }}>
-                8. Children's Privacy
+                8. Children&apos;s Privacy
               </Heading>
               <Text variant="body" style={{ lineHeight: 1.6 }}>
                 Our Service is not intended for children under the age of 13. We do not knowingly collect personal
@@ -250,7 +246,7 @@ export default function PrivacyPolicyPage() {
               </Heading>
               <Text variant="body" style={{ lineHeight: 1.6 }}>
                 We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new
-                Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy
+                Privacy Policy on this page and updating the &quot;Last updated&quot; date. You are advised to review this Privacy
                 Policy periodically for any changes.
               </Text>
             </section>
@@ -271,7 +267,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             {/* Footer */}
-            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)' }}>
+            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
               <Text variant="caption1" style={{ color: 'var(--text-muted)' }}>
                 By using our Service, you acknowledge that you have read and understood this Privacy Policy.
               </Text>

@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { trpc } from '@/lib/trpc/client';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations/framer';
 import { Heading, Text, Container, Alert } from '@/design-system';
 import { designTokens } from '@/lib/theme/tokens';
@@ -22,6 +22,19 @@ import {
   Description as DescriptionIcon,
   CloudQueue as CloudIcon,
 } from '@mui/icons-material';
+
+type AppItem = {
+  id: string;
+  name: string;
+  subdomain: string;
+  description?: string;
+  status: string;
+  created_at: string;
+  category?: string;
+  tags?: string[];
+  screenshot?: string;
+  icon?: string;
+};
 
 // Icon mapping for categories
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -41,15 +54,16 @@ export default function AppsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // Try to fetch real data, but use mock data as fallback for showcase
-  const { data: realApps, isLoading, error } = (trpc as any).app.list.useQuery();
-  
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: realApps, isLoading, error } = trpc.app.list.useQuery();
+
   // Use mock data if real data is empty or for showcase
   const apps = useMemo(() => {
     if (realApps && realApps.length > 0) {
       return realApps;
     }
     // Use mock data for showcase
-    return mockApps.map((app: any) => ({
+    return mockApps.map((app: AppItem) => ({
       id: app.id,
       name: app.name,
       subdomain: app.subdomain,
@@ -70,16 +84,16 @@ export default function AppsPage() {
   // Group apps by category
   const appsByCategory = useMemo(() => {
     const grouped: Record<string, typeof apps> = {};
-    
-    apps.forEach((app: any) => {
-      const mockApp = mockApps.find((m: any) => m.id === app.id);
+
+    apps.forEach((app: AppItem) => {
+      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
       const category = mockApp?.category || 'Other';
-      
+
       // Apply filters
       if (selectedCategory !== 'All' && category !== selectedCategory) {
         return;
       }
-      
+
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matches =
@@ -88,21 +102,21 @@ export default function AppsPage() {
           app.description?.toLowerCase().includes(query);
         if (!matches) return;
       }
-      
+
       if (!grouped[category]) {
         grouped[category] = [];
       }
       grouped[category].push(app);
     });
-    
+
     return grouped;
   }, [apps, searchQuery, selectedCategory]);
 
   // Get featured apps (if any)
   const featuredApps = useMemo(() => {
-    return apps.filter((app: any) => {
-      const mockApp = mockApps.find((m: any) => m.id === app.id);
-      return mockApp && apps.indexOf(app as any) < 3;
+    return apps.filter((app: AppItem) => {
+      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
+      return mockApp && apps.indexOf(app as AppItem) < 3;
     });
   }, [apps]);
 
@@ -111,12 +125,12 @@ export default function AppsPage() {
   };
 
   const getAppCategory = (appId: string) => {
-    const mockApp = mockApps.find((m: any) => m.id === appId);
+    const mockApp = mockApps.find((m: AppItem) => m.id === appId);
     return mockApp?.category || 'Other';
   };
 
   const getAppIcon = (appId: string) => {
-    const mockApp = mockApps.find((m: any) => m.id === appId);
+    const mockApp = mockApps.find((m: AppItem) => m.id === appId);
     const category = mockApp?.category || 'Other';
     return categoryIcons[category] || <AppsIcon />;
   };
@@ -126,7 +140,7 @@ export default function AppsPage() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: 'var(--surface-base)',
+          backgroundColor: 'var(--background)',
           padding: 'clamp(1rem, 2rem, 2rem)',
           width: '100%',
           maxWidth: '100%',
@@ -136,19 +150,19 @@ export default function AppsPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 2rem, 2rem)', width: '100%', maxWidth: '100%' }}>
           <div>
-            <div style={{ width: '60%', height: '32px', backgroundColor: 'var(--surface-elevated)', borderRadius: '8px', marginBottom: '0.5rem' }} />
-            <div style={{ width: '40%', height: '20px', backgroundColor: 'var(--surface-elevated)', borderRadius: '8px' }} />
+            <div style={{ width: '60%', height: '32px', backgroundColor: 'var(--card)', borderRadius: '8px', marginBottom: '0.5rem' }} />
+            <div style={{ width: '40%', height: '20px', backgroundColor: 'var(--card)', borderRadius: '8px' }} />
           </div>
           <div>
-            <div style={{ width: '100%', height: '48px', backgroundColor: 'var(--surface-elevated)', borderRadius: '8px' }} />
+            <div style={{ width: '100%', height: '48px', backgroundColor: 'var(--card)', borderRadius: '8px' }} />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-            {[1, 2, 3, 4, 5].map((i: any) => (
-              <div key={i} style={{ width: '80px', height: '32px', backgroundColor: 'var(--surface-elevated)', borderRadius: '16px', flexShrink: 0 }} />
+            {[1, 2, 3, 4, 5].map((i: number) => (
+              <div key={i} style={{ width: '80px', height: '32px', backgroundColor: 'var(--card)', borderRadius: '16px', flexShrink: 0 }} />
             ))}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[1, 2, 3].map((i: any) => (
+            {[1, 2, 3].map((i: number) => (
               <SkeletonMarketplaceCard key={i} />
             ))}
           </div>
@@ -162,7 +176,7 @@ export default function AppsPage() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: 'var(--surface-base)',
+          backgroundColor: 'var(--background)',
           padding: 'clamp(1rem, 2rem, 2rem)',
           width: '100%',
           maxWidth: '100%',
@@ -184,16 +198,16 @@ export default function AppsPage() {
       variants={fadeInUp}
       style={{
         minHeight: '100vh',
-        backgroundColor: 'var(--surface-base)',
+        backgroundColor: 'var(--background)',
         width: '100%',
         maxWidth: '100%',
         boxSizing: 'border-box',
         overflowX: 'hidden',
       }}
     >
-      <Container 
-        maxWidth={1400} 
-        style={{ 
+      <Container
+        maxWidth={1400}
+        style={{
           padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
           width: '100%',
           margin: '0 auto',
@@ -217,7 +231,7 @@ export default function AppsPage() {
             <Text
               variant="body"
               style={{
-                color: 'var(--text-secondary)',
+                color: 'var(--muted-foreground)',
                 marginBottom: '1.5rem',
                 wordBreak: 'break-word',
                 fontSize: 'clamp(0.9375rem, 1rem, 1rem)',
@@ -256,7 +270,7 @@ export default function AppsPage() {
                   minWidth: '100%',
                 }}
               >
-                {categories.map((category: any) => (
+                {categories.map((category: string) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
@@ -266,13 +280,13 @@ export default function AppsPage() {
                       fontSize: isMobile ? '14px' : '13px',
                       fontWeight: 500,
                       cursor: 'pointer',
-                      border: '1px solid var(--surface-border)',
+                      border: '1px solid var(--border)',
                       backgroundColor: selectedCategory === category
-                        ? 'var(--surface-subtle)'
+                        ? 'var(--popover)'
                         : 'transparent',
                       color: selectedCategory === category
-                        ? 'var(--text-primary)'
-                        : 'var(--text-secondary)',
+                        ? 'var(--foreground)'
+                        : 'var(--muted-foreground)',
                       flexShrink: 0,
                       minHeight: isMobile ? '36px' : '32px',
                       transition: 'all 0.2s ease',
@@ -310,10 +324,10 @@ export default function AppsPage() {
               {isMobile ? (
                 // Mobile: Vertical stack
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-                  {featuredApps.map((app: any) => {
+                  {featuredApps.map((app: AppItem) => {
                     const category = getAppCategory(app.id);
                     const categoryIcon = getAppIcon(app.id);
-                    const mockApp = mockApps.find((m: any) => m.id === app.id);
+                    const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
                     const isInstalled = app.status === 'installed' || app.status === 'approved';
 
                     return (
@@ -355,10 +369,10 @@ export default function AppsPage() {
                       minWidth: '100%',
                     }}
                   >
-                    {featuredApps.map((app: any) => {
+                    {featuredApps.map((app: AppItem) => {
                       const category = getAppCategory(app.id);
                       const categoryIcon = getAppIcon(app.id);
-                      const mockApp = mockApps.find((m: any) => m.id === app.id);
+                      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
                       const isInstalled = app.status === 'installed' || app.status === 'approved';
 
                       return (
@@ -400,7 +414,7 @@ export default function AppsPage() {
               style={{ width: '100%' }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 2rem, 2rem)', width: '100%' }}>
-                {categoryKeys.map((category: any) => {
+                {categoryKeys.map((category: string) => {
                   const categoryApps = appsByCategory[category];
                   if (!categoryApps || categoryApps.length === 0) return null;
 
@@ -418,9 +432,9 @@ export default function AppsPage() {
                       {isMobile ? (
                         // Mobile: Vertical stack
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-                          {categoryApps.map((app: any) => {
+                          {categoryApps.map((app: AppItem) => {
                             const categoryIcon = getAppIcon(app.id);
-                            const mockApp = mockApps.find((m: any) => m.id === app.id);
+                            const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
                             const isInstalled = app.status === 'installed' || app.status === 'approved';
 
                             return (
@@ -462,9 +476,9 @@ export default function AppsPage() {
                               minWidth: '100%',
                             }}
                           >
-                            {categoryApps.map((app: any) => {
+                            {categoryApps.map((app: AppItem) => {
                               const categoryIcon = getAppIcon(app.id);
-                              const mockApp = mockApps.find((m: any) => m.id === app.id);
+                              const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
                               const isInstalled = app.status === 'installed' || app.status === 'approved';
 
                               return (
@@ -521,7 +535,7 @@ export default function AppsPage() {
           background: transparent;
         }
         .scrollable-container::-webkit-scrollbar-thumb {
-          background: var(--surface-border);
+          background: var(--border);
           border-radius: 4px;
         }
       `}</style>

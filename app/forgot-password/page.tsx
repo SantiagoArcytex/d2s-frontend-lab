@@ -28,9 +28,9 @@ export default function ForgotPasswordPage() {
 
       await resetPassword(email);
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Password reset error:', err);
-      setError(err.message || 'Failed to send reset email. Please check your email address.');
+      setError(err instanceof Error ? err.message : 'Failed to send reset email. Please check your email address.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: '1rem',
       }}
     >
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
               <LockResetIcon
                 style={{
                   fontSize: '48px',
-                  color: 'var(--text-primary)',
+                  color: 'var(--foreground)',
                   marginBottom: '1rem',
                   opacity: 0.8,
                 }}
@@ -68,8 +68,8 @@ export default function ForgotPasswordPage() {
               >
                 Forgot Password?
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
-                Enter your email address and we'll send you a link to reset your password.
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
+                Enter your email address and we&apos;ll send you a link to reset your password.
               </Text>
             </div>
 
@@ -102,12 +102,12 @@ export default function ForgotPasswordPage() {
                   </Button>
 
                   <div style={{ textAlign: 'center' }}>
-                    <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                    <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                       Remember your password?{' '}
                       <Link
                         href="/login"
                         style={{
-                          color: 'var(--action-primary)',
+                          color: 'var(--primary)',
                           textDecoration: 'none',
                         }}
                       >

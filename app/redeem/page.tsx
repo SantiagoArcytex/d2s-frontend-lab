@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Heading, Text, Container, Card, Button } from '@/design-system';
 import { TextField } from '@/components/forms/TextField';
@@ -14,8 +15,9 @@ export default function RedeemPage() {
   const [toastMessage, setToastMessage] = React.useState('');
   const [toastSeverity, setToastSeverity] = React.useState<'success' | 'error'>('success');
 
-  const redeemMutation = (trpc as any).deal.redeemCode.useMutation({
-    onSuccess: (data: any) => {
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const redeemMutation = trpc.deal.redeemCode.useMutation({
+    onSuccess: (data: { message?: string }) => {
       setToastMessage(data.message || 'Code redeemed successfully!');
       setToastSeverity('success');
       setShowToast(true);
@@ -23,7 +25,7 @@ export default function RedeemPage() {
         router.push('/dashboard/home');
       }, 2000);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       setToastMessage(error.message || 'Failed to redeem code');
       setToastSeverity('error');
       setShowToast(true);
@@ -45,7 +47,7 @@ export default function RedeemPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         display: 'flex',
         alignItems: 'center',
         paddingTop: 'clamp(3rem, 5rem, 5rem)',
@@ -59,7 +61,7 @@ export default function RedeemPage() {
               <Heading level={1} variant="title2" style={{ marginBottom: '1rem' }}>
                 Redeem Your Code
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Enter your redemption code to activate your lifetime deal
               </Text>
             </div>
@@ -90,17 +92,17 @@ export default function RedeemPage() {
             </form>
 
             <div>
-              <Text variant="body" style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>
-                Don't have a code?{' '}
-                <a
+              <Text variant="body" style={{ color: 'var(--muted-foreground)', textAlign: 'center' }}>
+                Don&apos;t have a code?{' '}
+                <Link
                   href="/marketplace"
                   style={{
-                    color: 'var(--action-primary)',
+                    color: 'var(--primary)',
                     textDecoration: 'none',
                   }}
                 >
                   Browse deals
-                </a>
+                </Link>
               </Text>
             </div>
           </div>

@@ -20,9 +20,9 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       padding: '12px 16px',
       paddingRight: value && onClear ? '44px' : '16px', // Space for clear button if present
       borderRadius: '10px',
-      backgroundColor: 'var(--surface-subtle)',
-      border: `1px solid ${error ? 'var(--error)' : 'var(--surface-border)'}`,
-      color: 'var(--text-primary)',
+      backgroundColor: 'var(--popover)',
+      border: `1px solid ${error ? 'var(--destructive)' : 'var(--border)'}`,
+      color: 'var(--foreground)',
       width: '100%',
       height: '48px',
       boxSizing: 'border-box',
@@ -41,11 +41,11 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           style={inputStyle}
           value={value}
           onFocus={(e) => {
-            e.currentTarget.style.borderColor = error ? 'var(--error)' : 'var(--action-primary)';
+            e.currentTarget.style.borderColor = error ? 'var(--destructive)' : 'var(--primary)';
             e.currentTarget.style.boxShadow = `0 0 0 2px ${error ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 122, 255, 0.2)'}`;
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = error ? 'var(--error)' : 'var(--surface-border)';
+            e.currentTarget.style.borderColor = error ? 'var(--destructive)' : 'var(--border)';
             e.currentTarget.style.boxShadow = 'none';
           }}
           {...props}
@@ -100,7 +100,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             style={{
               marginTop: '4px',
               fontSize: '13px',
-              color: error ? 'var(--error)' : 'var(--text-secondary)',
+              color: error ? 'var(--destructive)' : 'var(--muted-foreground)',
             }}
           >
             {helperText}

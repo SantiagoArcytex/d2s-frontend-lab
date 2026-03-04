@@ -41,7 +41,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps & BoxProps> = ({
           position: 'fixed',
           inset: 0,
           minHeight: '100vh',
-          backgroundColor: 'var(--surface-base, #0D0D0D)',
+          backgroundColor: 'var(--background)',
           zIndex: 9998,
         }),
         ...(overlay && {

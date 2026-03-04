@@ -14,13 +14,13 @@ export function SectionLoader() {
         justifyContent: 'center',
         flexGrow: 1,
         minHeight: '100%',
-        backgroundColor: 'var(--surface-base, #0D0D0D)',
+        backgroundColor: 'var(--background)',
       }}
       aria-label="Loading"
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- Section loader: logo in layout flow */}
       <img
-        src="/logod2s.svg"
+        src="/Type=Primary.svg"
         alt=""
         width={80}
         height={80}

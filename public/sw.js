@@ -19,12 +19,6 @@ const STATIC_ASSETS = [
   '/icons/icon-512.png',
 ];
 
-// Cache duration in milliseconds
-const CACHE_DURATIONS = {
-  static: 7 * 24 * 60 * 60 * 1000, // 7 days
-  dynamic: 24 * 60 * 60 * 1000, // 1 day
-  api: 5 * 60 * 1000, // 5 minutes
-};
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -47,9 +41,9 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => 
-            name !== STATIC_CACHE && 
-            name !== DYNAMIC_CACHE && 
+          .filter((name) =>
+            name !== STATIC_CACHE &&
+            name !== DYNAMIC_CACHE &&
             name !== API_CACHE
           )
           .map((name) => {
@@ -68,11 +62,11 @@ self.addEventListener('activate', (event) => {
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
+
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
@@ -95,7 +89,7 @@ async function cacheFirst(request, cacheName) {
  */
 async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
-  
+
   try {
     const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
@@ -118,7 +112,7 @@ async function networkFirst(request, cacheName) {
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
+
   // Fetch fresh data in background
   const fetchPromise = fetch(request).then((networkResponse) => {
     if (networkResponse && networkResponse.status === 200) {
@@ -128,12 +122,12 @@ async function staleWhileRevalidate(request, cacheName) {
   }).catch(() => {
     // Ignore network errors in background fetch
   });
-  
+
   // Return cached version immediately if available
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   // If no cache, wait for network
   return fetchPromise;
 }
@@ -176,7 +170,7 @@ self.addEventListener('fetch', (event) => {
 // Push notification event
 self.addEventListener('push', (event) => {
   console.log('[Service Worker] Push notification received');
-  
+
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'DeathToSaaS';
   const options = {
@@ -221,7 +215,7 @@ self.addEventListener('notificationclick', (event) => {
 // Background sync event
 self.addEventListener('sync', (event) => {
   console.log('[Service Worker] Background sync:', event.tag);
-  
+
   if (event.tag === 'background-sync') {
     event.waitUntil(
       // Perform background sync operations
@@ -233,7 +227,7 @@ self.addEventListener('sync', (event) => {
 // Message event - for communication with the app
 self.addEventListener('message', (event) => {
   console.log('[Service Worker] Message received:', event.data);
-  
+
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }

@@ -13,14 +13,15 @@ export function LogoPageLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base, #0D0D0D)',
+        background: 'var(--background)',
         zIndex: 9999,
       }}
       aria-label="Loading"
+      suppressHydrationWarning
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- Intentional: logo must show from first paint */}
       <img
-        src="/logod2s.svg"
+        src="/Type=Primary.svg"
         alt=""
         width={120}
         height={120}

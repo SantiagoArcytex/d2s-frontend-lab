@@ -58,7 +58,8 @@ const navItems: NavItem[] = [
 
 export const SideDrawer: React.FC<SideDrawerProps> = ({ open, onClose }) => {
   const { user, signOut } = useAuth();
-  const { data: roles } = (trpc as any).user.roles.useQuery(undefined, { staleTime: 60_000 });
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: roles } = trpc.user.roles.useQuery(undefined, { staleTime: 60_000 });
   const pathname = usePathname();
   const router = useRouter();
   const theme = useTheme();
@@ -105,7 +106,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({ open, onClose }) => {
       >
         <Box
           component="img"
-          src="/logod2s.svg"
+          src="/Type=Primary.svg"
           alt="DeathToSaaS"
           sx={{
             height: { xs: '20px', sm: '24px', md: '28px' },
@@ -160,9 +161,9 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({ open, onClose }) => {
       <List sx={{ flex: 1, p: 2, pt: 1 }}>
         {((roles?.includes('admin') || roles?.includes('super_admin'))
           ? [
-              ...navItems,
-              { id: 'admin-portal', label: 'Admin Portal', path: '/dashboard/admin', icon: <AdminPanelIcon /> },
-            ]
+            ...navItems,
+            { id: 'admin-portal', label: 'Admin Portal', path: '/dashboard/admin', icon: <AdminPanelIcon /> },
+          ]
           : navItems
         ).map((item) => {
           // Special handling for different nav items
@@ -297,20 +298,28 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({ open, onClose }) => {
       variant={isMobile ? 'temporary' : 'permanent'}
       open={isMobile ? open !== undefined ? open : true : true}
       onClose={onClose}
-      ModalProps={{
-        keepMounted: true, // Better mobile performance
+      ModalProps={{ keepMounted: true }}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          },
+        },
       }}
       sx={{
-        width: { xs: '100%', md: drawerWidth }, // Full width on mobile
+        width: { xs: '100%', md: drawerWidth },
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width: { xs: '100%', md: drawerWidth }, // Full width on mobile
+          width: { xs: '100%', md: drawerWidth },
           boxSizing: 'border-box',
           backgroundColor: designTokens.colors.surface.elevated,
           borderRight: { xs: 'none', md: `1px solid ${designTokens.colors.surface.border}` },
+          borderTopRightRadius: { xs: '24px', md: 0 },
+          borderBottomRightRadius: { xs: '24px', md: 0 },
           position: 'relative',
           height: '100%',
-          // Safe area for devices with notches
           paddingTop: { xs: 'env(safe-area-inset-top)', md: 0 },
           paddingBottom: { xs: 'env(safe-area-inset-bottom)', md: 0 },
         },

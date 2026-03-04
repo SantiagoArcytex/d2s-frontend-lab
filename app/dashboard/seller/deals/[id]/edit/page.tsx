@@ -13,23 +13,25 @@ export default function EditDealPage() {
   const dealId = params.id as string;
   const [error, setError] = React.useState<string | null>(null);
 
-  const { data: deal, isLoading: isLoadingDeal } = (trpc as any).deal.get.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deal, isLoading: isLoadingDeal } = trpc.deal.get.useQuery(
     { id: dealId },
     { enabled: !!dealId }
   );
 
-  const updateDealMutation = (trpc as any).deal.update.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const updateDealMutation = trpc.deal.update.useMutation({
     onSuccess: () => {
       router.push('/dashboard/seller/deals');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       setError(err.message || 'Failed to update deal');
     },
   });
 
   const handleSubmit = async (formData: DealFormData, status: 'draft' | 'pending_review') => {
     setError(null);
-    
+
     try {
       // Transform form data to match backend expectations
       const dealData = {
@@ -42,7 +44,7 @@ export default function EditDealPage() {
         video_url: formData.videoUrl || undefined,
         launch_url: formData.launchUrl || undefined,
         support_email: formData.supportEmail,
-        price: formData.pricingModel === 'one_time' 
+        price: formData.pricingModel === 'one_time'
           ? (formData.oneTimePrice ? parseFloat(formData.oneTimePrice) : 0)
           : (formData.monthlySubscriptionPrice ? parseFloat(formData.monthlySubscriptionPrice) : 0),
         setup_fee: formData.setupFee ? parseFloat(formData.setupFee) : undefined,

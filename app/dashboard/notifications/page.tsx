@@ -7,19 +7,20 @@ import { Notifications as NotificationsIcon, MarkEmailRead as MarkReadIcon } fro
 
 export default function NotificationsPage() {
   // TODO: Implement notifications fetching
-  const notifications: Array<{
+  type NotificationItem = {
     id: string;
     title: string;
     message: string;
     type: 'info' | 'success' | 'warning' | 'error';
     read: boolean;
     date: string;
-  }> = [];
+  };
+  const notifications: Array<NotificationItem> = [];
 
   return (
-    <Container 
+    <Container
       maxWidth={1200}
-      style={{ 
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -43,7 +44,7 @@ export default function NotificationsPage() {
           />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {notifications.map((notification: any) => (
+            {notifications.map((notification: NotificationItem) => (
               <Card
                 key={notification.id}
                 variant="elevated">
@@ -63,10 +64,10 @@ export default function NotificationsPage() {
                         <Badge variant="primary" size="sm">New</Badge>
                       )}
                     </div>
-                    <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                    <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
                       {notification.message}
                     </Text>
-                    <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+                    <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
                       {notification.date}
                     </Text>
                   </div>

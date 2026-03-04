@@ -3,7 +3,7 @@
  * Minimal, one-time animations for app components
  */
 
-import { Variants } from 'framer-motion';
+import type { Variants } from 'motion/react';
 
 export const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },

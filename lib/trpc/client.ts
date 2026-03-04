@@ -13,4 +13,5 @@ import { createTRPCReact } from '@trpc/react-query';
 
 // For now, we use 'any' as the router type since backend is JavaScript
 // In production, you'd generate this type from the backend or convert backend to TypeScript
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const trpc = createTRPCReact<any>();

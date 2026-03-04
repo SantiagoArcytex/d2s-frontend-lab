@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 import path from "path";
+import createBundleAnalyzer from '@next/bundle-analyzer';
 
 // Bundle analyzer configuration
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const withBundleAnalyzer = createBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
@@ -15,7 +16,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: appRoot,
   },
-  
+
   // Webpack configuration for better code splitting (production builds)
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -40,9 +41,9 @@ const nextConfig: NextConfig = {
               priority: 25,
               reuseExistingChunk: true,
             },
-            framerMotion: {
-              name: 'framer-motion',
-              test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            motion: {
+              name: 'motion',
+              test: /[\\/]node_modules[\\/](motion|framer-motion)[\\/]/,
               priority: 25,
               reuseExistingChunk: true,
             },
@@ -108,7 +109,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
+
   // PWA Configuration & Security Headers
   async headers() {
     const isProduction = process.env.NODE_ENV === 'production';

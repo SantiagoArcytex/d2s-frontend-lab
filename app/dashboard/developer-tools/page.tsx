@@ -11,15 +11,17 @@ import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 
 // Lazy load syntax highlighter with style (heavy component, client-only)
 const SyntaxHighlighter = dynamic(
-  () => 
+  () =>
     Promise.all([
       import('react-syntax-highlighter').then(mod => mod.Prism),
       import('react-syntax-highlighter/dist/esm/styles/prism').then(mod => mod.vscDarkPlus)
     ]).then(([Prism, style]) => {
       // Create a wrapper component that includes the style
-      return (props: any) => <Prism style={style} {...props} />;
+      const HighlighterWrapper = (props: React.ComponentProps<typeof Prism>) => <Prism style={style} {...props} />;
+      HighlighterWrapper.displayName = 'SyntaxHighlighterWrapper';
+      return HighlighterWrapper;
     }),
-  { 
+  {
     ssr: false,
     loading: () => <div style={{ padding: '1rem' }}>Loading code...</div>
   }
@@ -53,7 +55,7 @@ const initialForm: CreateFormState = {
 const normalizeOrigins = (value: string) =>
   value
     .split(/[\n,]/)
-    .map((o: any) => o.trim())
+    .map((o: string) => o.trim())
     .filter(Boolean);
 
 const toOrigin = (url: string) => {
@@ -74,7 +76,7 @@ function DeveloperAppCard({
   issueError,
   issuedToken,
 }: {
-  app: any;
+  app: { app_id: string; name: string; description?: string; status: string; app?: { name: string; subdomain: string }; allowed_origins?: string[]; embed_public_key: string };
   onIssueToken: (origin: string) => void;
   onRotate: () => void;
   issuing: boolean;
@@ -137,7 +139,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
             <Heading level={3} variant="headline" style={{ marginBottom: '0.25rem' }}>
               {app.name}
             </Heading>
-            <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+            <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
               {app.description || 'No description provided'}
             </Text>
           </div>
@@ -151,7 +153,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
             <Text variant="caption1" weight="semibold" style={{ display: 'block', marginBottom: '0.25rem' }}>
               Linked app
             </Text>
-            <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+            <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
               {app.app?.name} · {app.app?.subdomain}
             </Text>
           </div>
@@ -187,7 +189,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
                 />
               </div>
             </div>
-            <Text variant="caption1" style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
+            <Text variant="caption1" style={{ color: 'var(--muted-foreground)', marginTop: '0.25rem', display: 'block' }}>
               Use this App ID in your embed configuration
             </Text>
           </div>
@@ -202,7 +204,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
                   <Badge key={origin} variant="default" size="sm">{origin}</Badge>
                 ))
               ) : (
-                <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                   None configured
                 </Text>
               )}
@@ -213,7 +215,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
             <Text variant="caption1" weight="semibold" style={{ display: 'block', marginBottom: '0.25rem' }}>
               Embed public key
             </Text>
-            <Text variant="body" style={{ color: 'var(--text-secondary)', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+            <Text variant="body" style={{ color: 'var(--muted-foreground)', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.875rem' }}>
               {app.embed_public_key}
             </Text>
           </div>
@@ -273,7 +275,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
                   </div>
                 </div>
                 {issuedToken.expiresIn && (
-                  <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+                  <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
                     Expires in {issuedToken.expiresIn} seconds
                   </Text>
                 )}
@@ -315,7 +317,7 @@ const embedToken = '${issuedToken?.token ? '••••••••••••
                   fontSize: '0.875rem',
                 }}
               />
-              <Text variant="caption1" style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
+              <Text variant="caption1" style={{ color: 'var(--muted-foreground)', marginTop: '0.25rem', display: 'block' }}>
                 Ready-to-use code snippet. Copy and paste into your PWA integration code.
               </Text>
             </div>
@@ -340,7 +342,6 @@ export default function DeveloperToolsPage() {
   const [copied, setCopied] = useState(false);
   const [promptCopied, setPromptCopied] = useState(false);
   const [exampleCopied, setExampleCopied] = useState(false);
-  const [nextStepsPromptCopied, setNextStepsPromptCopied] = useState(false);
   const [supportDialogOpen, setSupportDialogOpen] = useState(false);
   const [supportForm, setSupportForm] = useState({
     name: '',
@@ -351,19 +352,24 @@ export default function DeveloperToolsPage() {
   const [supportFormError, setSupportFormError] = useState<string | null>(null);
   const [supportFormSubmitting, setSupportFormSubmitting] = useState(false);
 
-  const { data: apps } = (trpc as any).app.list.useQuery();
-  const { data: developerApps, refetch, isLoading, error } = (trpc as any).developerApp.list.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: apps } = trpc.app.list.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: developerApps, refetch, isLoading, error } = trpc.developerApp.list.useQuery();
 
-  const createMutation = (trpc as any).developerApp.create.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const createMutation = trpc.developerApp.create.useMutation({
     onSuccess: () => {
       setForm(initialForm);
       refetch();
     },
-    onError: (err: any) => setFormError(err.message),
+    onError: (err: Error) => setFormError(err.message),
   });
 
-  const issueMutation = (trpc as any).developerApp.issueEmbedToken.useMutation();
-  const rotateMutation = (trpc as any).developerApp.rotateSecrets.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const issueMutation = trpc.developerApp.issueEmbedToken.useMutation();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const rotateMutation = trpc.developerApp.rotateSecrets.useMutation({
     onSuccess: () => refetch(),
   });
 
@@ -412,8 +418,8 @@ export default function DeveloperToolsPage() {
         origin,
       });
       setIssueStates((prev) => ({ ...prev, [developerAppId]: result }));
-    } catch (err: any) {
-      setIssueErrors((prev) => ({ ...prev, [developerAppId]: err.message || 'Failed to issue token' }));
+    } catch (err: unknown) {
+      setIssueErrors((prev) => ({ ...prev, [developerAppId]: err instanceof Error ? err.message : 'Failed to issue token' }));
     }
   };
 
@@ -499,15 +505,7 @@ export default function DeveloperToolsPage() {
     }
   };
 
-  const handleCopyNextStepsPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(nextStepsAiPrompt);
-      setNextStepsPromptCopied(true);
-      setTimeout(() => setNextStepsPromptCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+  // unused handleCopyNextStepsPrompt 
 
   const handleSupportDialogOpen = () => {
     setSupportDialogOpen(true);
@@ -526,7 +524,7 @@ export default function DeveloperToolsPage() {
 
   const handleSupportFormSubmit = async () => {
     setSupportFormError(null);
-    
+
     if (!supportForm.name || !supportForm.email || !supportForm.message) {
       setSupportFormError('Please fill in all required fields.');
       return;
@@ -537,15 +535,15 @@ export default function DeveloperToolsPage() {
       // TODO: Implement actual support form submission (email API, webhook, etc.)
       // For now, just log and show success
       console.log('Support form submitted:', supportForm);
-      
+
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Show success and close
       handleSupportDialogClose();
       // You could show a success toast here
-    } catch (err: any) {
-      setSupportFormError(err.message || 'Failed to submit support request. Please try again.');
+    } catch (err: unknown) {
+      setSupportFormError(err instanceof Error ? err.message : 'Failed to submit support request. Please try again.');
     } finally {
       setSupportFormSubmitting(false);
     }
@@ -555,14 +553,14 @@ export default function DeveloperToolsPage() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: 'var(--surface-base)',
+        backgroundColor: 'var(--background)',
         width: '100%',
         boxSizing: 'border-box',
       }}
     >
-      <Container 
+      <Container
         maxWidth={1200}
-        style={{ 
+        style={{
           padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
           width: '100%',
           margin: '0 auto',
@@ -574,7 +572,7 @@ export default function DeveloperToolsPage() {
             <Heading level={1} variant="title1" style={{ marginBottom: '0.5rem' }}>
               Developer Tools
             </Heading>
-            <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+            <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
               Register developer apps, manage allowed origins, and generate embed tokens for your PWA embeds.
             </Text>
           </div>
@@ -586,7 +584,7 @@ export default function DeveloperToolsPage() {
               </Heading>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '13px', fontWeight: 500, color: 'var(--muted-foreground)' }}>
                     Existing app
                   </label>
                   <select
@@ -596,21 +594,21 @@ export default function DeveloperToolsPage() {
                       width: '100%',
                       padding: '0.75rem',
                       borderRadius: '10px',
-                      border: '1px solid var(--surface-border)',
-                      backgroundColor: 'var(--surface-elevated)',
-                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--card)',
+                      color: 'var(--foreground)',
                       fontSize: '15px',
                       minHeight: '44px',
                     }}
                   >
                     <option value="">Select an app</option>
-                    {appOptions.map((app: any) => (
+                    {appOptions.map((app: { id: string; name: string; subdomain: string }) => (
                       <option key={app.id} value={app.id}>
                         {app.name} ({app.subdomain})
                       </option>
                     ))}
                   </select>
-                  <Text variant="caption1" style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
+                  <Text variant="caption1" style={{ color: 'var(--muted-foreground)', marginTop: '0.25rem', display: 'block' }}>
                     Tenant-owned app this embed will authenticate against.
                   </Text>
                 </div>
@@ -644,7 +642,7 @@ export default function DeveloperToolsPage() {
                         value="basic"
                         checked={form.mode === 'basic'}
                         onChange={(e) => setForm((prev) => ({ ...prev, mode: e.target.value as CreateFormState['mode'] }))}
-                        style={{ width: '20px', height: '20px', accentColor: 'var(--action-primary)' }}
+                        style={{ width: '20px', height: '20px', accentColor: 'var(--primary)' }}
                       />
                       <Text variant="body">Basic</Text>
                     </label>
@@ -654,12 +652,12 @@ export default function DeveloperToolsPage() {
                         value="advanced"
                         checked={form.mode === 'advanced'}
                         onChange={(e) => setForm((prev) => ({ ...prev, mode: e.target.value as CreateFormState['mode'] }))}
-                        style={{ width: '20px', height: '20px', accentColor: 'var(--action-primary)' }}
+                        style={{ width: '20px', height: '20px', accentColor: 'var(--primary)' }}
                       />
                       <Text variant="body">Advanced</Text>
                     </label>
                   </div>
-                  <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+                  <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
                     {form.mode === 'basic'
                       ? 'We automatically include your dashboard origin. Optionally add your PWA URL.'
                       : 'Manually specify allowed origins for full control.'}
@@ -682,8 +680,8 @@ export default function DeveloperToolsPage() {
                       </Text>
                       <div
                         style={{
-                          backgroundColor: 'var(--surface-subtle)',
-                          border: '1px solid var(--surface-border)',
+                          backgroundColor: 'var(--popover)',
+                          border: '1px solid var(--border)',
                           borderRadius: '8px',
                           padding: '1rem',
                           minHeight: '60px',
@@ -691,11 +689,11 @@ export default function DeveloperToolsPage() {
                       >
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                           {deriveOrigins().length > 0 ? (
-                            deriveOrigins().map((o: any) => (
+                            deriveOrigins().map((o: string) => (
                               <Badge key={o} variant="default" size="sm">{o}</Badge>
                             ))
                           ) : (
-                            <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                            <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                               Dashboard origin will be included automatically. Add a PWA URL to include it as well.
                             </Text>
                           )}
@@ -752,7 +750,7 @@ export default function DeveloperToolsPage() {
                 <Heading level={2} variant="headline" style={{ marginBottom: '0.25rem' }}>
                   Embed snippet
                 </Heading>
-                <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                   Copy this code to integrate marketplace authentication in your PWA
                 </Text>
               </div>
@@ -776,29 +774,29 @@ export default function DeveloperToolsPage() {
                         aria-label={promptCopied ? 'Copied!' : 'Copy prompt to clipboard'}
                       />
                     </div>
-                      <div
+                    <div
+                      style={{
+                        backgroundColor: 'var(--popover)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
+                        marginTop: '0.5rem',
+                      }}
+                    >
+                      <pre
                         style={{
-                          backgroundColor: 'var(--surface-subtle)',
-                          border: '1px solid var(--surface-border)',
-                          borderRadius: '8px',
-                          padding: '0.75rem',
-                          marginTop: '0.5rem',
+                          fontFamily: 'monospace',
+                          fontSize: '0.75rem',
+                          margin: 0,
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                          lineHeight: 1.6,
+                          color: 'var(--foreground)',
                         }}
                       >
-                        <pre
-                          style={{
-                            fontFamily: 'monospace',
-                            fontSize: '0.75rem',
-                            margin: 0,
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word',
-                            lineHeight: 1.6,
-                            color: 'var(--text-primary)',
-                          }}
-                        >
-                          {aiPrompt}
-                        </pre>
-                      </div>
+                        {aiPrompt}
+                      </pre>
+                    </div>
                   </div>
                 </div>
 
@@ -816,7 +814,7 @@ export default function DeveloperToolsPage() {
                   </div>
                   <div
                     style={{
-                      border: '1px solid var(--surface-border)',
+                      border: '1px solid var(--border)',
                       borderRadius: '8px',
                       overflow: 'hidden',
                     }}
@@ -826,7 +824,7 @@ export default function DeveloperToolsPage() {
                       customStyle={{
                         margin: 0,
                         padding: '1.75rem',
-                        backgroundColor: 'var(--surface-subtle)',
+                        backgroundColor: 'var(--popover)',
                         fontSize: '0.875rem',
                         lineHeight: 1.7,
                       }}
@@ -845,8 +843,8 @@ export default function DeveloperToolsPage() {
                   <Alert variant="warning" message="Handle successful authentication: Store token securely, treat as successful auth, include in API requests as Bearer token, handle expiration." />
                   <div
                     style={{
-                      backgroundColor: 'var(--surface-subtle)',
-                      border: '1px solid var(--surface-border)',
+                      backgroundColor: 'var(--popover)',
+                      border: '1px solid var(--border)',
                       borderRadius: '8px',
                       padding: '0.75rem',
                       marginTop: '0.5rem',
@@ -860,7 +858,7 @@ export default function DeveloperToolsPage() {
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                         lineHeight: 1.6,
-                        color: 'var(--text-primary)',
+                        color: 'var(--foreground)',
                       }}
                     >
                       {nextStepsAiPrompt}
@@ -881,7 +879,7 @@ export default function DeveloperToolsPage() {
                     </div>
                     <div
                       style={{
-                        border: '1px solid var(--surface-border)',
+                        border: '1px solid var(--border)',
                         borderRadius: '8px',
                         overflow: 'hidden',
                       }}
@@ -891,7 +889,7 @@ export default function DeveloperToolsPage() {
                         customStyle={{
                           margin: 0,
                           padding: '1.5rem',
-                          backgroundColor: 'var(--surface-subtle)',
+                          backgroundColor: 'var(--popover)',
                           fontSize: '0.875rem',
                           lineHeight: 1.7,
                         }}
@@ -925,8 +923,8 @@ export default function DeveloperToolsPage() {
             variant="centered"
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
-                Need help with embedding? We're here to assist you.
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
+                Need help with embedding? We&apos;re here to assist you.
               </Text>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <TextField
@@ -987,13 +985,13 @@ export default function DeveloperToolsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Heading level={2} variant="headline">Existing developer apps</Heading>
-            {isLoading && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}><LoadingSpinner size="medium" /><span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Loading...</span></div>}
+            {isLoading && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}><LoadingSpinner size="medium" /><span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>Loading...</span></div>}
             {error && <Alert variant="error" message={error.message} />}
             {!isLoading && developerApps && developerApps.length === 0 ? (
               <Alert variant="info" message="No developer apps yet. Create one to get started." />
             ) : null}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {developerApps?.map((devApp: any) => (
+              {developerApps?.map((devApp: { id: string; app_id: string; name: string; status: string; embed_public_key: string }) => (
                 <DeveloperAppCard
                   key={devApp.id}
                   app={devApp}

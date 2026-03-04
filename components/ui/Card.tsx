@@ -1,35 +1,53 @@
 /**
  * Card Component
- * Based on Figma Design System
+ * Fintech-style: high radius, strong shadow, no MUI Card/Paper
  */
 
 import React from 'react';
-import { Card as MuiCard, CardProps as MuiCardProps, CardContent, CardActions, Box } from '@mui/material';
-import { motion } from 'framer-motion';
+import { Box } from '@mui/material';
+import { motion } from 'motion/react';
 import { fadeIn } from '@/lib/animations/framer';
 import { designTokens } from '@/lib/theme/tokens';
 
-export interface CardProps extends Omit<MuiCardProps, 'variant'> {
+const CARD_RADIUS = '28px';
+const CARD_SHADOW = '0 8px 40px rgba(0, 0, 0, 0.12)';
+const CARD_SHADOW_HOVER = '0 12px 48px rgba(0, 0, 0, 0.14)';
+const CARD_PADDING = '24px 32px';
+
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'variant'> {
   children: React.ReactNode;
   variant?: 'default' | 'glass' | 'elevated' | 'premium';
   interactive?: boolean;
-  useGradientRadius?: boolean; // Optional Gradient.Surface.Radius for subtle depth
-  useBorder?: boolean; // Use border instead of shadow
+  useGradientRadius?: boolean;
+  useBorder?: boolean;
+  sx?: Record<string, unknown>;
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  children, 
+export const Card: React.FC<CardProps> = ({
+  children,
   variant = 'default',
   interactive = true,
   useGradientRadius = false,
   useBorder = true,
+  style,
+  className = '',
   sx,
-  ...props 
+  ...props
 }) => {
-  const getVariantStyles = () => {
+  const getVariantStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      borderRadius: CARD_RADIUS,
+      padding: CARD_PADDING,
+      transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
+      position: 'relative',
+      zIndex: 1,
+      minWidth: 0,
+    };
+
     switch (variant) {
       case 'glass':
         return {
+          ...base,
           background: designTokens.glassmorphism.light.background,
           backdropFilter: designTokens.glassmorphism.light.backdropFilter,
           WebkitBackdropFilter: designTokens.glassmorphism.light.backdropFilter,
@@ -38,83 +56,137 @@ export const Card: React.FC<CardProps> = ({
         };
       case 'elevated':
         return {
-          boxShadow: designTokens.shadows.modal,
+          ...base,
+          backgroundColor: designTokens.colors.surface.elevated,
+          boxShadow: CARD_SHADOW,
+          border: `1px solid ${designTokens.colors.surface.border}`,
+          ...(interactive && {
+            cursor: 'pointer',
+          }),
         };
       case 'premium':
         return {
+          ...base,
           backgroundColor: designTokens.colors.surface.elevated,
-          boxShadow: 'none',
-          border: `1px solid rgba(255, 46, 46, 0.3)`,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 'inherit',
-            padding: '1px',
-            background: 'linear-gradient(135deg, rgba(255, 46, 46, 0.3), rgba(255, 46, 46, 0.1))',
-            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
-            pointerEvents: 'none',
-            zIndex: 0,
-          },
+          boxShadow: CARD_SHADOW,
+          border: '1px solid rgba(255, 46, 46, 0.3)',
         };
       default:
         return {
+          ...base,
           backgroundColor: designTokens.colors.surface.elevated,
-          boxShadow: useBorder ? 'none' : designTokens.shadows.card,
+          boxShadow: useBorder ? 'none' : CARD_SHADOW,
           border: useBorder ? `1px solid ${designTokens.colors.surface.border}` : 'none',
         };
     }
   };
 
+  const resolvedStyle: React.CSSProperties = {
+    ...getVariantStyles(),
+    ...(interactive && variant === 'elevated' && {
+      cursor: 'pointer',
+    }),
+    ...style,
+  };
+
   return (
-    <Box
-      component={motion.div}
+    <motion.div
       initial="hidden"
       animate="visible"
       variants={fadeIn}
-      sx={{
+      style={{
         position: 'relative',
-        borderRadius: designTokens.borderRadius.md, // 12-16px range, using md (12px)
+        borderRadius: CARD_RADIUS,
         overflow: 'hidden',
         ...(useGradientRadius && {
-          '&::before': {
-            content: '""',
+          ['--card-before' as string]: designTokens.gradients.surface.radius,
+        }),
+      }}
+      className={className}
+    >
+      {useGradientRadius && (
+        <div
+          style={{
             position: 'absolute',
             inset: 0,
             background: designTokens.gradients.surface.radius,
             pointerEvents: 'none',
             zIndex: 0,
-          },
-        }),
-      }}
-    >
-      <MuiCard
-        {...(props as any)}
-        sx={{
-          borderRadius: designTokens.borderRadius.md,
-          transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
-          position: 'relative',
-          zIndex: 1,
-          minWidth: 0, // Allow card to shrink but prevent cramping
-          ...getVariantStyles(),
-          ...(interactive && {
-            cursor: 'pointer',
-            '&:hover': {
-              boxShadow: designTokens.shadows.hover,
-              transform: 'translateY(-4px)', // hover-lift pattern
-            },
-          }),
-          ...sx,
-        }}
-      >
-        {children}
-      </MuiCard>
-    </Box>
+            borderRadius: CARD_RADIUS,
+          }}
+        />
+      )}
+      {sx ? (
+        <Box
+          {...props}
+          sx={{ ...resolvedStyle, ...sx }}
+          onMouseEnter={(e) => {
+            if (interactive && variant === 'elevated') {
+              (e.currentTarget as HTMLElement).style.boxShadow = CARD_SHADOW_HOVER;
+            }
+            props.onMouseEnter?.(e);
+          }}
+          onMouseLeave={(e) => {
+            if (interactive && variant === 'elevated') {
+              (e.currentTarget as HTMLElement).style.boxShadow = CARD_SHADOW;
+            }
+            props.onMouseLeave?.(e);
+          }}
+        >
+          {children}
+        </Box>
+      ) : (
+        <div
+          {...props}
+          style={{
+            ...resolvedStyle,
+            ...(interactive && variant === 'elevated' && { boxShadow: resolvedStyle.boxShadow }),
+          }}
+          onMouseEnter={(e) => {
+            if (interactive && variant === 'elevated') {
+              e.currentTarget.style.boxShadow = CARD_SHADOW_HOVER;
+            }
+            props.onMouseEnter?.(e);
+          }}
+          onMouseLeave={(e) => {
+            if (interactive && variant === 'elevated') {
+              e.currentTarget.style.boxShadow = CARD_SHADOW;
+            }
+            props.onMouseLeave?.(e);
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </motion.div>
   );
 };
 
-// Export sub-components for convenience
-export { CardContent, CardActions };
+export const CardContent: React.FC<{
+  children: React.ReactNode;
+  sx?: Record<string, unknown>;
+  style?: React.CSSProperties;
+}> = ({ children, sx, style }) => (
+  <Box sx={{ padding: 0, flex: 1, ...sx }} style={style}>
+    {children}
+  </Box>
+);
+
+export const CardActions: React.FC<{
+  children: React.ReactNode;
+  sx?: Record<string, unknown>;
+  style?: React.CSSProperties;
+}> = ({ children, sx, style }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: designTokens.spacing.sm,
+      paddingTop: designTokens.spacing.lg,
+      ...sx,
+    }}
+    style={style}
+  >
+    {children}
+  </Box>
+);

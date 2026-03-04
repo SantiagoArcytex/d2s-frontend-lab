@@ -4,8 +4,15 @@
  */
 
 import React from 'react';
-import { ListItem, ListItemProps } from '../../molecules/data-display';
 import { spacing } from '../../tokens';
+
+export interface ListItemProps {
+  children?: React.ReactNode;
+  leading?: React.ReactNode;
+  trailing?: React.ReactNode;
+  onClick?: () => void;
+  style?: React.CSSProperties;
+}
 
 export interface ListProps {
   items: ListItemProps[];
@@ -21,7 +28,7 @@ export const List: React.FC<ListProps> = ({
   className = '',
 }) => {
   const containerStyle: React.CSSProperties = {
-    backgroundColor: 'var(--surface-elevated)',
+    backgroundColor: 'var(--card)',
     borderRadius: '16px',
     overflow: 'hidden',
     display: 'flex',
@@ -31,29 +38,41 @@ export const List: React.FC<ListProps> = ({
   return (
     <div className={className} style={containerStyle}>
       {header && (
-        <div style={{ 
-          padding: spacing.scale.lg, // 16px = 2x grid unit
-          borderBottom: '1px solid var(--surface-border)',
+        <div style={{
+          padding: spacing.scale.lg,
+          borderBottom: '1px solid var(--border)',
         }}>
           {header}
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {items.map((item, index) => (
-          <ListItem
+          <div
             key={index}
-            {...item}
+            role={item.onClick ? 'button' : undefined}
+            tabIndex={item.onClick ? 0 : undefined}
+            onClick={item.onClick}
+            onKeyDown={item.onClick ? (e) => { if (e.key === 'Enter') item.onClick?.(); } : undefined}
             style={{
-              ...(item as any).style,
-              borderBottom: index === items.length - 1 ? 'none' : '1px solid var(--surface-border)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px 16px',
+              cursor: item.onClick ? 'pointer' : 'default',
+              borderBottom: index === items.length - 1 ? 'none' : '1px solid var(--border)',
+              ...item.style,
             }}
-          />
+          >
+            {item.leading && <span>{item.leading}</span>}
+            <span style={{ flex: 1 }}>{item.children}</span>
+            {item.trailing && <span>{item.trailing}</span>}
+          </div>
         ))}
       </div>
       {footer && (
-        <div style={{ 
-          padding: spacing.scale.lg, // 16px = 2x grid unit
-          borderTop: '1px solid var(--surface-border)',
+        <div style={{
+          padding: spacing.scale.lg,
+          borderTop: '1px solid var(--border)',
         }}>
           {footer}
         </div>

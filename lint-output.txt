@@ -1,0 +1,222 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/apps/[subdomain]/page.tsx
+  292:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  349:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/auth/confirm/page.tsx
+   51:45  error    Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   54:16  error    Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   82:19  warning  'data' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+   82:19  warning  'data' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+  127:21  error    Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/admin/deals/page.tsx
+   26:97  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   27:85  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   84:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  267:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/admin/members/page.tsx
+   21:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   22:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   25:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   33:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   41:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   49:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  168:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  186:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/admin/page.tsx
+  132:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/[id]/edit/page.tsx
+  22:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/new/page.tsx
+  19:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/apps/page.tsx
+   44:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  114:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  259:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  313:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  316:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  358:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  361:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  403:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  421:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  423:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  465:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  467:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/developer-tools/page.tsx
+   20:42  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+   58:14  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+   79:8   error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  345:10  warning  'nextStepsPromptCopied' is assigned a value but never used                                            @typescript-eslint/no-unused-vars
+  345:10  warning  'nextStepsPromptCopied' is assigned a value but never used. Allowed unused vars must match /^_/u      unused-imports/no-unused-vars
+  356:35  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  357:71  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  359:35  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  364:20  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  367:34  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  368:35  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  417:19  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  504:9   warning  'handleCopyNextStepsPrompt' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+  504:9   warning  'handleCopyNextStepsPrompt' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+  549:19  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  609:43  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  696:53  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  998:44  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/home/page.tsx
+  24:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:69  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:73  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/marketplace/page.tsx
+   19:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   25:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   26:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/my-apps/page.tsx
+  121:9   warning  'router' is assigned a value but never used                                                     @typescript-eslint/no-unused-vars
+  121:9   warning  'router' is assigned a value but never used. Allowed unused vars must match /^_/u               unused-imports/no-unused-vars
+  130:84  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  133:73  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  153:55  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  166:35  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  178:32  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  200:9   warning  'pendingPayoutsCount' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+  200:9   warning  'pendingPayoutsCount' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+  203:71  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  369:37  error    Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/notifications/page.tsx
+  46:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/purchases/page.tsx
+   24:10  warning  'editingReview' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+   24:10  warning  'editingReview' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+   25:51  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+   55:37  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+   96:13  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  101:69  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  106:39  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  111:47  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  354:39  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  355:46  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  356:65  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  361:41  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  368:41  error    Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/seller/deals/[id]/edit/page.tsx
+  16:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/dashboard/seller/deals/new/page.tsx
+  14:39  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  15:23  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  18:20  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  23:42  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  24:17  warning  'data' is defined but never used                                          @typescript-eslint/no-unused-vars
+  24:17  warning  'data' is defined but never used. Allowed unused args must match /^_/u    unused-imports/no-unused-vars
+  24:23  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  27:20  error    Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  32:55  warning  'status' is defined but never used                                        @typescript-eslint/no-unused-vars
+  32:55  warning  'status' is defined but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/embed/auth/page.tsx
+  79:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/forgot-password/page.tsx
+  31:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/marketplace/[dealId]/page.tsx
+   66:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   69:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   91:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  134:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  265:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/marketplace/page.tsx
+   17:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   23:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   24:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   86:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/redeem/page.tsx
+  18:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/reset-password/page.tsx
+  161:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/app/verify-email/page.tsx
+  57:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/components/layout/SideDrawer.tsx
+  61:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/components/marketplace/ReviewCard.tsx
+  32:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/components/seller/RevenueDistributionChart.tsx
+   77:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/components/seller/RevenueLineChart.tsx
+  93:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/contexts/AuthContext.tsx
+  23:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/lib/trpc/client.ts
+  16:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/lib/trpc/provider.tsx
+  42:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/daniel/Arcytex/Internal/D2S/Cursor/d2s-frontend-lab-main/lib/utils/debounce.ts
+  6:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  6:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 153 problems (137 errors, 16 warnings)
+

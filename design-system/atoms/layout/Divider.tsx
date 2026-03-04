@@ -15,7 +15,7 @@ export const Divider: React.FC<DividerProps> = ({
   className = '',
 }) => {
   const style: React.CSSProperties = {
-    backgroundColor: 'var(--surface-border)',
+    backgroundColor: 'var(--border)',
     ...(orientation === 'horizontal'
       ? { width: '100%', height: '1px', margin: '16px 0' }
       : { width: '1px', height: '100%', margin: '0 16px' }),

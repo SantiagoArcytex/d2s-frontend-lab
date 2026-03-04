@@ -12,7 +12,7 @@ export default function ServerErrorPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
       }}
     >
       <Container maxWidth={600}>
@@ -20,7 +20,7 @@ export default function ServerErrorPage() {
           <WarningIcon
             style={{
               fontSize: '120px',
-              color: 'var(--error)',
+              color: 'var(--destructive)',
             }}
           />
           <Heading
@@ -33,13 +33,13 @@ export default function ServerErrorPage() {
             level={2}
             variant="title2"
             style={{
-              color: 'var(--text-secondary)',
+              color: 'var(--muted-foreground)',
             }}
           >
             Server Error
           </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
-            Something went wrong on our end. We're working to fix it. Please try again later.
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
+            Something went wrong on our end. We&apos;re working to fix it. Please try again later.
           </Text>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '300px' }}>
             <Button variant="primary" fullWidth onClick={() => window.location.reload()}>

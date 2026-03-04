@@ -24,7 +24,7 @@ export const Label: React.FC<LabelProps> = ({
     lineHeight: typography.ios.footnote.lineHeight,
     fontWeight: typography.fontWeight.semibold,
     letterSpacing: typography.ios.footnote.letterSpacing,
-    color: 'var(--text-primary)',
+    color: 'var(--foreground)',
     display: 'block',
     marginBottom: '8px',
   };
@@ -36,7 +36,7 @@ export const Label: React.FC<LabelProps> = ({
       {...props}
     >
       {children}
-      {required && <span style={{ color: 'var(--error)' }}> *</span>}
+      {required && <span style={{ color: 'var(--destructive)' }}> *</span>}
     </label>
   );
 };

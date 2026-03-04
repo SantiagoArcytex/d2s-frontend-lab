@@ -44,10 +44,10 @@ export default function OfflinePage() {
         </svg>
       </div>
       <Heading level={1} variant="title1" style={{ marginBottom: '1rem' }}>
-        You're Offline
+        You&apos;re Offline
       </Heading>
-      <Text variant="body" style={{ marginBottom: '2rem', color: 'var(--text-secondary)' }}>
-        It looks like you're not connected to the internet. Please check your connection and try again.
+      <Text variant="body" style={{ marginBottom: '2rem', color: 'var(--muted-foreground)' }}>
+        It looks like you&apos;re not connected to the internet. Please check your connection and try again.
       </Text>
       <Button variant="primary" onClick={handleRetry}>
         Retry

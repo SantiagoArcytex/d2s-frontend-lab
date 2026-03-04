@@ -34,7 +34,7 @@ function ResetPasswordContent() {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const type = hashParams.get('type');
-      
+
       if (accessToken && type === 'recovery') {
         // We have a recovery token in the URL hash
         // Supabase will automatically process this and create a session
@@ -69,7 +69,7 @@ function ResetPasswordContent() {
           const hashParams2 = new URLSearchParams(window.location.hash.substring(1));
           const accessToken2 = hashParams2.get('access_token');
           const type2 = hashParams2.get('type');
-          
+
           if (accessToken2 && type2 === 'recovery') {
             setIsValidSession(true);
           } else {
@@ -106,7 +106,7 @@ function ResetPasswordContent() {
       const hashParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.hash.substring(1) : '');
       const accessToken = hashParams.get('access_token');
       const type = hashParams.get('type');
-      
+
       if (!accessToken || type !== 'recovery') {
         // Check if we already have a session (token was already processed)
         const { data: { session } } = await supabase.auth.getSession();
@@ -122,8 +122,9 @@ function ResetPasswordContent() {
       }
 
       // Check for session again after waiting
-      let { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+      let { data: { session } } = await supabase.auth.getSession();
+      const { error: sessionError } = await supabase.auth.getSession();
+
       if (sessionError) {
         throw sessionError;
       }
@@ -157,9 +158,9 @@ function ResetPasswordContent() {
 
       // Success - redirect to login
       router.push('/login?reset=success');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Password reset error:', err);
-      setError(err.message || 'Failed to reset password. The link may have expired. Please request a new password reset.');
+      setError(err instanceof Error ? err.message : 'Failed to reset password. The link may have expired. Please request a new password reset.');
     } finally {
       setLoading(false);
     }
@@ -172,7 +173,7 @@ function ResetPasswordContent() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: '1rem',
       }}
     >
@@ -183,7 +184,7 @@ function ResetPasswordContent() {
               <LockResetIcon
                 style={{
                   fontSize: '48px',
-                  color: 'var(--text-primary)',
+                  color: 'var(--foreground)',
                   marginBottom: '1rem',
                   opacity: 0.8,
                 }}
@@ -197,7 +198,7 @@ function ResetPasswordContent() {
               >
                 Reset Password
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Enter your new password below.
               </Text>
             </div>

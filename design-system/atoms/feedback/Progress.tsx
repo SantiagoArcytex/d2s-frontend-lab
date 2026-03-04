@@ -4,7 +4,6 @@
  */
 
 import React from 'react';
-import { hig } from '../../tokens';
 
 export interface ProgressProps {
   value: number; // 0-100
@@ -24,7 +23,7 @@ export const Progress: React.FC<ProgressProps> = ({
   value,
   max = 100,
   size = 'md',
-  color = 'var(--action-primary)',
+  color = 'var(--primary)',
   className = '',
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
@@ -33,7 +32,7 @@ export const Progress: React.FC<ProgressProps> = ({
   const containerStyle: React.CSSProperties = {
     width: '100%',
     height,
-    backgroundColor: 'var(--surface-subtle)',
+    backgroundColor: 'var(--popover)',
     borderRadius: '9999px',
     overflow: 'hidden',
   };

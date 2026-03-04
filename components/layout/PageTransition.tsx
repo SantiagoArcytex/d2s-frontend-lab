@@ -41,19 +41,24 @@ export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     };
   }, []);
 
-  // Show logo before any page content (landing first load and initial paint)
-  if (!ready) {
-    return <LogoPageLoader />;
-  }
-
   return (
     <div
-      style={{
-        minHeight: '100vh',
-      }}
+      style={{ minHeight: '100vh', overflow: 'visible' }}
       suppressHydrationWarning
     >
-      {children}
+      {/* Show loader only if not ready for client interaction */}
+      {!ready && <LogoPageLoader />}
+
+      {/* Render children with visibility control to prevent hydration mismatches whilst preserving SEO markup */}
+      <div
+        style={{
+          display: ready ? 'block' : 'none',
+          minHeight: '100vh',
+        }}
+        aria-hidden={!ready}
+      >
+        {children}
+      </div>
     </div>
   );
 };

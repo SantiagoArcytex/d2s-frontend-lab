@@ -1,12 +1,18 @@
 /**
  * Button Component (Atom)
- * Apple HIG-aligned button with proper touch targets
+ * Pill primary, rounded secondary/ghost; generous padding; no elevation/ripple
  */
 
 'use client';
 
 import React, { useState } from 'react';
-import { hig, spacing, animations, shadows } from '../../tokens';
+import { animations } from '../../tokens';
+
+const PILL_RADIUS = '9999px';
+const ROUNDED_RADIUS = '16px';
+const PADDING_X = 'clamp(24px, 28px, 32px)';
+const PADDING_Y = 'clamp(12px, 14px, 16px)';
+const BUTTON_GAP = '8px';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'premium';
@@ -31,120 +37,104 @@ export const Button: React.FC<ButtonProps> = ({
   const isDisabled = disabled || loading;
   const [isHovered, setIsHovered] = useState(false);
 
-  // Size configurations with HIG touch targets
+  const isPill = variant === 'primary' || variant === 'destructive' || variant === 'premium';
+
   const sizeConfig = {
-    small: {
-      height: { mobile: hig.touchTarget.minimum, desktop: '32px' },
-      paddingX: { mobile: '16px', desktop: '12px' },
-      fontSize: { mobile: '15px', desktop: '13px' },
-    },
-    medium: {
-      height: { mobile: hig.touchTarget.standard, desktop: '40px' },
-      paddingX: { mobile: '24px', desktop: '16px' },
-      fontSize: { mobile: '16px', desktop: '14px' },
-    },
-    large: {
-      height: { mobile: hig.touchTarget.large, desktop: '48px' },
-      paddingX: { mobile: '32px', desktop: '20px' },
-      fontSize: { mobile: '17px', desktop: '16px' },
-    },
+    small: { height: 'clamp(32px, 40px, 44px)', fontSize: 'clamp(13px, 14px, 15px)' },
+    medium: { height: 'clamp(40px, 44px, 48px)', fontSize: 'clamp(14px, 15px, 16px)' },
+    large: { height: 'clamp(48px, 52px, 56px)', fontSize: 'clamp(16px, 17px, 17px)' },
   };
 
   const config = sizeConfig[size];
 
-  // Variant styles with hover effects
   const getVariantStyles = (): React.CSSProperties => {
     const base: React.CSSProperties = {
-      borderRadius: hig.borderRadius.button,
+      borderRadius: isPill ? PILL_RADIUS : ROUNDED_RADIUS,
       border: 'none',
-      fontFamily: 'var(--font-manrope), -apple-system, BlinkMacSystemFont, sans-serif',
+      fontFamily: 'var(--font-body), -apple-system, BlinkMacSystemFont, sans-serif',
       fontWeight: 500,
       cursor: isDisabled ? 'not-allowed' : 'pointer',
       transition: `all ${animations.duration.standard}ms ${animations.easing.easeInOut}`,
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: spacing.component.button.gap,
+      gap: BUTTON_GAP,
       width: fullWidth ? '100%' : 'auto',
-      minWidth: iconOnly ? config.height.mobile : 'auto',
+      minWidth: iconOnly ? config.height : 'auto',
       opacity: isDisabled ? 0.5 : 1,
       boxShadow: 'none',
+      paddingLeft: iconOnly ? 0 : PADDING_X,
+      paddingRight: iconOnly ? 0 : PADDING_X,
+      paddingTop: PADDING_Y,
+      paddingBottom: PADDING_Y,
     };
 
-    // Base styles for each variant
     let variantStyles: React.CSSProperties = { ...base };
 
     switch (variant) {
       case 'primary':
         variantStyles = {
           ...base,
-          background: 'var(--accent-rebel)',
-          color: 'var(--text-primary)',
+          background: 'var(--primary)',
+          color: 'var(--primary-foreground)',
         };
         if (isHovered && !isDisabled) {
-          variantStyles.background = 'var(--accent-rebel-hover)';
-          variantStyles.boxShadow = '0 10px 40px -10px var(--accent-rebel-glow)';
-          variantStyles.transform = 'translateY(-2px)';
+          variantStyles.background = '#5A9AFF';
+          variantStyles.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.12)';
         }
         break;
       case 'secondary':
         variantStyles = {
           ...base,
-          background: 'var(--surface-elevated)',
-          color: 'var(--text-primary)',
-          border: `1px solid var(--surface-border)`,
+          background: 'var(--card)',
+          color: 'var(--foreground)',
+          border: '1px solid var(--border)',
         };
         if (isHovered && !isDisabled) {
-          variantStyles.background = 'var(--surface-subtle)';
-          variantStyles.boxShadow = shadows.hover;
-          variantStyles.borderColor = 'var(--accent-rebel)';
-          variantStyles.transform = 'translateY(-2px)';
+          variantStyles.background = 'var(--popover)';
+          variantStyles.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
         }
         break;
       case 'outline':
         variantStyles = {
           ...base,
-          background: isHovered && !isDisabled ? 'rgba(255, 61, 0, 0.08)' : 'transparent',
-          color: 'var(--text-secondary)',
-          border: `1px solid ${isHovered && !isDisabled ? 'var(--accent-rebel)' : 'var(--surface-border)'}`,
+          background: isHovered && !isDisabled ? 'var(--surface-glow)' : 'transparent',
+          color: 'var(--muted-foreground)',
+          border: `1px solid ${isHovered && !isDisabled ? 'var(--primary)' : 'var(--border)'}`,
         };
         if (isHovered && !isDisabled) {
-          variantStyles.color = 'var(--text-primary)';
-          variantStyles.boxShadow = shadows.card;
+          variantStyles.color = 'var(--foreground)';
+          variantStyles.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.08)';
         }
         break;
       case 'ghost':
         variantStyles = {
           ...base,
-          background: isHovered && !isDisabled ? 'var(--surface-elevated)' : 'transparent',
-          color: 'var(--text-secondary)',
+          background: isHovered && !isDisabled ? 'var(--card)' : 'transparent',
+          color: 'var(--muted-foreground)',
         };
-        if (isHovered && !isDisabled) {
-          variantStyles.color = 'var(--text-primary)';
-        }
+        if (isHovered && !isDisabled) variantStyles.color = 'var(--foreground)';
         break;
       case 'destructive':
         variantStyles = {
           ...base,
-          background: 'var(--error)',
-          color: 'var(--text-primary)',
+          background: 'var(--destructive)',
+          color: 'var(--destructive-foreground)',
         };
         if (isHovered && !isDisabled) {
           variantStyles.background = '#DC2626';
-          variantStyles.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-          variantStyles.transform = 'translateY(-2px)';
+          variantStyles.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.25)';
         }
         break;
       case 'premium':
         variantStyles = {
           ...base,
-          background: 'var(--accent-rebel)',
-          color: 'var(--text-primary)',
+          background: 'var(--primary)',
+          color: 'var(--primary-foreground)',
         };
         if (isHovered && !isDisabled) {
-          variantStyles.background = 'var(--accent-rebel-hover)';
-          variantStyles.boxShadow = '0 10px 40px -10px var(--accent-rebel-glow)';
-          variantStyles.transform = 'translateY(-2px)';
+          variantStyles.background = '#5A9AFF';
+          variantStyles.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.12)';
         }
         break;
       default:
@@ -156,20 +146,17 @@ export const Button: React.FC<ButtonProps> = ({
 
   const baseStyle: React.CSSProperties = {
     ...getVariantStyles(),
-    height: `clamp(${config.height.desktop}, ${config.height.mobile}, ${config.height.mobile})`,
-    paddingLeft: iconOnly ? '0' : `clamp(${config.paddingX.desktop}, ${config.paddingX.mobile}, ${config.paddingX.mobile})`,
-    paddingRight: iconOnly ? '0' : `clamp(${config.paddingX.desktop}, ${config.paddingX.mobile}, ${config.paddingX.mobile})`,
-    fontSize: `clamp(${config.fontSize.desktop}, ${config.fontSize.mobile}, ${config.fontSize.mobile})`,
+    height: config.height,
+    fontSize: config.fontSize,
   };
 
-  // Merge with any style prop passed in
   const style: React.CSSProperties = {
     ...baseStyle,
     ...(props.style || {}),
   };
 
-  // Remove style from props to avoid passing it twice
-  const { style: _, ...restProps } = props;
+  const restProps = { ...props };
+  delete restProps.style;
 
   return (
     <button
@@ -180,26 +167,16 @@ export const Button: React.FC<ButtonProps> = ({
       onMouseEnter={() => !isDisabled && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseDown={(e) => {
-        if (!isDisabled) {
-          e.currentTarget.style.transform = 'scale(0.97)';
-        }
+        if (!isDisabled) e.currentTarget.style.transform = 'scale(0.98)';
       }}
       onMouseUp={(e) => {
-        if (!isDisabled) {
-          // Reset transform but maintain hover state
-          const hoverTransform = (variant === 'primary' || variant === 'destructive' || variant === 'premium') && isHovered 
-            ? 'translateY(-2px)' 
-            : 'none';
-          e.currentTarget.style.transform = hoverTransform;
-        }
+        if (!isDisabled) e.currentTarget.style.transform = '';
       }}
       onTouchStart={(e) => {
-        if (!isDisabled) {
-          e.currentTarget.style.transform = 'scale(0.97)';
-        }
+        if (!isDisabled) e.currentTarget.style.transform = 'scale(0.98)';
       }}
       onTouchEnd={(e) => {
-        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.transform = '';
       }}
       {...restProps}
     >

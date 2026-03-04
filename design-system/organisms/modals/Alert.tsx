@@ -51,7 +51,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
           {title}
         </h2>
         {message && (
-          <Text variant="body" style={{ marginBottom: spacing.scale.lg, color: 'var(--text-secondary)' }}>
+          <Text variant="body" style={{ marginBottom: spacing.scale.lg, color: 'var(--muted-foreground)' }}>
             {message}
           </Text>
         )}

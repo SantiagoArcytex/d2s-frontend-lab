@@ -30,7 +30,7 @@
     }
 
     const popupUrl = buildPopupUrl(baseUrl, appId, embedToken);
-    const popup = openPopup(popupUrl, 'marketplace-embed-auth', popupFeatures);
+    openPopup(popupUrl, 'marketplace-embed-auth', popupFeatures);
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {

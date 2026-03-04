@@ -4,8 +4,10 @@
  */
 
 import React, { useState } from 'react';
-import { Box, Typography, Chip, Skeleton, Button } from '@mui/material';
+import { Box, Typography, Skeleton } from '@mui/material';
 import { Card, CardContent } from './Card';
+import { Button } from './Button';
+import { Chip } from '@/components/data/Chip';
 import { designTokens } from '@/lib/theme/tokens';
 import { ChevronRight as ChevronRightIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import Link from 'next/link';
@@ -76,21 +78,13 @@ export const AppCard: React.FC<AppCardProps> = ({
         sx={{
           width: '100%',
           maxWidth: '100%',
-          height: { xs: 'auto', md: 400 },
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           boxSizing: 'border-box',
           transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
           touchAction: 'pan-y',
-          '&:hover': {
-            transform: { xs: 'none', md: 'scale(1.02)' },
-            zIndex: 10,
-            boxShadow: designTokens.shadows.modal,
-          },
-          '&:active': {
-            transform: 'scale(0.98)',
-          },
         }}
       >
         {/* Image Container */}
@@ -117,7 +111,7 @@ export const AppCard: React.FC<AppCardProps> = ({
               sx={{
                 width: '100%',
                 height: '100%',
-                background: `linear-gradient(135deg, ${designTokens.colors.action.primary}20 0%, ${designTokens.colors.action.primary}40 100%)`,
+                background: `linear-gradient(135deg, var(--primary-faint) 0%, var(--primary-dim) 100%)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -127,7 +121,7 @@ export const AppCard: React.FC<AppCardProps> = ({
               {icon || <Box sx={{ fontSize: 48 }}>📱</Box>}
             </Box>
           )}
-          
+
           {/* Hover Overlay - Desktop only */}
           <Box
             sx={{
@@ -145,7 +139,7 @@ export const AppCard: React.FC<AppCardProps> = ({
             }}
           >
             <Button
-              variant="contained"
+              variant="primary"
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
@@ -187,6 +181,7 @@ export const AppCard: React.FC<AppCardProps> = ({
               overflow: 'hidden',
               lineHeight: 1.3,
               wordBreak: 'break-word',
+              minHeight: '2.6em', // Reserve space for 2 lines
             }}
           >
             {name}
@@ -197,14 +192,13 @@ export const AppCard: React.FC<AppCardProps> = ({
             <Chip
               label={category}
               size="small"
-              variant="outlined"
-              sx={{
+              style={{
                 width: 'fit-content',
                 fontSize: '0.7rem',
                 height: 20,
-                bgcolor: 'transparent',
                 color: designTokens.colors.text.secondary,
-                borderColor: designTokens.colors.surface.border,
+                border: `1px solid ${designTokens.colors.surface.border}`,
+                backgroundColor: 'transparent',
               }}
             />
           )}
@@ -226,6 +220,7 @@ export const AppCard: React.FC<AppCardProps> = ({
                 flex: 1,
                 mt: 0.5,
                 wordBreak: 'break-word',
+                minHeight: '4.5em', // Reserve space for 3 lines
               }}
             >
               {description}
@@ -259,7 +254,7 @@ export const AppCard: React.FC<AppCardProps> = ({
 
     if (href) {
       return (
-        <Link href={href} style={{ textDecoration: 'none', display: 'block', width: '100%', maxWidth: '100%' }}>
+        <Link href={href} style={{ textDecoration: 'none', display: 'flex', width: '100%', maxWidth: '100%', height: '100%' }}>
           {cardContent}
         </Link>
       );
@@ -282,9 +277,6 @@ export const AppCard: React.FC<AppCardProps> = ({
         flexDirection: 'column',
         boxSizing: 'border-box',
         transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
-        '&:active': {
-          transform: 'scale(0.99)',
-        },
       }}
     >
       <CardContent
@@ -326,12 +318,13 @@ export const AppCard: React.FC<AppCardProps> = ({
                 noWrap={variant === 'compact'}
                 sx={{
                   fontFamily: designTokens.typography.fontFamily.primary,
-                  fontSize: variant === 'compact' 
+                  fontSize: variant === 'compact'
                     ? designTokens.typography.styles.body.fontSize
                     : designTokens.typography.styles.heading3.fontSize,
                   fontWeight: 600,
                   color: designTokens.colors.text.primary,
                   wordBreak: 'break-word',
+                  ...(variant !== 'compact' && { minHeight: '2.6em' }), // Reserve space for 2 lines if not compact
                 }}
               >
                 {name}
@@ -350,14 +343,13 @@ export const AppCard: React.FC<AppCardProps> = ({
               <Chip
                 label={category}
                 size="small"
-                variant="outlined"
-                sx={{
+                style={{
                   width: 'fit-content',
                   fontSize: '0.7rem',
                   height: 20,
-                  bgcolor: 'transparent',
                   color: designTokens.colors.text.secondary,
-                  borderColor: designTokens.colors.surface.border,
+                  border: `1px solid ${designTokens.colors.surface.border}`,
+                  backgroundColor: 'transparent',
                 }}
               />
             )}

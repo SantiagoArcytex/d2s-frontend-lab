@@ -20,7 +20,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
-  const onboardMutation = (trpc as any).user.onboard.useMutation();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const onboardMutation = trpc.user.onboard.useMutation();
 
   useEffect(() => {
     // Get initial session
@@ -37,20 +38,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase.auth]);
 
   const signIn = async (email: string, password: string) => {
     if (!email || !password) {
       throw new Error('Email and password are required');
     }
-    
+
     const trimmedEmail = email.trim();
-    
-    const { data, error } = await supabase.auth.signInWithPassword({
+
+    const { error } = await supabase.auth.signInWithPassword({
       email: trimmedEmail,
       password,
     });
-    
+
     if (error) {
       console.error('Sign in error:', {
         message: error.message,
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: error.name,
         email: trimmedEmail,
       });
-      
+
       // Provide more helpful error messages
       if (error.message === 'Invalid login credentials') {
         throw new Error(
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           '5. Try resetting the password if needed'
         );
       }
-      
+
       throw error;
     }
   };
@@ -84,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     if (error) throw error;
-    
+
     // After successful signup, call onboarding to create tenant and user record
     // This is the alternative to the database trigger approach
     // Note: Only call if user was created (data.user exists)

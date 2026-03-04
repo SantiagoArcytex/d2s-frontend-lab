@@ -12,31 +12,34 @@ import { useDebounce } from '@/lib/utils/debounce';
 export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [category, setCategory] = React.useState<string | undefined>(undefined);
-  
+
   // Debounce search query to reduce API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const { data: deals, isLoading } = (trpc as any).deal.list.useQuery({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deals, isLoading } = trpc.deal.list.useQuery({
     search: debouncedSearchQuery || undefined,
     category,
     limit: 50,
   });
 
-  const { data: featuredDeals } = (trpc as any).marketplace.featured.useQuery({ limit: 6 });
-  const { data: categories } = (trpc as any).marketplace.categories.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: featuredDeals } = trpc.marketplace.featured.useQuery({ limit: 6 });
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: categories } = trpc.marketplace.categories.useQuery();
 
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         paddingTop: 'clamp(3rem, 5rem, 5rem)',
         paddingBottom: 'clamp(4rem, 6rem, 6rem)',
       }}
     >
-      <Container 
-        maxWidth={1200} 
-        style={{ 
+      <Container
+        maxWidth={1200}
+        style={{
           padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
           width: '100%',
           boxSizing: 'border-box',
@@ -57,7 +60,7 @@ export default function MarketplacePage() {
             <Text
               variant="body"
               style={{
-                color: 'var(--text-secondary)',
+                color: 'var(--muted-foreground)',
                 maxWidth: '600px',
                 margin: '0 auto',
               }}
@@ -85,7 +88,7 @@ export default function MarketplacePage() {
                 >
                   All
                 </Button>
-                {categories.map((cat: any) => (
+                {categories.map((cat: string) => (
                   <Button
                     key={cat}
                     variant={category === cat ? 'primary' : 'outline'}
@@ -112,7 +115,7 @@ export default function MarketplacePage() {
                   gap: '1.5rem',
                 }}
               >
-                {featuredDeals.map((deal: any) => (
+                {featuredDeals.map((deal: React.ComponentProps<typeof DealCard>['deal']) => (
                   <DealCard key={deal.id} deal={deal} />
                 ))}
               </div>
@@ -127,7 +130,7 @@ export default function MarketplacePage() {
             {isLoading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem' }}>
                 <LoadingSpinner size="medium" />
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Loading deals...</span>
+                <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>Loading deals...</span>
               </div>
             ) : deals && deals.length > 0 ? (
               <div
@@ -137,7 +140,7 @@ export default function MarketplacePage() {
                   gap: '1.5rem',
                 }}
               >
-                {deals.map((deal: any) => (
+                {deals.map((deal: React.ComponentProps<typeof DealCard>['deal']) => (
                   <DealCard key={deal.id} deal={deal} />
                 ))}
               </div>
@@ -145,7 +148,7 @@ export default function MarketplacePage() {
               <Text
                 variant="body"
                 style={{
-                  color: 'var(--text-secondary)',
+                  color: 'var(--muted-foreground)',
                   textAlign: 'center',
                   padding: '2rem 0',
                 }}

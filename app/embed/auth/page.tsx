@@ -76,8 +76,8 @@ export default function EmbedAuthPage() {
       postMessageToOpener(data);
       setStatus('ready');
       window.close();
-    } catch (err: any) {
-      setError(err.message || 'Failed to exchange token');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to exchange token');
       setStatus('ready');
     }
   };
@@ -92,7 +92,7 @@ export default function EmbedAuthPage() {
     };
     try {
       window.opener?.postMessage(message, pwaOrigin || '*');
-    } catch (err) {
+    } catch {
       window.opener?.postMessage(message, '*');
     }
   };
@@ -124,7 +124,7 @@ export default function EmbedAuthPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: 'clamp(1rem, 2rem, 2rem)',
       }}
     >
@@ -133,7 +133,7 @@ export default function EmbedAuthPage() {
           <Heading level={1} variant="title2">
             Marketplace login
           </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
             Sign in to your marketplace account to continue in the external app.
           </Text>
           {error ? <Alert variant="error" message={error} /> : null}
@@ -163,7 +163,7 @@ export default function EmbedAuthPage() {
             </>
           )}
 
-          <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
+          <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
             App ID: {appId}
           </Text>
         </div>

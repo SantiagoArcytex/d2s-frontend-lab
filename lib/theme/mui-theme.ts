@@ -7,7 +7,14 @@ import { createTheme, ThemeOptions } from '@mui/material/styles';
 import { designTokens } from './tokens';
 
 // Import fonts
-import { Manrope, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Inter, Manrope, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+
+export const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const manrope = Manrope({
   subsets: ['latin'],
@@ -146,65 +153,61 @@ export const muiThemeOptions: ThemeOptions = {
     },
   },
   components: {
-    // Button overrides with modern effects
+    // Button overrides: pill for contained, 16px for outlined; no elevation/ripple
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: designTokens.borderRadius.md,
           textTransform: 'none',
           fontWeight: designTokens.typography.fontWeight.medium,
-          padding: `${designTokens.spacing.sm} ${designTokens.spacing.lg}`,
+          padding: '12px 28px',
           fontSize: designTokens.typography.fontSize.base,
           transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
-          '&:hover': {
-            boxShadow: designTokens.shadows.md,
-            transform: 'translateY(-2px)',
-          },
-          '&:active': {
-            transform: 'translateY(0)',
-          },
           '&:focus-visible': {
             outline: `2px solid ${designTokens.colors.action.primary}`,
             outlineOffset: '2px',
           },
         },
         contained: {
-          boxShadow: designTokens.shadows.sm,
+          borderRadius: '9999px',
+          boxShadow: 'none',
           '&:hover': {
-            boxShadow: designTokens.shadows.lg,
+            boxShadow: designTokens.shadows.uiButton,
           },
         },
         outlined: {
+          borderRadius: '16px',
           borderWidth: designTokens.borderWidth.medium,
           '&:hover': {
             borderWidth: designTokens.borderWidth.medium,
-            boxShadow: designTokens.shadows.md,
+            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
           },
+        },
+        text: {
+          borderRadius: '16px',
         },
       },
     },
-    // Card overrides - Figma Design System
+    // Card overrides: high radius, strong shadow (for any remaining MUI Card)
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: designTokens.borderRadius.md, // 12px
-          boxShadow: designTokens.shadows.card,
+          borderRadius: '28px',
+          boxShadow: designTokens.shadows.uiButton,
           backgroundColor: designTokens.colors.surface.elevated,
           border: `1px solid ${designTokens.colors.surface.border}`,
           transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
           '&:hover': {
-            boxShadow: designTokens.shadows.hover,
-            transform: 'translateY(-2px)',
+            boxShadow: designTokens.shadows.cardHover,
           },
         },
       },
     },
-    // TextField overrides - Figma Design System
+    // TextField overrides - Figma Design System (12px radius, label above)
     MuiTextField: {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: designTokens.borderRadius.sm, // 8px
+            borderRadius: '12px',
             backgroundColor: designTokens.colors.surface.subtle,
             height: '48px',
             transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
@@ -233,10 +236,12 @@ export const muiThemeOptions: ThemeOptions = {
         },
       },
     },
-    // Paper overrides - Figma Design System
+    // Paper overrides: high radius, strong shadow
     MuiPaper: {
       styleOverrides: {
         root: {
+          borderRadius: '24px',
+          boxShadow: designTokens.shadows.uiButton,
           backgroundColor: designTokens.colors.surface.elevated,
           backgroundImage: 'none',
         },
@@ -254,7 +259,7 @@ export const muiThemeOptions: ThemeOptions = {
         },
       },
     },
-    // Drawer overrides - No gradients
+    // Drawer overrides: radius, backdrop blur via slotProps at usage
     MuiDrawer: {
       styleOverrides: {
         paper: {
@@ -262,20 +267,24 @@ export const muiThemeOptions: ThemeOptions = {
           backdropFilter: 'none',
           WebkitBackdropFilter: 'none',
           borderRight: `1px solid ${designTokens.colors.surface.border}`,
+          borderTopRightRadius: '24px',
+          borderBottomRightRadius: '24px',
         },
       },
     },
-    // Chip overrides - Figma Design System
+    // Chip overrides: pill 9999px, compact padding
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: designTokens.borderRadius.full, // Pills/Tags
+          borderRadius: '9999px',
+          padding: '8px 14px',
+          fontWeight: 600,
           transition: `all ${designTokens.transitions.duration.fast}ms ${designTokens.transitions.easing.easeInOut}`,
           backgroundColor: 'transparent',
           border: `1px solid ${designTokens.colors.surface.border}`,
           color: designTokens.colors.text.secondary,
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backgroundColor: designTokens.glassmorphism.light.background,
           },
         },
         filled: {
@@ -292,13 +301,13 @@ export const muiThemeOptions: ThemeOptions = {
           borderRadius: designTokens.borderRadius.md,
           transition: `all ${designTokens.transitions.duration.fast}ms ${designTokens.transitions.easing.easeInOut}`,
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backgroundColor: designTokens.glassmorphism.light.background,
           },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(0, 122, 255, 0.1)',
+            backgroundColor: designTokens.colors.primaryAlpha.dim,
             borderLeft: `3px solid ${designTokens.colors.action.primary}`,
             '&:hover': {
-              backgroundColor: 'rgba(0, 122, 255, 0.15)',
+              backgroundColor: designTokens.colors.primaryAlpha.soft,
             },
           },
         },
@@ -309,7 +318,7 @@ export const muiThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           borderRadius: designTokens.borderRadius.full,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: designTokens.glassmorphism.medium.background,
         },
         bar: {
           borderRadius: designTokens.borderRadius.full,

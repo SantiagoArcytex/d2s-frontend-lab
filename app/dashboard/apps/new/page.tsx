@@ -16,7 +16,8 @@ export default function NewAppPage() {
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<{ name?: string; subdomain?: string }>({});
 
-  const createApp = (trpc as any).app.create.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const createApp = trpc.app.create.useMutation({
     onSuccess: () => {
       router.push('/dashboard/apps');
     },
@@ -48,18 +49,18 @@ export default function NewAppPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate
     const nameError = !name ? 'App name is required' : undefined;
     const subdomainError = validateSubdomain(subdomain);
-    
+
     if (nameError || subdomainError) {
       setErrors({ name: nameError, subdomain: subdomainError });
       return;
     }
 
     setErrors({});
-    
+
     createApp.mutate({
       name,
       subdomain,
@@ -68,9 +69,9 @@ export default function NewAppPage() {
   };
 
   return (
-    <Container 
-      maxWidth={600} 
-      style={{ 
+    <Container
+      maxWidth={600}
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -98,7 +99,7 @@ export default function NewAppPage() {
               >
                 Create New App
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                 Create a new application with a unique subdomain
               </Text>
             </div>
@@ -181,7 +182,7 @@ export default function NewAppPage() {
 
         {/* Info Card */}
         <Card variant="outlined">
-          <Text variant="body" style={{ color: 'var(--text-primary)' }}>
+          <Text variant="body" style={{ color: 'var(--foreground)' }}>
             <strong>Note:</strong> Your app will be accessible at{' '}
             <code style={{ background: 'rgba(0,0,0,0.1)', padding: '2px 4px', borderRadius: '4px', fontFamily: 'monospace' }}>
               {subdomain || 'subdomain'}.platform.com

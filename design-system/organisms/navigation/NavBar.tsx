@@ -28,8 +28,8 @@ export const NavBar: React.FC<NavBarProps> = ({
     justifyContent: 'space-between',
     padding: `${spacing.scale.md} ${spacing.scale.lg}`,
     paddingTop: `calc(${spacing.scale.md} + var(--safe-area-inset-top))`,
-    backgroundColor: 'var(--surface-base)',
-    borderBottom: '1px solid var(--surface-border)',
+    backgroundColor: 'var(--background)',
+    borderBottom: '1px solid var(--border)',
     minHeight: `calc(${hig.touchTarget.standard} + var(--safe-area-inset-top))`,
   };
 

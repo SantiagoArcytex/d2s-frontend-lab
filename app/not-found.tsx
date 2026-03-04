@@ -12,7 +12,7 @@ export default function NotFound() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: '1rem',
       }}
     >
@@ -28,7 +28,7 @@ export default function NotFound() {
                   fontSize: 'clamp(4rem, 8rem, 8rem)',
                   fontWeight: 700,
                   lineHeight: 1,
-                  color: 'var(--text-primary)',
+                  color: 'var(--foreground)',
                   marginBottom: '0.5rem',
                 }}
               >
@@ -41,8 +41,8 @@ export default function NotFound() {
               <Heading level={2} variant="title2" style={{ marginBottom: '1rem' }}>
                 Page Not Found
               </Heading>
-              <Text variant="body" style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
-                The page you're looking for doesn't exist or has been moved. Let's get you back on track.
+              <Text variant="body" style={{ color: 'var(--muted-foreground)', maxWidth: '400px', margin: '0 auto' }}>
+                The page you&apos;re looking for doesn&apos;t exist or has been moved. Let&apos;s get you back on track.
               </Text>
             </div>
 
@@ -69,7 +69,7 @@ export default function NotFound() {
             </div>
 
             {/* Helpful Links */}
-            <div style={{ marginTop: '1rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)' }}>
+            <div style={{ marginTop: '1rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
               <Text variant="caption1" style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
                 Looking for something specific?
               </Text>
@@ -84,7 +84,7 @@ export default function NotFound() {
                 <Link
                   href="/register"
                   style={{
-                    color: 'var(--action-primary)',
+                    color: 'var(--primary)',
                     textDecoration: 'none',
                     fontSize: '14px',
                   }}
@@ -95,7 +95,7 @@ export default function NotFound() {
                 <Link
                   href="/terms"
                   style={{
-                    color: 'var(--action-primary)',
+                    color: 'var(--primary)',
                     textDecoration: 'none',
                     fontSize: '14px',
                   }}
@@ -106,7 +106,7 @@ export default function NotFound() {
                 <Link
                   href="/privacy"
                   style={{
-                    color: 'var(--action-primary)',
+                    color: 'var(--primary)',
                     textDecoration: 'none',
                     fontSize: '14px',
                   }}

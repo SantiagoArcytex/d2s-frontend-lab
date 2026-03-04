@@ -34,7 +34,7 @@ export const Heading: React.FC<HeadingProps> = ({
     lineHeight: iosStyle.lineHeight,
     fontWeight: iosStyle.fontWeight,
     letterSpacing: iosStyle.letterSpacing,
-    color: 'var(--text-primary)',
+    color: 'var(--foreground)',
     margin: 0,
   };
 

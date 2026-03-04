@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 import { trpc } from '@/lib/trpc/client';
 import { Heading, Text, Container, Card, Button, Badge, Alert } from '@/design-system';
 import { designTokens } from '@/lib/theme/tokens';
@@ -18,7 +17,7 @@ function ChartLoadingPlaceholder() {
     <Card variant="elevated">
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem' }}>
         <LoadingSpinner size="medium" />
-        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.5rem' }}>Loading chart...</span>
+        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginTop: '0.5rem' }}>Loading chart...</span>
       </div>
     </Card>
   );
@@ -118,7 +117,7 @@ const statusConfig: Record<string, StatusConfig> = {
 };
 
 export default function SellerPortalPage() {
-  const router = useRouter();
+  // router not used here
   const [activeTab, setActiveTab] = useState('listings');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<{ startDate: string | null; endDate: string | null }>({
@@ -126,31 +125,32 @@ export default function SellerPortalPage() {
     endDate: null,
   });
 
-  // Fetch deals
-  const { data: deals, isLoading: dealsLoading, refetch: refetchDeals } = (trpc as any).deal.getMyDeals.useQuery();
-  
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deals, isLoading: dealsLoading, refetch: refetchDeals } = trpc.deal.getMyDeals.useQuery();
+
   // Fetch seller dashboard data with date filtering
-  const { data: dashboardData, isLoading: dashboardLoading } = (trpc as any).seller.dashboard.useQuery(
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: dashboardData, isLoading: dashboardLoading } = trpc.seller.dashboard.useQuery(
     dateRange.startDate || dateRange.endDate
       ? {
-          start_date: dateRange.startDate || undefined,
-          end_date: dateRange.endDate || undefined,
-        }
+        start_date: dateRange.startDate || undefined,
+        end_date: dateRange.endDate || undefined,
+      }
       : undefined
   );
 
   // Get purchases from dashboard data for line chart
   // The dashboard query already includes purchase data
-  const allPurchases = useMemo(() => {
+  const allPurchases = (() => {
     if (!dashboardData?.recent_purchases) return [];
-    
+
     const purchases: Array<{
       created_at: string;
       seller_revenue: string | number;
       status: string;
     }> = [];
 
-    dashboardData.recent_purchases.forEach((purchase: any) => {
+    dashboardData.recent_purchases.forEach((purchase: { created_at: string; seller_revenue?: number | string; amount?: number | string; status?: string }) => {
       purchases.push({
         created_at: purchase.created_at,
         seller_revenue: purchase.seller_revenue || purchase.amount || 0,
@@ -158,12 +158,13 @@ export default function SellerPortalPage() {
       });
     });
 
-    return purchases.sort((a, b) => 
+    return purchases.sort((a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
-  }, [dashboardData?.recent_purchases]);
+  })();
 
-  const submitMutation = (trpc as any).deal.submitForReview.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const submitMutation = trpc.deal.submitForReview.useMutation({
     onSuccess: () => {
       refetchDeals();
     },
@@ -173,9 +174,9 @@ export default function SellerPortalPage() {
   const filteredDeals = useMemo(() => {
     if (!deals) return [];
     if (!searchQuery) return deals;
-    
+
     const query = searchQuery.toLowerCase();
-    return deals.filter((deal: any) =>
+    return deals.filter((deal: { title: string; short_description?: string; id: string; status: string; price: string | number; purchase_count?: number; rejection_reason?: string }) =>
       deal.title.toLowerCase().includes(query) ||
       deal.short_description?.toLowerCase().includes(query)
     );
@@ -197,16 +198,16 @@ export default function SellerPortalPage() {
   const totalRevenue = dashboardData?.revenue?.totalSellerRevenue || 0;
   const totalSales = dashboardData?.revenue?.completedPurchases || 0;
   const activeDeals = dashboardData?.active_deals || 0;
-  const pendingPayoutsCount = dashboardData?.pending_payouts?.length || 0;
-  const pendingPayoutsAmount = useMemo(() => {
+  // paddingPayoutsCount not actively used
+  const pendingPayoutsAmount = (() => {
     if (!dashboardData?.pending_payouts) return 0;
-    return dashboardData.pending_payouts.reduce((sum: number, payout: any) => {
+    return dashboardData.pending_payouts.reduce((sum: number, payout: { payout_amount: string | number }) => {
       const amount = typeof payout.payout_amount === 'string'
         ? parseFloat(payout.payout_amount)
         : payout.payout_amount;
       return sum + amount;
     }, 0);
-  }, [dashboardData?.pending_payouts]);
+  })();
 
   const isLoading = dealsLoading || dashboardLoading;
 
@@ -218,9 +219,9 @@ export default function SellerPortalPage() {
   const showDashboard = hasDeals;
 
   return (
-    <Container 
-      maxWidth={1200} 
-      style={{ 
+    <Container
+      maxWidth={1200}
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -232,7 +233,7 @@ export default function SellerPortalPage() {
           <Heading level={1} variant="title1" style={{ marginBottom: '0.5rem' }}>
             Seller Portal
           </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
             Manage your marketplace listings and track their performance
           </Text>
         </div>
@@ -348,136 +349,136 @@ export default function SellerPortalPage() {
           </div>
 
           {/* Listings */}
-      {!deals || filteredDeals.length === 0 ? (
-        <Card variant="elevated">
-          <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-            {searchQuery ? 'No listings found' : 'No listings yet'}
-          </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            {searchQuery
-              ? 'Try adjusting your search terms'
-              : 'Create your first listing to start selling on the marketplace'}
-          </Text>
-          {!searchQuery && (
-            <Link href="/dashboard/seller/deals/new" style={{ textDecoration: 'none', display: 'inline-block' }}>
-              <Button variant="primary">Create Your First Listing</Button>
-            </Link>
-          )}
-        </Card>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {filteredDeals.map((deal: any) => {
-            const price = typeof deal.price === 'string' ? parseFloat(deal.price) : deal.price;
-            const status = statusConfig[deal.status] || statusConfig.draft;
-            const isRejected = deal.status === 'rejected' || deal.rejection_reason;
+          {!deals || filteredDeals.length === 0 ? (
+            <Card variant="elevated">
+              <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--muted-foreground)' }}>
+                {searchQuery ? 'No listings found' : 'No listings yet'}
+              </Heading>
+              <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem' }}>
+                {searchQuery
+                  ? 'Try adjusting your search terms'
+                  : 'Create your first listing to start selling on the marketplace'}
+              </Text>
+              {!searchQuery && (
+                <Link href="/dashboard/seller/deals/new" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                  <Button variant="primary">Create Your First Listing</Button>
+                </Link>
+              )}
+            </Card>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {filteredDeals.map((deal: { id: string; title: string; price: string | number; purchase_count?: number; status: string; rejection_reason?: string; short_description?: string }) => {
+                const price = typeof deal.price === 'string' ? parseFloat(deal.price) : deal.price;
+                const status = statusConfig[deal.status] || statusConfig.draft;
+                const isRejected = deal.status === 'rejected' || deal.rejection_reason;
 
-            return (
-              <Card key={deal.id} variant="elevated">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {/* Header Row */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-                        <Heading level={3} variant="headline" style={{ margin: 0 }}>
-                          {deal.title}
-                        </Heading>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <Badge
-                            variant={status.variant}
-                            size="sm"
-                          >
-                            {status.icon}
-                            {status.label}
-                          </Badge>
-                        </span>
+                return (
+                  <Card key={deal.id} variant="elevated">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {/* Header Row */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                            <Heading level={3} variant="headline" style={{ margin: 0 }}>
+                              {deal.title}
+                            </Heading>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <Badge
+                                variant={status.variant}
+                                size="sm"
+                              >
+                                {status.icon}
+                                {status.label}
+                              </Badge>
+                            </span>
+                          </div>
+                          <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '0.25rem' }}>
+                            ${price.toFixed(2)} • {deal.purchase_count || 0} purchases
+                          </Text>
+                          <Text variant="caption1" style={{ color: 'var(--muted-foreground)' }}>
+                            {status.description}
+                          </Text>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {deal.status === 'live' && (
+                            <Link
+                              href={`/marketplace/${deal.id}`}
+                              target="_blank"
+                              style={{ textDecoration: 'none', display: 'inline-block' }}
+                            >
+                              <Button variant="outline" size="small">
+                                <VisibilityIcon style={{ fontSize: '18px' }} />
+                                View
+                              </Button>
+                            </Link>
+                          )}
+                          <Link href={`/dashboard/seller/deals/${deal.id}/edit`} style={{ textDecoration: 'none', display: 'inline-block' }}>
+                            <Button variant="outline" size="small">
+                              <EditIcon style={{ fontSize: '18px' }} />
+                              Edit
+                            </Button>
+                          </Link>
+                          {status.canResubmit && (
+                            <Button
+                              variant="primary"
+                              size="small"
+                              onClick={() => handleResubmit(deal.id)}
+                              loading={submitMutation.isLoading}
+                              disabled={submitMutation.isLoading}
+                            >
+                              <RefreshIcon style={{ fontSize: '18px' }} />
+                              Re-submit
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                        ${price.toFixed(2)} • {deal.purchase_count || 0} purchases
-                      </Text>
-                      <Text variant="caption1" style={{ color: 'var(--text-secondary)' }}>
-                        {status.description}
-                      </Text>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                      {deal.status === 'live' && (
-                        <Link
-                          href={`/marketplace/${deal.id}`}
-                          target="_blank"
-                          style={{ textDecoration: 'none', display: 'inline-block' }}
-                        >
-                          <Button variant="outline" size="small">
-                            <VisibilityIcon style={{ fontSize: '18px' }} />
-                            View
+
+                      {/* Rejection Reason */}
+                      {isRejected && deal.rejection_reason && (
+                        <Alert variant="error" title="Rejection Reason" message={deal.rejection_reason} />
+                      )}
+
+                      {/* Status-specific actions */}
+                      {deal.status === 'draft' && (
+                        <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                          <Text variant="caption1" style={{ color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.75rem' }}>
+                            Ready to submit? Review your deal and submit for platform approval.
+                          </Text>
+                          <Button
+                            variant="outline"
+                            size="small"
+                            onClick={() => handleResubmit(deal.id)}
+                            loading={submitMutation.isLoading}
+                            disabled={submitMutation.isLoading}
+                          >
+                            <RefreshIcon style={{ fontSize: '18px' }} />
+                            Submit for Review
                           </Button>
-                        </Link>
+                        </div>
                       )}
-                      <Link href={`/dashboard/seller/deals/${deal.id}/edit`} style={{ textDecoration: 'none', display: 'inline-block' }}>
-                        <Button variant="outline" size="small">
-                          <EditIcon style={{ fontSize: '18px' }} />
-                          Edit
-                        </Button>
-                      </Link>
-                      {status.canResubmit && (
-                        <Button
-                          variant="primary"
-                          size="small"
-                          onClick={() => handleResubmit(deal.id)}
-                          loading={submitMutation.isLoading}
-                          disabled={submitMutation.isLoading}
-                        >
-                          <RefreshIcon style={{ fontSize: '18px' }} />
-                          Re-submit
-                        </Button>
+
+                      {deal.status === 'approved' && (
+                        <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                          <Alert variant="info" message={
+                            'Your deal has been approved! It will go live soon. You\'ll be notified when it\'s available for purchase.'
+                          } />
+                        </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Rejection Reason */}
-                  {isRejected && deal.rejection_reason && (
-                    <Alert variant="error" title="Rejection Reason" message={deal.rejection_reason} />
-                  )}
-
-                  {/* Status-specific actions */}
-                  {deal.status === 'draft' && (
-                    <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
-                      <Text variant="caption1" style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '0.75rem' }}>
-                        Ready to submit? Review your deal and submit for platform approval.
-                      </Text>
-                      <Button
-                        variant="outline"
-                        size="small"
-                        onClick={() => handleResubmit(deal.id)}
-                        loading={submitMutation.isLoading}
-                        disabled={submitMutation.isLoading}
-                      >
-                        <RefreshIcon style={{ fontSize: '18px' }} />
-                        Submit for Review
-                      </Button>
-                    </div>
-                  )}
-
-                  {deal.status === 'approved' && (
-                    <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
-                      <Alert variant="info" message={
-                        'Your deal has been approved! It will go live soon. You\'ll be notified when it\'s available for purchase.'
-                      } />
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </>
       )}
 
       {activeTab === 'metrics' && !showDashboard && (
         <Card variant="elevated">
-          <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          <Heading level={2} variant="headline" style={{ marginBottom: '1rem', color: 'var(--muted-foreground)' }}>
             No metrics available
           </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+          <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem' }}>
             Create your first listing to start tracking metrics and revenue.
           </Text>
           <Link href="/dashboard/seller/deals/new" style={{ textDecoration: 'none', display: 'inline-block' }}>

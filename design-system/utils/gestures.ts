@@ -5,7 +5,7 @@
 
 'use client';
 
-import { RefObject, useEffect } from 'react';
+import { RefObject, useEffect, useRef, useCallback } from 'react';
 
 export interface SwipeGestureOptions {
   onSwipeLeft?: () => void;
@@ -29,7 +29,6 @@ export const useSwipeGesture = (
   ref: RefObject<HTMLElement>,
   options: SwipeGestureOptions
 ): void => {
-  if (typeof window === 'undefined') return;
 
   const {
     onSwipeLeft,
@@ -40,32 +39,29 @@ export const useSwipeGesture = (
     velocityThreshold = 0.3,
   } = options;
 
-  let startX = 0;
-  let startY = 0;
-  let startTime = 0;
-  let isTracking = false;
+  const state = useRef({ startX: 0, startY: 0, startTime: 0, isTracking: false });
 
-  const handleTouchStart = (e: TouchEvent) => {
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    startTime = Date.now();
-    isTracking = true;
-  };
+    state.current.startX = touch.clientX;
+    state.current.startY = touch.clientY;
+    state.current.startTime = Date.now();
+    state.current.isTracking = true;
+  }, []);
 
-  const handleTouchEnd = (e: TouchEvent) => {
-    if (!isTracking) return;
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    if (!state.current.isTracking) return;
 
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-    const deltaTime = Date.now() - startTime;
+    const deltaX = touch.clientX - state.current.startX;
+    const deltaY = touch.clientY - state.current.startY;
+    const deltaTime = Date.now() - state.current.startTime;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     const velocity = distance / deltaTime;
 
     // Check if gesture meets threshold
     if (distance < threshold || velocity < velocityThreshold) {
-      isTracking = false;
+      state.current.isTracking = false;
       return;
     }
 
@@ -89,8 +85,8 @@ export const useSwipeGesture = (
       }
     }
 
-    isTracking = false;
-  };
+    state.current.isTracking = false;
+  }, [onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, threshold, velocityThreshold]);
 
   useEffect(() => {
     const element = ref.current;
@@ -103,7 +99,7 @@ export const useSwipeGesture = (
       element.removeEventListener('touchstart', handleTouchStart);
       element.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [ref]);
+  }, [ref, handleTouchStart, handleTouchEnd]);
 };
 
 /**
@@ -113,7 +109,6 @@ export const usePullToRefresh = (
   ref: RefObject<HTMLElement>,
   options: PullToRefreshOptions
 ): void => {
-  if (typeof window === 'undefined') return;
 
   const {
     onRefresh,
@@ -121,13 +116,10 @@ export const usePullToRefresh = (
     enabled = true,
   } = options;
 
-  let startY = 0;
-  let currentY = 0;
-  let isPulling = false;
-  let isRefreshing = false;
+  const state = useRef({ startY: 0, currentY: 0, isPulling: false, isRefreshing: false });
 
-  const handleTouchStart = (e: TouchEvent) => {
-    if (!enabled || isRefreshing) return;
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (!enabled || state.current.isRefreshing) return;
 
     const element = ref.current;
     if (!element) return;
@@ -136,21 +128,21 @@ export const usePullToRefresh = (
     if (element.scrollTop > 0) return;
 
     const touch = e.touches[0];
-    startY = touch.clientY;
-    isPulling = true;
-  };
+    state.current.startY = touch.clientY;
+    state.current.isPulling = true;
+  }, [enabled, ref]);
 
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isPulling || isRefreshing) return;
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!state.current.isPulling || state.current.isRefreshing) return;
 
     const touch = e.touches[0];
-    currentY = touch.clientY;
-    const deltaY = currentY - startY;
+    state.current.currentY = touch.clientY;
+    const deltaY = state.current.currentY - state.current.startY;
 
     if (deltaY > 0) {
       // Prevent default scrolling while pulling
       e.preventDefault();
-      
+
       // Visual feedback (could be enhanced with a loading indicator)
       const element = ref.current;
       if (element) {
@@ -158,26 +150,26 @@ export const usePullToRefresh = (
         element.style.transform = `translateY(${pullDistance}px)`;
       }
     }
-  };
+  }, [ref, threshold]);
 
-  const handleTouchEnd = async () => {
-    if (!isPulling) return;
+  const handleTouchEnd = useCallback(async () => {
+    if (!state.current.isPulling) return;
 
     const element = ref.current;
     if (element) {
-      const deltaY = currentY - startY;
-      
+      const deltaY = state.current.currentY - state.current.startY;
+
       // Reset transform
       element.style.transform = 'translateY(0)';
       element.style.transition = 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)';
 
       // Trigger refresh if threshold met
-      if (deltaY >= threshold && !isRefreshing) {
-        isRefreshing = true;
+      if (deltaY >= threshold && !state.current.isRefreshing) {
+        state.current.isRefreshing = true;
         try {
           await onRefresh();
         } finally {
-          isRefreshing = false;
+          state.current.isRefreshing = false;
         }
       }
 
@@ -189,8 +181,8 @@ export const usePullToRefresh = (
       }, 300);
     }
 
-    isPulling = false;
-  };
+    state.current.isPulling = false;
+  }, [ref, threshold, onRefresh]);
 
   useEffect(() => {
     const element = ref.current;
@@ -205,6 +197,6 @@ export const usePullToRefresh = (
       element.removeEventListener('touchmove', handleTouchMove);
       element.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [ref, enabled]);
+  }, [ref, enabled, handleTouchStart, handleTouchMove, handleTouchEnd]);
 };
 

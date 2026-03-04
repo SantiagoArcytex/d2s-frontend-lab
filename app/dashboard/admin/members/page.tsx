@@ -13,16 +13,27 @@ import { trpc } from '@/lib/trpc/client';
 import { SectionLoader } from '@/components/feedback/SectionLoader';
 import { useAuth } from '@/contexts/AuthContext';
 
+type UserItem = {
+  id: string;
+  email: string;
+  name: string | null;
+  roles: string[];
+  created_at: string;
+};
+
 export default function ManageMembersPage() {
   const { user } = useAuth();
   const [selectedUser, setSelectedUser] = useState<{ id: string; email: string; action: string } | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
-  const { data: users, isLoading, refetch } = (trpc as any).admin.getAllUsers.useQuery();
-  const { data: currentUserRoles } = (trpc as any).user.roles.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: users, isLoading, refetch } = trpc.admin.getAllUsers.useQuery();
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: currentUserRoles } = trpc.user.roles.useQuery();
   const isSuperAdmin = currentUserRoles?.includes('super_admin') || false;
 
-  const promoteToAdminMutation = (trpc as any).admin.promoteToAdmin.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const promoteToAdminMutation = trpc.admin.promoteToAdmin.useMutation({
     onSuccess: () => {
       setConfirmDialogOpen(false);
       setSelectedUser(null);
@@ -30,7 +41,8 @@ export default function ManageMembersPage() {
     },
   });
 
-  const removeAdminMutation = (trpc as any).admin.removeAdminRole.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const removeAdminMutation = trpc.admin.removeAdminRole.useMutation({
     onSuccess: () => {
       setConfirmDialogOpen(false);
       setSelectedUser(null);
@@ -38,7 +50,8 @@ export default function ManageMembersPage() {
     },
   });
 
-  const assignSuperAdminMutation = (trpc as any).admin.assignSuperAdmin.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const assignSuperAdminMutation = trpc.admin.assignSuperAdmin.useMutation({
     onSuccess: () => {
       setConfirmDialogOpen(false);
       setSelectedUser(null);
@@ -46,7 +59,8 @@ export default function ManageMembersPage() {
     },
   });
 
-  const removeSuperAdminMutation = (trpc as any).admin.removeSuperAdmin.useMutation({
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const removeSuperAdminMutation = trpc.admin.removeSuperAdmin.useMutation({
     onSuccess: () => {
       setConfirmDialogOpen(false);
       setSelectedUser(null);
@@ -117,9 +131,9 @@ export default function ManageMembersPage() {
   }
 
   return (
-    <Container 
-      maxWidth={1200} 
-      style={{ 
+    <Container
+      maxWidth={1200}
+      style={{
         padding: `clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']}) clamp(${designTokens.spacing.lg}, ${designTokens.spacing.xl}, ${designTokens.spacing['2xl']})`,
         width: '100%',
         boxSizing: 'border-box',
@@ -144,10 +158,10 @@ export default function ManageMembersPage() {
 
       {!users || users.length === 0 ? (
         <Card variant="elevated" className="p-8 text-center">
-          <Heading level={2} variant="headline" style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+          <Heading level={2} variant="headline" style={{ color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
             No members found
           </Heading>
-          <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
             There are no users in the system yet.
           </Text>
         </Card>
@@ -156,7 +170,7 @@ export default function ManageMembersPage() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
                   <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600 }}>Email</th>
                   <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600 }}>Name</th>
                   <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600 }}>Roles</th>
@@ -165,13 +179,13 @@ export default function ManageMembersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((userItem: any) => {
+                {users.map((userItem: UserItem) => {
                   const hasAdmin = userItem.roles.includes('admin');
                   const hasSuperAdmin = userItem.roles.includes('super_admin');
                   const isCurrentUser = user?.id === userItem.id;
 
                   return (
-                    <tr key={userItem.id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                    <tr key={userItem.id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '1rem' }}>
                         <Text variant="body">{userItem.email}</Text>
                       </td>
@@ -183,10 +197,10 @@ export default function ManageMembersPage() {
                           {userItem.roles.length === 0 ? (
                             <Badge variant="default" size="sm">user</Badge>
                           ) : (
-                            userItem.roles.map((role: any) => (
-                              <Badge 
-                                key={role} 
-                                variant={role === 'super_admin' ? 'error' : role === 'admin' ? 'warning' : 'default'} 
+                            userItem.roles.map((role: string) => (
+                              <Badge
+                                key={role}
+                                variant={role === 'super_admin' ? 'error' : role === 'admin' ? 'warning' : 'default'}
                                 size="sm"
                               >
                                 {role}
@@ -196,13 +210,13 @@ export default function ManageMembersPage() {
                         </div>
                       </td>
                       <td style={{ padding: '1rem' }}>
-                        <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+                        <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
                           {userItem.created_at
                             ? new Date(userItem.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })
                             : '—'}
                         </Text>
                       </td>
@@ -257,7 +271,7 @@ export default function ManageMembersPage() {
                             </Button>
                           )}
                           {isCurrentUser && (
-                            <Text variant="caption1" style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                            <Text variant="caption1" style={{ color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
                               (You)
                             </Text>
                           )}
@@ -284,13 +298,13 @@ export default function ManageMembersPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {selectedUser && (
             <>
-              <Alert 
-                variant={selectedUser.action.includes('remove') ? 'warning' : 'info'} 
-                message={getActionMessage(selectedUser.action, selectedUser.email)} 
+              <Alert
+                variant={selectedUser.action.includes('remove') ? 'warning' : 'info'}
+                message={getActionMessage(selectedUser.action, selectedUser.email)}
               />
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setConfirmDialogOpen(false);
                     setSelectedUser(null);

@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Heading, Text, Button, Alert } from '@/design-system';
 import { TextField } from '@/components/forms/TextField';
 import { Star as StarIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
-import { designTokens } from '@/lib/theme/tokens';
 
 interface ReviewFormProps {
   initialRating?: number;
@@ -57,7 +56,7 @@ export function ReviewForm({
         <Heading level={3} variant="headline" style={{ marginBottom: '0.75rem' }}>
           {mode === 'edit' ? 'Edit Your Review' : 'Write a Review'}
         </Heading>
-        <Text variant="body" style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+        <Text variant="body" style={{ color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
           Share your experience with this app
         </Text>
       </div>
@@ -65,7 +64,7 @@ export function ReviewForm({
       {/* Star Rating */}
       <div>
         <Text variant="body" style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
-          Rating <span style={{ color: 'var(--error)' }}>*</span>
+          Rating <span style={{ color: 'var(--destructive)' }}>*</span>
         </Text>
         <div
           style={{
@@ -110,7 +109,7 @@ export function ReviewForm({
               variant="caption1"
               style={{
                 marginLeft: '0.5rem',
-                color: 'var(--text-secondary)',
+                color: 'var(--muted-foreground)',
               }}
             >
               {rating === 1 && 'Poor'}

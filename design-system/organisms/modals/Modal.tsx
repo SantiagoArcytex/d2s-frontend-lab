@@ -7,7 +7,9 @@
 
 import React, { useEffect } from 'react';
 import { IconButton } from '../../atoms/buttons';
-import { hig, spacing, animations } from '../../tokens';
+import { spacing, animations } from '../../tokens';
+
+const MODAL_RADIUS = '24px';
 
 export interface ModalProps {
   open: boolean;
@@ -57,7 +59,9 @@ export const Modal: React.FC<ModalProps> = ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
     zIndex: 1300,
     display: 'flex',
     alignItems: variant === 'centered' ? 'center' : 'flex-end',
@@ -67,7 +71,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   const getModalStyle = (): React.CSSProperties => {
     const base: React.CSSProperties = {
-      backgroundColor: 'var(--surface-elevated)',
+      backgroundColor: 'var(--card)',
       zIndex: 1301,
       display: 'flex',
       flexDirection: 'column',
@@ -89,15 +93,15 @@ export const Modal: React.FC<ModalProps> = ({
           ...base,
           width: '100%',
           maxHeight: '90vh',
-          borderTopLeftRadius: hig.borderRadius.modal,
-          borderTopRightRadius: hig.borderRadius.modal,
+          borderTopLeftRadius: MODAL_RADIUS,
+          borderTopRightRadius: MODAL_RADIUS,
         };
       case 'centered':
         return {
           ...base,
           width: '90%',
           maxWidth: '500px',
-          borderRadius: hig.borderRadius.modal,
+          borderRadius: MODAL_RADIUS,
           maxHeight: '90vh',
         };
       default:
@@ -125,7 +129,7 @@ export const Modal: React.FC<ModalProps> = ({
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: spacing.scale.lg,
-              borderBottom: '1px solid var(--surface-border)',
+              borderBottom: '1px solid var(--border)',
             }}
           >
             <h2 id="modal-title" style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>

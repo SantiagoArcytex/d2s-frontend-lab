@@ -54,9 +54,9 @@ function VerifyEmailContent() {
       }
 
       setSent(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to resend email:', err);
-      setError(err.message || 'Failed to resend verification email. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to resend verification email. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ function VerifyEmailContent() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--surface-base)',
+        background: 'var(--background)',
         padding: '1rem',
       }}
     >
@@ -79,7 +79,7 @@ function VerifyEmailContent() {
             <EmailIcon
               style={{
                 fontSize: '64px',
-                color: 'var(--text-primary)',
+                color: 'var(--foreground)',
                 marginBottom: '1rem',
               }}
             />
@@ -92,7 +92,7 @@ function VerifyEmailContent() {
             >
               Verify Your Email
             </Heading>
-            <Text variant="body" style={{ color: 'var(--text-secondary)' }}>
+            <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
               {email
                 ? `We've sent a verification email to ${email}. Please click the link in the email to verify your account.`
                 : "We've sent a verification email to your inbox. Please click the link in the email to verify your account."}
