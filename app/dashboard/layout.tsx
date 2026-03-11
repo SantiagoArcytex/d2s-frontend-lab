@@ -7,12 +7,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { StatusNavbar } from '@/components/layout/StatusNavbar';
 import { SideDrawer } from '@/components/layout/SideDrawer';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { useNavbar } from '@/contexts/NavbarContext';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useNavbar({ hidden: true });
   const { user } = useAuth();
   const theme = useTheme();
   // Use noSsr to prevent hydration mismatch with media queries

@@ -5,9 +5,11 @@ import { AppThemeProvider } from "@/lib/theme/theme";
 import { TRPCProvider } from "@/lib/trpc/provider";
 import { inter, manrope, spaceGrotesk, jetbrainsMono } from "@/lib/theme/mui-theme";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { LenisProvider } from "@/components/layout/LenisProvider";
+import { MotionScrollProvider } from "@/components/layout/MotionScrollProvider";
 import { WebVitals } from "@/components/analytics/WebVitals";
 import Script from "next/script";
+import { Navbar } from "@/components/ds/Navbar";
+import { NavbarProvider } from "@/contexts/NavbarContext";
 
 export const metadata: Metadata = {
   title: "Vibe Coding Incubator (VCI) — Deal Marketplace",
@@ -59,11 +61,14 @@ export default function RootLayout({
         <AppThemeProvider>
           <TRPCProvider>
             <AuthProvider>
-              <LenisProvider>
-                <PageTransition>
-                  {children}
-                </PageTransition>
-              </LenisProvider>
+              <NavbarProvider>
+                <Navbar />
+                <MotionScrollProvider>
+                  <PageTransition>
+                    {children}
+                  </PageTransition>
+                </MotionScrollProvider>
+              </NavbarProvider>
             </AuthProvider>
           </TRPCProvider>
         </AppThemeProvider>

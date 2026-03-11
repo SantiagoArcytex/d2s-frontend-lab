@@ -527,8 +527,18 @@ body.loaded {
 }
 
 html {
+  /* Native smooth scroll — works with keyboard, anchor links, scrollTo() */
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* Prevent rubber-band overscroll that can cause layout shifts */
+  overscroll-behavior-y: none;
+}
+
+/* Promote scroll-animated elements to their own GPU layer */
+[data-scroll-animate] {
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 body {
@@ -585,12 +595,21 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  [data-scroll-animate] {
+    will-change: auto;
+    transform: none;
   }
 }
 

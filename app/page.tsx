@@ -3,22 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { ChevronRight } from 'lucide-react';
-import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
-import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import ShieldIcon from '@mui/icons-material/Shield';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import ForumIcon from '@mui/icons-material/Forum';
-import LockIcon from '@mui/icons-material/Lock';
-import SearchIcon from '@mui/icons-material/Search';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
+import { ChevronRight, Store, Rocket, CheckCircle, Headphones, ShieldCheck, UserCheck, MessageSquare, Lock, Search, ShoppingCart } from 'lucide-react';
 
 import {
-  Navbar,
   PageFooter,
   Button,
   Badge,
@@ -28,37 +15,34 @@ import {
   FeatureCard,
   TestimonialCard,
   FAQItem,
-  DealCard,
 } from '@/components/ds';
-import { HelpdeskMini, InvoiceMini, BookingMini, CRMMini } from '@/components/product/mockups/CardScreenMockups';
+import { trpc } from '@/lib/trpc/client';
+import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
+import { LandingDealCard } from '@/components/marketplace/LandingDealCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavbar } from '@/contexts/NavbarContext';
 
 const VALUE_PROPS = [
-  { Icon: CheckCircleOutlineIcon, headline: 'Apps that work', description: 'Every app is reviewed before listing — no experiments, no broken code.' },
-  { Icon: SupportAgentIcon, headline: 'Clear support policy', description: 'Know exactly what support you\'ll get before you buy.' },
-  { Icon: RocketLaunchIcon, headline: 'Deploy in minutes', description: 'Guided setup, integrations, and documentation included.' },
-  { Icon: ShieldIcon, headline: 'Buyer protection', description: 'Transparent refund policy and dispute resolution.' },
+  { Icon: CheckCircle, headline: 'Apps that work', description: 'Every app is reviewed before listing — no experiments, no broken code.' },
+  { Icon: Headphones, headline: 'Clear support policy', description: 'Know exactly what support you\'ll get before you buy.' },
+  { Icon: Rocket, headline: 'Deploy in minutes', description: 'Guided setup, integrations, and documentation included.' },
+  { Icon: ShieldCheck, headline: 'Buyer protection', description: 'Transparent refund policy and dispute resolution.' },
 ];
 
 const COLLECTION_TABS = ['Popular', 'New & noteworthy', 'Best for teams', 'Under $49', 'Dev Tools', 'AI'];
 
-const MARKETPLACE_DEALS = [
-  { name: 'FlowDesk', value: 'Streamlined helpdesk for small teams', rating: 5 as const, category: 'Support', initials: 'FD', gradientIdx: 0, price: '$39', mockup: 'helpdesk' },
-  { name: 'InvoiceNinja', value: 'Automated invoicing and payment tracking', rating: 5 as const, category: 'Finance', initials: 'IN', gradientIdx: 1, price: '$29', mockup: 'invoice' },
-  { name: 'BookItPro', value: 'Appointment scheduling with smart reminders', rating: 4 as const, category: 'Scheduling', initials: 'BP', gradientIdx: 2, price: '$19', mockup: 'booking' },
-  { name: 'CRMPulse', value: 'Lightweight CRM built for solopreneurs', rating: 4 as const, category: 'CRM', initials: 'CP', gradientIdx: 4, price: '$49', mockup: 'crm' },
-];
+// MARKETPLACE_DEALS removed as it's now fetched from backend
 
 const HOW_STEPS = [
-  { number: '01', headline: 'Find', description: 'Browse by category or search for what you need.', Icon: SearchIcon },
-  { number: '02', headline: 'Buy & deploy', description: 'Secure checkout with guided setup and documentation.', Icon: ShoppingCartIcon },
-  { number: '03', headline: 'Get support', description: 'Every listing includes creator support backed by marketplace standards.', Icon: HeadsetMicIcon },
+  { number: '01', headline: 'Find', description: 'Browse by category or search for what you need.', Icon: Search },
+  { number: '02', headline: 'Buy & deploy', description: 'Secure checkout with guided setup and documentation.', Icon: ShoppingCart },
+  { number: '03', headline: 'Get support', description: 'Every listing includes creator support backed by marketplace standards.', Icon: Headphones },
 ];
 
 const TRUST_BLOCKS = [
-  { Icon: VerifiedUserIcon, headline: 'Vetted listings', description: 'Every app goes through our review process before it\'s listed.' },
-  { Icon: ForumIcon, headline: 'Transparent support', description: 'Support response times and maintenance expectations are clearly listed on every app.' },
-  { Icon: LockIcon, headline: 'Buyer protection', description: 'Clear refund policy, secure payments, and license transparency.' },
+  { Icon: UserCheck, headline: 'Vetted listings', description: 'Every app goes through our review process before it\'s listed.' },
+  { Icon: MessageSquare, headline: 'Transparent support', description: 'Support response times and maintenance expectations are clearly listed on every app.' },
+  { Icon: Lock, headline: 'Buyer protection', description: 'Clear refund policy, secure payments, and license transparency.' },
 ];
 
 const TESTIMONIALS = [
@@ -119,12 +103,12 @@ function HeroSection() {
             {user ? (
               <>
                 <Link href="/dashboard/home">
-                  <Button variant="primary" leadingIcon={<StorefrontOutlinedIcon style={{ fontSize: 20 }} />}>
+                  <Button variant="primary" leadingIcon={<Store style={{ width: 20, height: 20 }} />}>
                     Go to Dashboard
                   </Button>
                 </Link>
                 <Link href="/marketplace">
-                  <Button variant="outlined" leadingIcon={<RocketLaunchOutlinedIcon style={{ fontSize: 20 }} />}>
+                  <Button variant="outlined" leadingIcon={<Rocket style={{ width: 20, height: 20 }} />}>
                     Browse deals
                   </Button>
                 </Link>
@@ -132,12 +116,12 @@ function HeroSection() {
             ) : (
               <>
                 <Link href="/register">
-                  <Button variant="primary" leadingIcon={<StorefrontOutlinedIcon style={{ fontSize: 20 }} />}>
+                  <Button variant="primary" leadingIcon={<Store style={{ width: 20, height: 20 }} />}>
                     Join the Revolution
                   </Button>
                 </Link>
                 <Link href="/marketplace">
-                  <Button variant="outlined" leadingIcon={<RocketLaunchOutlinedIcon style={{ fontSize: 20 }} />}>
+                  <Button variant="outlined" leadingIcon={<Rocket style={{ width: 20, height: 20 }} />}>
                     Browse deals
                   </Button>
                 </Link>
@@ -180,7 +164,7 @@ function ValueProps() {
           {VALUE_PROPS.map((prop, i) => (
             <FeatureCard
               key={prop.headline}
-              icon={<prop.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 16 }} />}
+              icon={<prop.Icon style={{ width: 32, height: 32, color: 'var(--primary)', marginBottom: 16 }} />}
               headline={prop.headline}
               description={prop.description}
               variant="card"
@@ -198,8 +182,18 @@ function ValueProps() {
   );
 }
 
+
 function MarketplacePreview() {
   const [activeTab, setActiveTab] = useState('Popular');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Use trpc to fetch deals
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deals, isLoading } = trpc.deal.list.useQuery({
+    search: searchQuery || undefined,
+    category: activeTab === 'Popular' ? undefined : activeTab,
+    limit: 4,
+  });
 
   return (
     <section id="marketplace" className="bg-background py-20 relative">
@@ -208,7 +202,11 @@ function MarketplacePreview() {
         <SectionHeading subtitle="Find the right tool for your workflow.">Explore deals</SectionHeading>
 
         <div className="flex justify-center -mt-2">
-          <SearchBar placeholder="Search deals... (e.g., booking, CRM, invoicing)" />
+          <SearchBar 
+            placeholder="Search deals... (e.g., booking, CRM, invoicing)" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
         <div className="flex flex-wrap justify-center mt-4 gap-2">
@@ -227,40 +225,33 @@ function MarketplacePreview() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {MARKETPLACE_DEALS.map((deal, i) => {
-            const mockupMap: Record<string, React.ReactNode> = {
-              helpdesk: <HelpdeskMini />,
-              invoice: <InvoiceMini />,
-              booking: <BookingMini />,
-              crm: <CRMMini />,
-            };
-            return (
-              <motion.div
-                key={deal.name}
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
-                style={{ height: '100%' }}
-              >
-                <Link href="/marketplace" style={{ height: '100%', display: 'flex', flexDirection: 'column', textDecoration: 'none' }}>
-                  <DealCard
-                    title={deal.name}
-                    description={deal.value}
-                    category={deal.category}
-                    rating={deal.rating}
-                    iconInitials={deal.initials}
-                    iconGradientIndex={deal.gradientIdx}
-                    hasScreenshot={true}
-                    ctaLabel={`Get — ${deal.price}`}
-                  >
-                    {mockupMap[deal.mockup]}
-                  </DealCard>
-                </Link>
-              </motion.div>
-            );
-          })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 min-h-[400px]">
+          {isLoading ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+              <LoadingSpinner size="large" />
+              <p className="text-muted-foreground animate-pulse">Fetching latest deals...</p>
+            </div>
+          ) : deals && deals.length > 0 ? (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (deals as any[]).map((deal, i) => {
+              return (
+                <motion.div
+                  key={deal.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-20px' }}
+                  transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
+                  style={{ height: '100%' }}
+                >
+                  <LandingDealCard deal={deal} />
+                </motion.div>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center py-20">
+              <p className="text-muted-foreground">No deals found for this category.</p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center mt-8">
@@ -292,7 +283,7 @@ function HowItWorksSection() {
               className="relative flex flex-col items-center text-center"
             >
               <span className="font-heading text-primary/20" style={{ fontSize: 48, fontWeight: 700, lineHeight: 1, marginBottom: 8 }}>{step.number}</span>
-              <step.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 12 }} />
+              <step.Icon style={{ width: 32, height: 32, color: 'var(--primary)', marginBottom: 12 }} />
               <h3 className="font-heading text-foreground" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.3, margin: '0 0 8px 0' }}>{step.headline}</h3>
               <p className="font-body text-muted-foreground" style={{ fontSize: 16, fontWeight: 400, lineHeight: 1.5, margin: 0, maxWidth: 320 }}>{step.description}</p>
             </motion.div>
@@ -324,7 +315,7 @@ function TrustSafety() {
           {TRUST_BLOCKS.map((block, i) => (
             <FeatureCard
               key={block.headline}
-              icon={<block.Icon style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 12 }} />}
+              icon={<block.Icon style={{ width: 32, height: 32, color: 'var(--primary)', marginBottom: 12 }} />}
               headline={block.headline}
               description={block.description}
               variant="centered"
@@ -469,9 +460,10 @@ function FinalCTA() {
 }
 
 export default function Home() {
+  useNavbar({ variant: 'landing' });
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar variant="landing" />
       <HeroSection />
       <ProofBar />
       <ValueProps />

@@ -9,7 +9,7 @@ import { Toast } from '@/components/feedback/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReviewForm } from '@/components/marketplace/ReviewForm';
 import { ReviewCard } from '@/components/marketplace/ReviewCard';
-import { Navbar } from '@/components/ds';
+import { useNavbar } from '@/contexts/NavbarContext';
 import {
   HeroCarousel,
   StatBar,
@@ -25,6 +25,7 @@ import {
   MobileBottomBar,
   DealCtaCard,
 } from '@/components/product';
+import { CounterScroll } from '@/components/layout/CounterScroll';
 import type { DealProduct } from '@/components/product/types';
 
 function mapDealToProduct(deal: Record<string, unknown>): DealProduct {
@@ -65,6 +66,15 @@ export default function DealDetailPage() {
 
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: deal, isLoading } = trpc.deal.get.useQuery({ id: dealId });
+
+  useNavbar({
+    variant: 'product',
+    breadcrumb: deal ? [
+      { label: 'Marketplace', href: '/marketplace' },
+      { label: String(deal.title) },
+    ] : undefined,
+  });
+
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: reviews, refetch: refetchReviews } = trpc.marketplace.reviews.useQuery({ deal_id: dealId, limit: 10 });
 
@@ -296,8 +306,6 @@ export default function DealDetailPage() {
     </>
   );
 
-  const reviewFormNode = user && userPurchase ? null : null;
-
   const ctaCard = (
     <DealCtaCard
       deal={{
@@ -331,14 +339,6 @@ export default function DealDetailPage() {
 
   return (
     <div className="min-h-screen bg-background overflow-visible">
-      <Navbar
-        variant="product"
-        breadcrumb={[
-          { label: 'Marketplace', href: '/marketplace' },
-          { label: String(deal.title) },
-        ]}
-      />
-
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 overflow-visible" style={{ paddingTop: 80 }}>
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8 pb-24 md:pb-12 overflow-visible">
           <div className="flex-1 min-w-0 space-y-10">
@@ -352,12 +352,14 @@ export default function DealDetailPage() {
             <PricingTable deal={dealProduct} />
             <DealInfoSection deal={dealProduct} />
             <DeveloperSection deal={dealProduct} />
-            <InteractionSection deal={dealProduct} reviewsNode={reviewsNode} reviewFormNode={reviewFormNode} />
+            <InteractionSection deal={dealProduct} reviewsNode={reviewsNode} />
           </div>
 
-          {/* Desktop (xl): sticky CTA card so it stays in view while scrolling (top clears navbar + gap) */}
-          <div className="hidden xl:block xl:w-[32%] shrink-0 overflow-visible">
-            <div className="sticky self-start" style={{ top: 'calc(var(--navbar-height, 64px) + 24px)' }}>{ctaCard}</div>
+          {/* Desktop (xl): stationary CTA card so it stays in view while scrolling */}
+          <div className="hidden xl:block xl:w-[32%] shrink-0">
+            <CounterScroll style={{ top: 88 }}>
+              {ctaCard}
+            </CounterScroll>
           </div>
         </div>
       </div>

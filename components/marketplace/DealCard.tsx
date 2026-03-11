@@ -15,6 +15,7 @@ interface DealCardProps {
     title: string;
     description?: string;
     cover_image_url?: string;
+    icon_url?: string;
     price: string | number;
     original_price?: string | number;
     currency: string;
@@ -24,262 +25,174 @@ interface DealCardProps {
     tags?: string[];
     featured?: boolean;
     purchase_count?: number;
-    deal_type?: string; // Deprecated, but may still exist
+    creator_name?: string; // Legacy
+    developer_name?: string;
+    creator_avatar_url?: string;
   };
 }
 
 export function DealCard({ deal }: DealCardProps) {
   const price = typeof deal.price === 'string' ? parseFloat(deal.price) : deal.price;
-  const originalPrice = deal.original_price
-    ? (typeof deal.original_price === 'string' ? parseFloat(deal.original_price) : deal.original_price)
-    : null;
-  const discount = originalPrice && originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
 
-  // Determine payment type tag
-  const getPaymentTag = () => {
-    if (deal.payment_model === 'one_time') {
-      return { label: 'One-Time Payment', variant: 'success' as const };
-    }
-    if (deal.payment_model === 'subscription') {
-      const interval = deal.subscription_interval === 'annual' ? 'Annual' : 'Monthly';
-      return { label: `${interval} Subscription`, variant: 'primary' as const };
-    }
-    return null;
-  };
-
-  const paymentTag = getPaymentTag();
-
+  // Use icon_url first, then fallback to cover_image_url for the app icon
+  const iconUrl = deal.icon_url || deal.cover_image_url;
+  
   return (
     <Link href={`/marketplace/${deal.id}`} style={{ textDecoration: 'none', color: 'inherit', height: '100%', display: 'flex' }}>
       <Card
         variant="elevated"
-        style={{ height: '100%', display: 'flex', flexDirection: 'column', width: '100%' }}
+        style={{ 
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          width: '100%',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
+          borderColor: 'var(--border)',
+        }}
+        className="group hover:-translate-y-1 hover:shadow-xl hover:border-border-hover"
       >
         <div
           style={{
-            height: '100%',
+            padding: '2.5rem 1.5rem',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '1.25rem',
+            height: '100%',
           }}
         >
-          {/* Image Section */}
-          {deal.cover_image_url && (
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '240px',
-                overflow: 'hidden',
-                backgroundColor: 'var(--card)',
-              }}
-            >
-              <Image
-                src={deal.cover_image_url}
-                alt={deal.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  objectFit: 'cover',
-                }}
-                loading="lazy"
-              />
-              {/* Overlay badges */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  right: '12px',
-                  display: 'flex',
-                  gap: '0.5rem',
-                  flexWrap: 'wrap',
-                  zIndex: 1,
-                }}
-              >
-                {deal.featured && (
-                  <Badge variant="warning" size="sm">
-                    <StarIcon style={{ fontSize: '14px', marginRight: '4px' }} />
-                    Featured
-                  </Badge>
-                )}
-                {discount > 0 && (
-                  <Badge variant="error" size="sm">
-                    {discount}% OFF
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Content Section */}
+          {/* App Icon - Centered at top */}
           <div
             style={{
-              padding: '1.5rem',
+              width: '80px',
+              height: '80px',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              backgroundColor: 'var(--card)',
               display: 'flex',
-              flexDirection: 'column',
-              flex: 1,
-              gap: '1rem',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+              position: 'relative',
+              marginBottom: '0.25rem',
+              border: '1px solid var(--border)',
             }}
           >
-            {/* Category and Payment Model Tags - Always render for consistency */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.5rem',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                minHeight: '28px', // Reserve space for badges
-              }}
-            >
-              {deal.category && (
-                <Badge variant="default" size="sm">
-                  {deal.category}
-                </Badge>
-              )}
-              {paymentTag ? (
-                <div style={{ fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                  <Badge variant={paymentTag.variant} size="sm">
-                    {paymentTag.label}
-                  </Badge>
-                </div>
-              ) : (
-                <div style={{ color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                  <Badge variant="default" size="sm">
-                    Payment TBD
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Title */}
-            <Heading
-              level={3}
-              variant="headline"
-              style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                lineHeight: 1.3,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                minHeight: '3.25rem', // Reserve space for 2 lines
-              }}
-            >
-              {deal.title}
-            </Heading>
-
-            {/* Description - Always render for consistency */}
-            <Text
-              variant="body"
-              style={{
-                color: deal.description ? 'var(--muted-foreground)' : 'var(--text-muted)',
-                fontSize: '0.875rem',
-                lineHeight: 1.5,
-                display: deal.description ? '-webkit-box' : 'block',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                flex: 1,
-                margin: 0,
-                minHeight: '2.625rem', // Reserve space for 2 lines of text
-              }}
-            >
-              {deal.description || 'No description available'}
-            </Text>
-
-            {/* Price Section */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-                marginTop: 'auto',
-                paddingTop: '0.5rem',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '0.5rem',
+            {iconUrl ? (
+              <Image
+                src={iconUrl}
+                alt={deal.title}
+                fill
+                style={{ objectFit: 'cover', padding: '12px' }}
+                sizes="80px"
+              />
+            ) : (
+              <div 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, var(--primary), var(--info))',
                 }}
               >
-                <Text
-                  variant="body"
-                  style={{
-                    fontSize: '1.75rem',
-                    fontWeight: 700,
-                    color: 'var(--primary)',
-                    margin: 0,
-                  }}
-                >
-                  ${price.toFixed(2)}
-                </Text>
-                {deal.currency && deal.currency !== 'USD' && (
-                  <Text
-                    variant="caption1"
-                    style={{
-                      color: 'var(--muted-foreground)',
-                      fontSize: '0.75rem',
-                    }}
-                  >
-                    {deal.currency}
-                  </Text>
-                )}
+                <span style={{ color: 'white', fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
+                  {deal.title ? deal.title.charAt(0).toUpperCase() : 'A'}
+                </span>
               </div>
-              {originalPrice && originalPrice > price && (
-                <Text
-                  variant="body"
-                  style={{
-                    fontSize: '0.875rem',
-                    textDecoration: 'line-through',
-                    color: 'var(--muted-foreground)',
-                    opacity: 0.5,
-                    margin: 0,
-                  }}
-                >
-                  ${originalPrice.toFixed(2)}
-                </Text>
-              )}
-              {/* Always show purchase count for consistency */}
-              <Text
-                variant="caption1"
-                style={{
-                  color: 'var(--muted-foreground)',
-                  fontSize: '0.75rem',
-                  marginLeft: 'auto',
-                }}
-              >
-                {deal.purchase_count || 0} {(deal.purchase_count || 0) === 1 ? 'purchase' : 'purchases'}
-              </Text>
-            </div>
+            )}
+          </div>
 
-            {/* CTA Button */}
-            <Button
-              variant="primary"
-              fullWidth
+          {/* Title */}
+          <Heading
+            level={3}
+            style={{
+              margin: 0,
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              color: 'var(--foreground)',
+              lineHeight: 1.2,
+            }}
+          >
+            {deal.title}
+          </Heading>
+
+          {/* Description */}
+          <Text
+            variant="body"
+            style={{
+              color: 'var(--muted-foreground)',
+              fontSize: '0.9375rem',
+              lineHeight: 1.5,
+              margin: 0,
+              maxWidth: '280px',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              minHeight: '2.8rem',
+            }}
+          >
+            {deal.description || 'No description available'}
+          </Text>
+
+          {/* Creator Profile - Centered */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              marginTop: '0.5rem',
+            }}
+          >
+            <div
               style={{
-                marginTop: '0.75rem',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                backgroundColor: 'var(--primary)',
+                flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
-              }}
-              onClick={(e) => {
-                // Let the Link handle navigation, just prevent default button behavior
-                e.stopPropagation();
               }}
             >
+              {deal.creator_avatar_url ? (
+                <Image
+                  src={deal.creator_avatar_url}
+                  alt={deal.developer_name || deal.creator_name || 'Creator'}
+                  width={24}
+                  height={24}
+                />
+              ) : (
+                <span style={{ fontSize: '10px', color: 'white', fontWeight: 600 }}>
+                  {(deal.developer_name || deal.creator_name || 'A').charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <Text
+              variant="caption1"
+              style={{
+                color: 'var(--foreground)',
+                fontWeight: 500,
+                fontSize: '0.875rem',
+                opacity: 0.8,
+              }}
+            >
+              {deal.developer_name || deal.creator_name || 'Anonymous Creator'}
+            </Text>
+          </div>
+
+          {/* Action Button - Centered at bottom */}
+          <div style={{ marginTop: 'auto', width: '100%', paddingTop: '1rem' }}>
+            <Button
+              variant="outline"
+              fullWidth
+            >
               View Deal
-              <ArrowForwardIcon style={{ fontSize: '16px' }} />
             </Button>
           </div>
         </div>

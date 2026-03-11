@@ -7,15 +7,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { StatusNavbar } from '@/components/layout/StatusNavbar';
 import { SideDrawer } from '@/components/layout/SideDrawer';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { useNavbar } from '@/contexts/NavbarContext';
 
 export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useNavbar({ hidden: true });
   const { user } = useAuth();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleNotificationsClick = () => {
