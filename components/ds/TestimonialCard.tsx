@@ -29,7 +29,7 @@ export function TestimonialCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
-      className="rounded-[12px] flex flex-col border border-border bg-popover p-6 shadow-[var(--shadow-card)] hover:border-primary/20 transition-colors"
+      className="rounded-[12px] flex flex-col border border-border bg-popover p-6 shadow-[var(--shadow-card)] hover:border-brand-accent/25 transition-colors"
     >
       {showStars && (
         <div className="flex gap-0.5 mb-4">

@@ -59,7 +59,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps & BoxProps> = ({
     >
       <CircularProgress
         size={sizeValue}
-        sx={{ color: designTokens.colors.action.primary }}
+        sx={{ color: designTokens.colors.primary.main }}
       />
       {message && (
         <Box

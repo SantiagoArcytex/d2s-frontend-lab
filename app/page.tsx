@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { ChevronRight, Store, Rocket, CheckCircle, Headphones, ShieldCheck, UserCheck, MessageSquare, Lock, Search, ShoppingCart } from 'lucide-react';
+import Aurora from '@/components/effects/Aurora';
 
 import {
   PageFooter,
@@ -11,7 +12,6 @@ import {
   Badge,
   SectionHeading,
   OverlineLabel,
-  SearchBar,
   FeatureCard,
   TestimonialCard,
   FAQItem,
@@ -19,6 +19,8 @@ import {
 import { trpc } from '@/lib/trpc/client';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 import { LandingDealCard } from '@/components/marketplace/LandingDealCard';
+import { CarouselSection } from '@/components/marketplace/CarouselSection';
+import { DealCardSkeleton } from '@/components/marketplace/DealCardSkeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavbar } from '@/contexts/NavbarContext';
 
@@ -29,7 +31,7 @@ const VALUE_PROPS = [
   { Icon: ShieldCheck, headline: 'Buyer protection', description: 'Transparent refund policy and dispute resolution.' },
 ];
 
-const COLLECTION_TABS = ['Popular', 'New & noteworthy', 'Best for teams', 'Under $49', 'Dev Tools', 'AI'];
+const COLLECTION_TABS = ['Recommended', 'Trending', 'Latest'];
 
 // MARKETPLACE_DEALS removed as it's now fetched from backend
 
@@ -45,10 +47,12 @@ const TRUST_BLOCKS = [
   { Icon: Lock, headline: 'Buyer protection', description: 'Clear refund policy, secure payments, and license transparency.' },
 ];
 
+// Placeholder testimonials — replace with real buyer reviews once the review system has data.
+// Author names are intentionally Lorem Ipsum; do not use real names until real reviews are available.
 const TESTIMONIALS = [
-  { quote: 'VCI replaced five different marketplaces for me. One login, one license manager, one update feed. Exactly what the dev tool space needed.', author: 'Jamie Rivera', role: 'Staff Engineer, Vercel', avatar: 'J' },
-  { quote: 'Listed my CLI tool on Vibe Coding Incubator and hit 10K downloads in the first month. The developer audience here actually pays for quality tools.', author: 'Kai Zhang', role: 'Indie Developer', avatar: 'K' },
-  { quote: 'The curation quality is insane. Every app I\'ve bought on VCI has been legitimately excellent. No shovelware.', author: 'Sarah Kim', role: 'CTO, Nimbly', avatar: 'S' },
+  { quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.', author: 'A. B.', role: 'Verified Buyer', avatar: 'A' },
+  { quote: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt.', author: 'C. D.', role: 'Indie Developer', avatar: 'C' },
+  { quote: 'Ut labore et dolore magna aliqua. Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit voluptate.', author: 'E. F.', role: 'Verified Buyer', avatar: 'E' },
 ];
 
 const FAQ_ITEMS_DATA = [
@@ -63,10 +67,18 @@ function HeroSection() {
   const { user } = useAuth();
   return (
     <section className="relative flex items-end justify-center overflow-hidden bg-background" style={{ minHeight: '100vh', paddingBottom: 96 }}>
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 800px 600px at 50% 60%, rgba(60,131,245,0.04) 0%, transparent 70%)' }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 1200px 800px at 60% 45%, rgba(0,209,160,0.02) 0%, transparent 70%)' }} />
+      {/* Aurora animated background */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        <Aurora
+          colorStops={["#e65245", "#e43a15", "#751e0b"]}
+          amplitude={1}
+          blend={1}
+        />
+      </div>
+      {/* Dark vignette overlay so text stays readable */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)', zIndex: 1 }} />
 
-      <div className="relative max-w-[1280px] mx-auto px-6">
+      <div className="relative max-w-[1280px] mx-auto px-6" style={{ zIndex: 2 }}>
         <div className="flex flex-col items-center text-center" style={{ maxWidth: 800, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4, ease: 'easeOut' }}>
             <Badge variant="outline" style={{ padding: '6px 16px', borderRadius: 8, marginBottom: 20 }}>
@@ -145,10 +157,18 @@ function HeroSection() {
 }
 
 function ProofBar() {
+  // Real deal count from backend — the moment this updates we see the true number
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: deals } = trpc.deal.list.useQuery({ limit: 500 });
+  const dealCount = deals?.length ?? null;
+
   return (
-    <section className="bg-card py-5 px-6" style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--primary-faint)" }}>
+    <section className="bg-card py-5 px-6" style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--brand-accent-dim)" }}>
       <p className="font-mono text-center text-muted-foreground uppercase m-0" style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.08em' }}>
-        Trusted by <span className="text-foreground">2,400+</span> teams &middot; <span className="text-foreground">1,200</span> verified deals &middot; <span className="text-foreground">98%</span> buyer satisfaction
+        {/* "teams" and "satisfaction" need backend aggregates — leave as markers until implemented */}
+        Trusted by <span className="text-foreground">—</span> teams &middot;{' '}
+        <span className="text-foreground">{dealCount ?? '—'}</span> verified deals &middot;{' '}
+        <span className="text-foreground">—</span> buyer satisfaction
       </p>
     </section>
   );
@@ -184,76 +204,90 @@ function ValueProps() {
 
 
 function MarketplacePreview() {
-  const [activeTab, setActiveTab] = useState('Popular');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('Recommended');
+  const [searchQuery] = useState('');
 
   // Use trpc to fetch deals
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: deals, isLoading } = trpc.deal.list.useQuery({
     search: searchQuery || undefined,
-    category: activeTab === 'Popular' ? undefined : activeTab,
-    limit: 4,
+    category: activeTab === 'Recommended' ? undefined : activeTab,
+    limit: 12,
   });
 
   return (
     <section id="marketplace" className="bg-background py-20 relative">
       <div className="absolute inset-x-0 top-0 h-[100px] pointer-events-none" style={{ background: 'linear-gradient(180deg, var(--primary-faint) 0%, transparent 100px)' }} />
       <div className="max-w-[1280px] mx-auto px-6">
-        <SectionHeading subtitle="Find the right tool for your workflow.">Explore deals</SectionHeading>
+      </div>
 
-        <div className="flex justify-center -mt-2">
-          <SearchBar 
-            placeholder="Search deals... (e.g., booking, CRM, invoicing)" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      <div className="mt-12 min-h-[400px]">
+          <CarouselSection
+            title="Explore deals"
+            subtitle="Find the right tool for your workflow."
+            tabs={COLLECTION_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          >
+            {isLoading ? (
+              <div data-full-width={true} className="w-full flex flex-col items-center justify-center py-20 gap-4" style={{ width: '100vw', maxWidth: '100%' }}>
+                <LoadingSpinner size="large" />
+                <p className="text-muted-foreground animate-pulse">Fetching latest deals...</p>
+              </div>
+            ) : deals && deals.length > 0 ? (
+              [
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ...(deals as any[]).map((deal, i) => (
+                  <motion.div
+                    key={deal.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-20px' }}
+                    transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
+                    style={{ height: '100%', width: '100%' }}
+                  >
+                    <LandingDealCard deal={deal} />
+                  </motion.div>
+                )),
+                /* Dynamic Skeletons + 1 CTA */
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ...Array.from({ length: Math.max(0, 9 - (deals as any[]).length) }).map((_, i) => (
+                  <div key={`skel-${i}`} style={{ height: '100%', width: '100%' }}><DealCardSkeleton /></div>
+                )),
+                <div key="cta" style={{ height: '100%', width: '100%' }}>
+                  <Link href="/marketplace" style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+                    <div
+                      className="group flex flex-col items-center justify-center"
+                      style={{
+                        height: '100%',
+                        minHeight: '440px',
+                        maxHeight: '540px',
+                        background: 'var(--card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform" style={{ color: 'var(--primary)' }}>
+                        <ChevronRight size={28} />
+                      </div>
+                      <h3 className="font-heading text-xl font-medium text-foreground m-0 mb-2">See all deals</h3>
+                      <p className="font-body text-muted-foreground text-sm text-center m-0 max-w-[200px]">Explore thousands of vetted tools and apps.</p>
+                    </div>
+                  </Link>
+                </div>
+              ]
+            ) : (
+              <div data-full-width={true} className="w-full text-center py-20" style={{ width: '100vw', maxWidth: '100%' }}>
+                <p className="text-muted-foreground">No deals found for this category.</p>
+              </div>
+            )}
+          </CarouselSection>
+      </div>
 
-        <div className="flex flex-wrap justify-center mt-4 gap-2">
-          {COLLECTION_TABS.map((tab) => {
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`font-body cursor-pointer transition-all duration-150 rounded-full border ${isActive ? 'bg-primary text-white border-primary shadow-[0_0_8px_var(--primary-dim)]' : 'bg-popover text-muted-foreground border-border hover:border-border-hover hover:bg-card'}`}
-                style={{ padding: '7px 15px', fontSize: 14, fontWeight: isActive ? 600 : 400 }}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 min-h-[400px]">
-          {isLoading ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-              <LoadingSpinner size="large" />
-              <p className="text-muted-foreground animate-pulse">Fetching latest deals...</p>
-            </div>
-          ) : deals && deals.length > 0 ? (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (deals as any[]).map((deal, i) => {
-              return (
-                <motion.div
-                  key={deal.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-20px' }}
-                  transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
-                  style={{ height: '100%' }}
-                >
-                  <LandingDealCard deal={deal} />
-                </motion.div>
-              );
-            })
-          ) : (
-            <div className="col-span-full text-center py-20">
-              <p className="text-muted-foreground">No deals found for this category.</p>
-            </div>
-          )}
-        </div>
-
+      <div className="max-w-[1280px] mx-auto px-6">
         <div className="flex justify-center mt-8">
           <Link href="/marketplace">
             <Button variant="outlined" trailingIcon={<ChevronRight className="w-4 h-4" />}>
@@ -350,7 +384,7 @@ function ForCreators() {
       <div className="max-w-[1280px] mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="flex flex-col justify-center">
-            <OverlineLabel color="var(--primary)" style={{ marginBottom: 12 }}>For Creators</OverlineLabel>
+            <OverlineLabel color="var(--brand-accent)" style={{ marginBottom: 12 }}>For Creators</OverlineLabel>
             <h2 className="font-heading text-foreground" style={{ fontSize: 'clamp(28px, 3.5vw, 36px)', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-0.01em', margin: '0 0 16px 0' }}>
               Sell your apps to buyers who want quality.
             </h2>
@@ -366,8 +400,8 @@ function ForCreators() {
                 'Direct customer feedback & reviews',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-primary/12">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-brand-accent/12">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </div>
@@ -428,8 +462,7 @@ function FAQSection() {
 function FinalCTA() {
   const { user } = useAuth();
   return (
-    <section className="relative overflow-hidden bg-background py-24">
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 800px 500px at 50% 50%, rgba(60,131,245,0.04) 0%, transparent 70%)' }} />
+    <section className="relative overflow-hidden py-28" style={{ zIndex: 2 }}>
       <div className="relative max-w-[1280px] mx-auto px-6">
         <div className="flex flex-col items-center text-center">
           <motion.h2
@@ -473,8 +506,27 @@ export default function Home() {
       <SocialProof />
       <ForCreators />
       <FAQSection />
-      <FinalCTA />
-      <PageFooter />
+      {/* Aurora-wrapped CTA + Footer */}
+      <div className="relative overflow-hidden">
+        {/* Shared Aurora canvas */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, transform: 'rotate(180deg)' }}>
+          <Aurora
+            colorStops={["#e65245", "#e43a15", "#751e0b"]}
+            amplitude={1}
+            blend={1}
+          />
+        </div>
+        {/* Gradient fade connecting from above */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to bottom, var(--background) 0%, transparent 12%, transparent 75%, var(--background) 100%)',
+            zIndex: 1,
+          }}
+        />
+        <FinalCTA />
+        <PageFooter />
+      </div>
     </div>
   );
 }

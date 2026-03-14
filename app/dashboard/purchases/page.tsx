@@ -333,9 +333,9 @@ function PurchaseCard({ purchase, copiedCode, onCopyCode, onOpenReview }: {
               variant="outline"
               size="small"
               onClick={handleCancelSubscription}
-              disabled={cancelSubscriptionMutation.isLoading}
+              disabled={cancelSubscriptionMutation.isPending}
             >
-              {cancelSubscriptionMutation.isLoading ? 'Cancelling...' : 'Cancel Subscription'}
+              {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
             </Button>
           </div>
         )}
@@ -426,7 +426,7 @@ function ReviewModal({
         initialReviewText={myReview ? myReview.review_text || '' : ''}
         onSubmit={handleSubmit}
         onCancel={onClose}
-        isLoading={submitReviewMutation.isLoading || updateReviewMutation.isLoading}
+        isLoading={submitReviewMutation.isPending || updateReviewMutation.isPending}
         error={
           submitReviewMutation.error?.message ||
           updateReviewMutation.error?.message ||

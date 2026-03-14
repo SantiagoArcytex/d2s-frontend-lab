@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Card, Heading, Text, Badge, Button } from '@/design-system';
 import { spacing } from '@/design-system/tokens';
+import { AppLogo } from './AppLogo';
 
 interface AppListCardProps {
   deal: {
@@ -30,11 +30,6 @@ export function AppListCard({ deal }: AppListCardProps) {
 
   const iconUrl = deal.icon_url || deal.cover_image_url;
   const developerName = deal.developer_name || deal.creator_name;
-  const price =
-    deal.price !== undefined && deal.price !== null
-      ? parseFloat(String(deal.price))
-      : null;
-
   const paymentLabel =
     deal.payment_model === 'one_time'
       ? 'One-Time'
@@ -74,54 +69,12 @@ export function AppListCard({ deal }: AppListCardProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.scale.md }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: spacing.scale.md, minWidth: 0 }}>
               {/* App Icon */}
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  backgroundColor: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                }}
-              >
-                {iconUrl ? (
-                  <Image
-                    src={iconUrl}
-                    alt={deal.title}
-                    fill
-                    style={{ objectFit: 'cover', padding: '4px' }}
-                    sizes="40px"
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: 'linear-gradient(135deg, var(--primary), var(--info))',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: 'white',
-                        fontSize: '18px',
-                        fontWeight: 700,
-                        fontFamily: 'var(--font-heading)',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {deal.title ? deal.title.charAt(0).toUpperCase() : 'A'}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <AppLogo
+                name={deal.title}
+                imageUrl={iconUrl}
+                size={40}
+                borderRadius={10}
+              />
 
               {/* Title + Category */}
               <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>

@@ -11,7 +11,7 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  accent: "bg-primary/12 text-primary border border-primary/15",
+  accent: "bg-brand-accent/12 text-brand-accent border border-brand-accent/15",
   neutral: "bg-popover text-muted-foreground border border-transparent",
   destructive: "bg-destructive/8 text-destructive border border-destructive/15",
   success: "bg-success/8 text-success border border-success/15",

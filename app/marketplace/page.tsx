@@ -5,80 +5,182 @@ import { motion } from 'motion/react';
 import { Heading, Text, Container } from '@/design-system';
 import { PageFooter, SearchBar } from '@/components/ds';
 import { trpc } from '@/lib/trpc/client';
-import { spacing } from '@/design-system/tokens';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
-import { DealCard } from '@/components/marketplace/DealCard';
-import { AppListCard } from '@/components/marketplace/AppListCard';
 import { useDebounce } from '@/lib/utils/debounce';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavbar } from '@/contexts/NavbarContext';
+import Aurora from '@/components/effects/Aurora';
+import { VirtualCarousel, type CarouselDeal } from '@/components/marketplace/VirtualCarousel';
 
-type SortTab = 'all' | 'recent' | 'popular';
+// ── Row height used for lazy-mount placeholders ─────────────────────────────
+const ROW_HEIGHT = 600; // approx: 80px header + 480px cards + 40px spacing
 
+// Evaluated once at module load — stable across re-renders, fine for "new this week"
+const WEEK_AGO_MS = new Date().setDate(new Date().getDate() - 7);
 
-export default function MarketplacePage() {
+// ── Lazy-mount: only render section when near viewport ───────────────────────
+function LazySection({
+  children,
+  minHeight = ROW_HEIGHT,
+}: {
+  children: React.ReactNode;
+  minHeight?: number;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} style={{ minHeight: mounted ? undefined : minHeight }}>
+      {mounted ? children : null}
+    </div>
+  );
+}
+
+// ── A single carousel row: header + virtualized carousel ─────────────────────
+function CarouselRow({
+  title,
+  subtitle,
+  deals,
+  isLoading,
+  skeletonCount = 3,
+}: {
+  title: string;
+  subtitle?: string;
+  deals: CarouselDeal[];
+  isLoading: boolean;
+  skeletonCount?: number;
+}) {
+  const isEmpty = !isLoading && deals.length === 0;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Section header */}
+      <div>
+        <Heading
+          level={2}
+          style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', fontWeight: 600, margin: 0, marginBottom: 4 }}
+        >
+          {title}
+        </Heading>
+        {subtitle && (
+          <Text variant="body" style={{ color: 'var(--muted-foreground)', margin: 0 }}>
+            {subtitle}
+          </Text>
+        )}
+      </div>
+
+      {/* Carousel or empty state */}
+      {isEmpty ? (
+        <div style={{ padding: '3rem 0', textAlign: 'center' }}>
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
+            No deals found.
+          </Text>
+        </div>
+      ) : (
+        <VirtualCarousel
+          deals={deals}
+          isLoading={isLoading}
+          skeletonCount={skeletonCount}
+          label={`${title} carousel`}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Main marketplace content ─────────────────────────────────────────────────
+function MarketplaceContent() {
   useNavbar({ variant: 'landing' });
+
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [listSearch, setListSearch] = React.useState('');
-  const [listSearchFocused, setListSearchFocused] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<SortTab>('all');
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
+  // Single tRPC fetch — all rows derive from this
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: deals, isLoading } = trpc.deal.list.useQuery({
-    search: debouncedSearchQuery || undefined,
+    search: debouncedSearch || undefined,
     limit: 50,
   });
 
-  // Filter the full list for the All Apps section by the inline search
-  const filteredDeals = React.useMemo(() => {
-    if (!deals) return [];
-    let list = [...deals];
-    if (listSearch.trim()) {
-      const q = listSearch.trim().toLowerCase();
-      list = list.filter((d: any) => d.title?.toLowerCase().includes(q));
-    }
-    // Recent: keep backend order (most recent first, DB returns created_at DESC)
-    // Popular: no reorder for now — shows same as All
-    return list;
-  }, [deals, listSearch]);
+  // ── Derived row datasets ──────────────────────────────────────────────────
+  const allDeals: CarouselDeal[] = React.useMemo(() => deals ?? [], [deals]);
 
-  const TABS: { id: SortTab; label: string }[] = [
-    { id: 'all', label: 'All deals' },
-    { id: 'recent', label: 'Recent' },
-    { id: 'popular', label: 'Popular' },
-  ];
+  const featuredDeals = React.useMemo(
+    () => allDeals.filter((d: CarouselDeal) => d.featured).slice(0, 12),
+    [allDeals]
+  );
+
+  const popularDeals = React.useMemo(
+    () =>
+      [...allDeals]
+        .sort((a: CarouselDeal, b: CarouselDeal) => (b.purchase_count ?? 0) - (a.purchase_count ?? 0))
+        .slice(0, 15),
+    [allDeals]
+  );
+
+  const recentDeals = React.useMemo(
+    () =>
+      [...allDeals]
+        .sort((a: CarouselDeal, b: CarouselDeal) => {
+          const ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return tb - ta;
+        })
+        .slice(0, 15),
+    [allDeals]
+  );
+
+  const newThisWeekDeals = React.useMemo(() => {
+    return [...allDeals]
+      .filter((d: CarouselDeal) => d.created_at && new Date(d.created_at).getTime() > WEEK_AGO_MS)
+      .sort((a: CarouselDeal, b: CarouselDeal) => {
+        const ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tb - ta;
+      })
+      .slice(0, 12);
+  }, [allDeals]);
+
+  // Which rows to show when searching
+  const isSearching = debouncedSearch.trim().length > 0;
 
   return (
     <div className="min-h-screen bg-transparent">
-      {/* Navbar handled at layout level for fixed-stability during liquid scroll */}
 
-      {/* Hero Section */}
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section
         className="relative flex items-end justify-center overflow-hidden bg-background"
         style={{ minHeight: '100vh', paddingBottom: 120 }}
       >
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+          <Aurora colorStops={['#e65245', '#e43a15', '#751e0b']} amplitude={1} blend={1} />
+        </div>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 800px 600px at 50% 60%, rgba(60,131,245,0.04) 0%, transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse 1200px 800px at 60% 45%, rgba(0,209,160,0.02) 0%, transparent 70%)',
+              'linear-gradient(to top, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.15) 100%)',
+            zIndex: 1,
           }}
         />
 
-        <div className="relative max-w-[1200px] mx-auto px-6 w-full">
-          <div
-            className="flex flex-col items-center text-center"
-            style={{ maxWidth: 800, margin: '0 auto' }}
-          >
+        <div className="relative max-w-[1200px] mx-auto px-6 w-full" style={{ zIndex: 2 }}>
+          <div className="flex flex-col items-center text-center" style={{ maxWidth: 800, margin: '0 auto' }}>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -135,261 +237,151 @@ export default function MarketplacePage() {
         </div>
       </section>
 
-      <Container maxWidth={1200} style={{ padding: '80px clamp(1rem, 2rem, 2rem) 120px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem' }}>
+      {/* ── Carousel rows ────────────────────────────────────────────────── */}
+      <div style={{ paddingBottom: 120 }}>
 
-          {/* ── Explore Deals (top 3 hero cards) ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-            <div style={{ textAlign: 'center' }}>
-              <Heading
-                level={2}
-                style={{ fontSize: '32px', fontWeight: 600, marginBottom: '0.5rem' }}
-              >
-                {searchQuery ? 'Search Results' : 'Explore deals'}
-              </Heading>
-              {!searchQuery && (
-                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
-                  Our top picks to get you started
-                </Text>
-              )}
+        {isLoading && !deals ? (
+          // Full-page loading state (first fetch only)
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '6rem 0',
+            }}
+          >
+            <LoadingSpinner size="medium" />
+            <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+              Loading deals...
+            </span>
+          </div>
+        ) : isSearching ? (
+          // ── Search results row ─────────────────────────────────────────
+          <div style={{ padding: '64px 0 0' }}>
+            <Container maxWidth={1280} style={{ padding: '0 clamp(1rem, 2rem, 2rem)' }}>
+              <CarouselRow
+                title={`Results for "${debouncedSearch}"`}
+                subtitle={
+                  allDeals.length > 0
+                    ? `${allDeals.length} deal${allDeals.length !== 1 ? 's' : ''} found`
+                    : undefined
+                }
+                deals={allDeals}
+                isLoading={isLoading}
+              />
+            </Container>
+          </div>
+        ) : (
+          // ── Category rows ──────────────────────────────────────────────
+          <>
+            {/* Row 1: Featured — always mounted (above the fold) */}
+            <div style={{ padding: '64px 0 0' }}>
+              <Container maxWidth={1280} style={{ padding: '0 clamp(1rem, 2rem, 2rem)' }}>
+                <CarouselRow
+                  title="Explore Deals"
+                  subtitle="Our top picks to get you started"
+                  deals={featuredDeals.length > 0 ? featuredDeals : allDeals.slice(0, 12)}
+                  isLoading={isLoading}
+                />
+              </Container>
             </div>
 
-            {isLoading ? (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '4rem',
-                }}
-              >
-                <LoadingSpinner size="medium" />
-                <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                  Refreshing deals...
-                </span>
-              </div>
-            ) : deals && deals.length > 0 ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                  gap: '2rem',
-                }}
-              >
-                {deals.slice(0, 3).map((deal: any) => (
-                  <DealCard key={deal.id} deal={deal} />
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-                <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
-                  No matches found for your search.
-                </Text>
+            {/* Row 2: Popular */}
+            <div style={{ padding: '56px 0 0' }}>
+              <LazySection>
+                <Container maxWidth={1280} style={{ padding: '0 clamp(1rem, 2rem, 2rem)' }}>
+                  <CarouselRow
+                    title="Most Popular"
+                    subtitle="Trending deals by purchase count"
+                    deals={popularDeals}
+                    isLoading={isLoading}
+                  />
+                </Container>
+              </LazySection>
+            </div>
+
+            {/* Row 3: Recently Added */}
+            <div style={{ padding: '56px 0 0' }}>
+              <LazySection>
+                <Container maxWidth={1280} style={{ padding: '0 clamp(1rem, 2rem, 2rem)' }}>
+                  <CarouselRow
+                    title="Recently Added"
+                    subtitle="The latest deals in the marketplace"
+                    deals={recentDeals}
+                    isLoading={isLoading}
+                  />
+                </Container>
+              </LazySection>
+            </div>
+
+            {/* Row 4: New This Week — only shown when there are results */}
+            {(isLoading || newThisWeekDeals.length > 0) && (
+              <div style={{ padding: '56px 0 0' }}>
+                <LazySection>
+                  <Container maxWidth={1280} style={{ padding: '0 clamp(1rem, 2rem, 2rem)' }}>
+                    <CarouselRow
+                      title="New This Week"
+                      subtitle="Fresh drops you haven't seen yet"
+                      deals={newThisWeekDeals}
+                      isLoading={isLoading}
+                      skeletonCount={3}
+                    />
+                  </Container>
+                </LazySection>
               </div>
             )}
-          </div>
+          </>
+        )}
+      </div>
 
-          {/* ── All Apps Section ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-            {/* Section header */}
-            <div>
-              <Heading
-                level={2}
-                style={{ fontSize: '24px', fontWeight: 600, margin: 0, marginBottom: '0.25rem' }}
-              >
-                All Deals
-              </Heading>
-              <Text variant="body" style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>
-                Browse every deal available in the marketplace
-              </Text>
-            </div>
-
-            {/* Toolbar: segmented control left + search right */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '1rem',
-                flexWrap: 'wrap',
-              }}
-            >
-              {/* Segmented control */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '2px',
-                  background: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '10px',
-                  padding: '3px',
-                }}
-              >
-                {TABS.map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      style={{
-                        fontFamily:
-                          'var(--font-body), -apple-system, BlinkMacSystemFont, sans-serif',
-                        fontSize: '13px',
-                        fontWeight: isActive ? 600 : 500,
-                        padding: '6px 16px',
-                        borderRadius: '7px',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        background: isActive ? 'var(--primary)' : 'transparent',
-                        color: isActive ? 'white' : 'var(--muted-foreground)',
-                        boxShadow: isActive ? '0 1px 4px rgba(60,131,245,0.25)' : 'none',
-                        whiteSpace: 'nowrap',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.color = 'var(--foreground)';
-                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.color = 'var(--muted-foreground)';
-                          e.currentTarget.style.background = 'transparent';
-                        }
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Inline search — scoped to this section */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  background: 'var(--card)',
-                  border: listSearchFocused
-                    ? '1.5px solid var(--primary)'
-                    : '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: listSearchFocused ? '9px 13px' : '10px 14px',
-                  minWidth: '260px',
-                  maxWidth: '380px',
-                  flex: 1,
-                  boxShadow: listSearchFocused
-                    ? 'inset 0 1px 3px rgba(0,0,0,0.3), 0 0 0 3px var(--primary-dim)'
-                    : 'inset 0 1px 3px rgba(0,0,0,0.3)',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <Search
-                  size={16}
-                  style={{ color: 'var(--muted-foreground)', flexShrink: 0 }}
-                />
-                <input
-                  type="text"
-                  placeholder="Search apps..."
-                  value={listSearch}
-                  onChange={(e) => setListSearch(e.target.value)}
-                  onFocus={() => setListSearchFocused(true)}
-                  onBlur={() => setListSearchFocused(false)}
-                  style={{
-                    flex: 1,
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    color: 'var(--foreground)',
-                    fontFamily:
-                      'var(--font-body), -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontSize: '14px',
-                  }}
-                />
-                {listSearch && (
-                  <button
-                    onClick={() => setListSearch('')}
-                    aria-label="Clear search"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: 'var(--muted-foreground)',
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M12 4L4 12M4 4l8 8"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-  
-              {/* App list cards */}
-              {isLoading ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '3rem',
-                    gap: '1rem',
-                  }}
-                >
-                  <LoadingSpinner size="medium" />
-                  <span style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                    Loading apps...
-                  </span>
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: spacing.scale.xl,
-                    marginTop: '1rem',
-                  }}
-                >
-                  {/* First up to 4 real deals */}
-                  {filteredDeals.slice(0, 4).map((deal: any) => (
-                    <AppListCard key={deal.id} deal={deal} />
-                  ))}
-                  
-                  {/* Remaining skeletons to make 12 total */}
-                  {[...Array(12 - Math.min(4, filteredDeals.length))].map((_, i) => (
-                    <div
-                      key={`skeleton-${i}`}
-                      style={{
-                        height: '180px',
-                        background: 'var(--card)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '16px',
-                        opacity: 0.6,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-          </div>
+      {/* ── Aurora-wrapped logo + footer ─────────────────────────────────── */}
+      <div className="relative overflow-hidden mt-12">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ zIndex: 0, transform: 'rotate(180deg)' }}
+        >
+          <Aurora colorStops={['#e65245', '#e43a15', '#751e0b']} amplitude={1} blend={1} />
         </div>
-      </Container>
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, var(--background) 0%, transparent 12%, transparent 75%, var(--background) 100%)',
+            zIndex: 1,
+          }}
+        />
 
-      <PageFooter />
+        <div className="relative flex justify-center items-center pt-32 z-0" style={{ marginBottom: '-80px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/keyboard-logo.svg"
+            alt="BCE Keyboard Logo"
+            style={{ width: 'clamp(154px, 35vw, 308px)', height: 'auto' }}
+          />
+        </div>
+
+        <div className="relative z-10">
+          <PageFooter />
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+          <LoadingSpinner size="large" />
+          <Text variant="body" style={{ color: 'var(--muted-foreground)' }}>
+            Loading Marketplace...
+          </Text>
+        </div>
+      }
+    >
+      <MarketplaceContent />
+    </React.Suspense>
   );
 }

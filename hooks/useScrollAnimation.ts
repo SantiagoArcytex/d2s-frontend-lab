@@ -174,7 +174,6 @@ export function useNavbarVisibility(threshold = 10): boolean {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastY, threshold]);
 
   return visible;

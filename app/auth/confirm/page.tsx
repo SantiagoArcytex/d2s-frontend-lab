@@ -112,7 +112,8 @@ export default function AuthConfirmPage() {
           }
         } else {
           // Check if we already have a session
-          const { data: { session } } = await supabase.auth.getSession();
+          const { data: sessionData } = await supabase.auth.getSession();
+          const session = sessionData?.session;
           if (session) {
             setStatus('success');
             setMessage('Already authenticated. Redirecting...');

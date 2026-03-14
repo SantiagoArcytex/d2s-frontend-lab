@@ -41,15 +41,15 @@ export const muiThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
     primary: {
-      main: designTokens.colors.action.primary, // Action/Primary
+      main: designTokens.colors.primary.main,
       light: designTokens.colors.primary.light,
       dark: designTokens.colors.primary.dark,
       contrastText: designTokens.colors.text.primary,
     },
     secondary: {
-      main: designTokens.colors.text.secondary, // Maps to Text/Secondary
-      light: designTokens.colors.secondary.light,
-      dark: designTokens.colors.secondary.dark,
+      main: designTokens.colors.text.secondary, // Maps to Text/Secondary (gray)
+      light: '#C7C7C7',
+      dark: '#7F7F7F',
     },
     error: {
       main: designTokens.colors.error.main,
@@ -67,7 +67,7 @@ export const muiThemeOptions: ThemeOptions = {
       dark: '#16A34A',
     },
     info: {
-      main: designTokens.colors.action.primary,
+      main: designTokens.colors.primary.main,
       light: designTokens.colors.primary.light,
       dark: designTokens.colors.primary.dark,
     },
@@ -163,7 +163,7 @@ export const muiThemeOptions: ThemeOptions = {
           fontSize: designTokens.typography.fontSize.base,
           transition: `all ${designTokens.transitions.duration.standard}ms ${designTokens.transitions.easing.easeInOut}`,
           '&:focus-visible': {
-            outline: `2px solid ${designTokens.colors.action.primary}`,
+            outline: `2px solid ${designTokens.colors.primary.main}`,
             outlineOffset: '2px',
           },
         },
@@ -216,7 +216,7 @@ export const muiThemeOptions: ThemeOptions = {
             },
             '&.Mui-focused': {
               backgroundColor: designTokens.colors.surface.subtle,
-              boxShadow: `0 0 0 2px ${designTokens.colors.action.primary}`, // 2px ring, no glow
+              boxShadow: `0 0 0 2px ${designTokens.colors.primary.main}`, // 2px ring, no glow
             },
           },
           '& .MuiOutlinedInput-notchedOutline': {
@@ -226,7 +226,7 @@ export const muiThemeOptions: ThemeOptions = {
             borderColor: designTokens.colors.surface.border,
           },
           '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: designTokens.colors.action.primary,
+            borderColor: designTokens.colors.primary.main,
             borderWidth: '2px',
           },
           '& .MuiInputBase-input::placeholder': {
@@ -304,10 +304,10 @@ export const muiThemeOptions: ThemeOptions = {
             backgroundColor: designTokens.glassmorphism.light.background,
           },
           '&.Mui-selected': {
-            backgroundColor: designTokens.colors.primaryAlpha.dim,
-            borderLeft: `3px solid ${designTokens.colors.action.primary}`,
+            backgroundColor: designTokens.colors.primary.alpha.dim,
+            borderLeft: `3px solid ${designTokens.colors.primary.main}`,
             '&:hover': {
-              backgroundColor: designTokens.colors.primaryAlpha.soft,
+              backgroundColor: designTokens.colors.primary.alpha.soft,
             },
           },
         },

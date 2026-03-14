@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, Shield } from 'lucide-react';
 import { Button } from '@/components/ds';
 import { Text } from '@/design-system';
 import { Launch as LaunchIcon } from '@mui/icons-material';
 import { ElectricBorder } from '@/components/ui/ElectricBorder';
+import { AppLogo } from '@/components/marketplace/AppLogo';
 
 export interface DealCtaCardProps {
   deal: {
@@ -72,26 +72,13 @@ export function DealCtaCard({
       <div className="p-6 md:p-7 overflow-hidden rounded-[16px] bg-card">
         {/* Header: [App Icon] App Name · ★ rating (count) */}
         <div className="flex items-center gap-3 mb-2">
-          {deal.cover_image_url ? (
-            <div className="shrink-0 w-12 h-12 rounded-[10px] overflow-hidden bg-card border border-border">
-              <Image
-                src={deal.cover_image_url}
-                alt=""
-                width={48}
-                height={48}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ) : (
-            <div
-              className="shrink-0 w-12 h-12 rounded-[10px] flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, var(--primary), var(--info))' }}
-            >
-              <span className="font-heading text-lg font-bold text-white">
-                {(deal.title || 'A').slice(0, 1).toUpperCase()}
-              </span>
-            </div>
-          )}
+          <AppLogo
+            name={deal.title}
+            imageUrl={deal.cover_image_url}
+            size={48}
+            borderRadius={10}
+            className="shrink-0"
+          />
           <div className="flex-1 min-w-0">
             <h2 className="font-heading text-[17px] leading-tight text-foreground truncate" style={{ fontWeight: 600 }}>
               {deal.title}

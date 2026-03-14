@@ -12,7 +12,6 @@ import { SearchInput } from '@/design-system/atoms/inputs';
 import { AppCard } from '@/components/ui/AppCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonMarketplaceCard } from '@/components/feedback/Skeleton';
-import { mockApps, getAllCategories } from '@/lib/mock-data/apps';
 import {
   Apps as AppsIcon,
   Assignment as AssignmentIcon,
@@ -36,7 +35,7 @@ type AppItem = {
   icon?: string;
 };
 
-// Icon mapping for categories
+// Icon mapping for known categories — extend as new categories are added
 const categoryIcons: Record<string, React.ReactNode> = {
   Productivity: <AssignmentIcon />,
   Development: <CodeIcon />,
@@ -46,6 +45,11 @@ const categoryIcons: Record<string, React.ReactNode> = {
   Storage: <CloudIcon />,
 };
 
+function getCategoryIcon(category?: string) {
+  if (category && categoryIcons[category]) return categoryIcons[category];
+  return <AppsIcon />;
+}
+
 export default function AppsPage() {
   const router = useRouter();
   const theme = useTheme();
@@ -53,88 +57,50 @@ export default function AppsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // Try to fetch real data, but use mock data as fallback for showcase
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: realApps, isLoading, error } = trpc.app.list.useQuery();
 
-  // Use mock data if real data is empty or for showcase
-  const apps = useMemo(() => {
-    if (realApps && realApps.length > 0) {
-      return realApps;
-    }
-    // Use mock data for showcase
-    return mockApps.map((app: AppItem) => ({
-      id: app.id,
-      name: app.name,
-      subdomain: app.subdomain,
-      description: app.description,
-      status: app.status,
-      created_at: app.created_at,
-      category: app.category,
-      tags: app.tags,
-      screenshot: app.screenshot,
-      icon: app.icon,
-    }));
-  }, [realApps]);
+  const apps: AppItem[] = useMemo(() => realApps ?? [], [realApps]);
 
+  // Derive category list from real app data
   const categories = useMemo(() => {
-    return ['All', ...getAllCategories()];
-  }, []);
+    const cats = Array.from(
+      new Set(apps.map((a) => a.category).filter(Boolean))
+    ) as string[];
+    return ['All', ...cats.sort()];
+  }, [apps]);
 
-  // Group apps by category
+  // Filtered + grouped by category
   const appsByCategory = useMemo(() => {
-    const grouped: Record<string, typeof apps> = {};
-
-    apps.forEach((app: AppItem) => {
-      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-      const category = mockApp?.category || 'Other';
-
-      // Apply filters
-      if (selectedCategory !== 'All' && category !== selectedCategory) {
-        return;
-      }
-
+    const grouped: Record<string, AppItem[]> = {};
+    apps.forEach((app) => {
+      const category = app.category || 'Other';
+      if (selectedCategory !== 'All' && category !== selectedCategory) return;
       if (searchQuery) {
-        const query = searchQuery.toLowerCase();
+        const q = searchQuery.toLowerCase();
         const matches =
-          app.name.toLowerCase().includes(query) ||
-          app.subdomain.toLowerCase().includes(query) ||
-          app.description?.toLowerCase().includes(query);
+          app.name.toLowerCase().includes(q) ||
+          app.subdomain.toLowerCase().includes(q) ||
+          app.description?.toLowerCase().includes(q);
         if (!matches) return;
       }
-
-      if (!grouped[category]) {
-        grouped[category] = [];
-      }
+      if (!grouped[category]) grouped[category] = [];
       grouped[category].push(app);
     });
-
     return grouped;
   }, [apps, searchQuery, selectedCategory]);
 
-  // Get featured apps (if any)
-  const featuredApps = useMemo(() => {
-    return apps.filter((app: AppItem) => {
-      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-      return mockApp && apps.indexOf(app as AppItem) < 3;
-    });
-  }, [apps]);
+  // Featured = first 3 apps from backend
+  const featuredApps = useMemo(
+    () => apps.slice(0, 3),
+    [apps]
+  );
 
   const handleViewDetails = (subdomain: string) => {
     router.push(`/apps/${subdomain}`);
   };
 
-  const getAppCategory = (appId: string) => {
-    const mockApp = mockApps.find((m: AppItem) => m.id === appId);
-    return mockApp?.category || 'Other';
-  };
-
-  const getAppIcon = (appId: string) => {
-    const mockApp = mockApps.find((m: AppItem) => m.id === appId);
-    const category = mockApp?.category || 'Other';
-    return categoryIcons[category] || <AppsIcon />;
-  };
-
+  // ── Loading state ─────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div
@@ -157,12 +123,12 @@ export default function AppsPage() {
             <div style={{ width: '100%', height: '48px', backgroundColor: 'var(--card)', borderRadius: '8px' }} />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-            {[1, 2, 3, 4, 5].map((i: number) => (
+            {[1, 2, 3].map((i) => (
               <div key={i} style={{ width: '80px', height: '32px', backgroundColor: 'var(--card)', borderRadius: '16px', flexShrink: 0 }} />
             ))}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[1, 2, 3].map((i: number) => (
+            {[1, 2, 3, 4].map((i) => (
               <SkeletonMarketplaceCard key={i} />
             ))}
           </div>
@@ -171,7 +137,8 @@ export default function AppsPage() {
     );
   }
 
-  if (error && !apps.length) {
+  // ── Error state ───────────────────────────────────────────────────────────
+  if (error) {
     return (
       <div
         style={{
@@ -215,32 +182,24 @@ export default function AppsPage() {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 2rem, 2rem)', width: '100%' }}>
-          {/* Header Section */}
+
+          {/* Header */}
           <div style={{ width: '100%' }}>
             <Heading
               level={1}
               variant="title1"
-              style={{
-                marginBottom: '0.5rem',
-                fontSize: 'clamp(1.75rem, 2.5rem, 2.5rem)',
-                wordBreak: 'break-word',
-              }}
+              style={{ marginBottom: '0.5rem', fontSize: 'clamp(1.75rem, 2.5rem, 2.5rem)', wordBreak: 'break-word' }}
             >
               App Marketplace
             </Heading>
             <Text
               variant="body"
-              style={{
-                color: 'var(--muted-foreground)',
-                marginBottom: '1.5rem',
-                wordBreak: 'break-word',
-                fontSize: 'clamp(0.9375rem, 1rem, 1rem)',
-              }}
+              style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem', fontSize: 'clamp(0.9375rem, 1rem, 1rem)' }}
             >
               Discover and launch powerful applications
             </Text>
 
-            {/* Search Bar */}
+            {/* Search */}
             <div style={{ marginBottom: '1rem', width: '100%' }}>
               <SearchInput
                 placeholder="Search apps..."
@@ -250,27 +209,13 @@ export default function AppsPage() {
               />
             </div>
 
-            {/* Category Filters - Horizontal Scrollable */}
+            {/* Category filter pills — derived from real app data */}
             <div
-              style={{
-                width: '100%',
-                overflowX: 'auto',
-                overflowY: 'hidden',
-                WebkitOverflowScrolling: 'touch',
-                paddingBottom: '0.5rem',
-              }}
+              style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', paddingBottom: '0.5rem' }}
               className="scrollable-container"
             >
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '0.5rem',
-                  width: 'max-content',
-                  minWidth: '100%',
-                }}
-              >
-                {categories.map((category: string) => (
+              <div style={{ display: 'flex', flexDirection: 'row', gap: '0.5rem', width: 'max-content', minWidth: '100%' }}>
+                {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
@@ -281,25 +226,19 @@ export default function AppsPage() {
                       fontWeight: 500,
                       cursor: 'pointer',
                       border: '1px solid var(--border)',
-                      backgroundColor: selectedCategory === category
-                        ? 'var(--popover)'
-                        : 'transparent',
-                      color: selectedCategory === category
-                        ? 'var(--foreground)'
-                        : 'var(--muted-foreground)',
+                      backgroundColor: selectedCategory === category ? 'var(--popover)' : 'transparent',
+                      color: selectedCategory === category ? 'var(--foreground)' : 'var(--muted-foreground)',
                       flexShrink: 0,
                       minHeight: isMobile ? '36px' : '32px',
                       transition: 'all 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      if (selectedCategory !== category) {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                      }
+                      if (selectedCategory !== category)
+                        e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
                     }}
                     onMouseLeave={(e) => {
-                      if (selectedCategory !== category) {
+                      if (selectedCategory !== category)
                         e.currentTarget.style.backgroundColor = 'transparent';
-                      }
                     }}
                   >
                     {category}
@@ -309,202 +248,112 @@ export default function AppsPage() {
             </div>
           </div>
 
-          {/* Featured Section */}
+          {/* Featured — first 3 from backend, only when no filters active */}
           {featuredApps.length > 0 && !searchQuery && selectedCategory === 'All' && (
             <div style={{ width: '100%' }}>
-              <Heading
-                level={2}
-                variant="title2"
-                style={{
-                  marginBottom: isMobile ? '1rem' : '1.5rem',
-                }}
-              >
+              <Heading level={2} variant="title2" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
                 Featured
               </Heading>
               {isMobile ? (
-                // Mobile: Vertical stack
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-                  {featuredApps.map((app: AppItem) => {
-                    const category = getAppCategory(app.id);
-                    const categoryIcon = getAppIcon(app.id);
-                    const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-                    const isInstalled = app.status === 'installed' || app.status === 'approved';
-
-                    return (
-                      <div key={app.id} style={{ width: '100%' }}>
+                  {featuredApps.map((app) => (
+                    <div key={app.id} style={{ width: '100%' }}>
+                      <AppCard
+                        icon={getCategoryIcon(app.category)}
+                        name={app.name}
+                        description={app.description}
+                        category={app.category}
+                        subdomain={app.subdomain}
+                        status={app.status === 'installed' || app.status === 'approved' ? 'installed' : 'available'}
+                        variant="marketplace"
+                        imageUrl={app.screenshot}
+                        href={`/apps/${app.subdomain}`}
+                        onClick={() => handleViewDetails(app.subdomain)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', paddingBottom: '1rem' }}
+                  className="scrollable-container"
+                >
+                  <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', width: 'max-content', minWidth: '100%' }}>
+                    {featuredApps.map((app) => (
+                      <div key={app.id} style={{ flexShrink: 0, width: '280px', maxWidth: '280px' }}>
                         <AppCard
-                          icon={categoryIcon}
+                          icon={getCategoryIcon(app.category)}
                           name={app.name}
                           description={app.description}
-                          category={category}
+                          category={app.category}
                           subdomain={app.subdomain}
-                          status={isInstalled ? 'installed' : 'available'}
+                          status={app.status === 'installed' || app.status === 'approved' ? 'installed' : 'available'}
                           variant="marketplace"
-                          imageUrl={mockApp?.screenshot}
+                          imageUrl={app.screenshot}
                           href={`/apps/${app.subdomain}`}
                           onClick={() => handleViewDetails(app.subdomain)}
                         />
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                // Desktop: Horizontal scroll
-                <div
-                  style={{
-                    width: '100%',
-                    overflowX: 'auto',
-                    overflowY: 'hidden',
-                    WebkitOverflowScrolling: 'touch',
-                    paddingBottom: '1rem',
-                  }}
-                  className="scrollable-container"
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '1rem',
-                      width: 'max-content',
-                      minWidth: '100%',
-                    }}
-                  >
-                    {featuredApps.map((app: AppItem) => {
-                      const category = getAppCategory(app.id);
-                      const categoryIcon = getAppIcon(app.id);
-                      const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-                      const isInstalled = app.status === 'installed' || app.status === 'approved';
-
-                      return (
-                        <div
-                          key={app.id}
-                          style={{
-                            flexShrink: 0,
-                            width: '280px',
-                            maxWidth: '280px',
-                          }}
-                        >
-                          <AppCard
-                            icon={categoryIcon}
-                            name={app.name}
-                            description={app.description}
-                            category={category}
-                            subdomain={app.subdomain}
-                            status={isInstalled ? 'installed' : 'available'}
-                            variant="marketplace"
-                            imageUrl={mockApp?.screenshot}
-                            href={`/apps/${app.subdomain}`}
-                            onClick={() => handleViewDetails(app.subdomain)}
-                          />
-                        </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Category Rows */}
+          {/* Category rows */}
           {categoryKeys.length > 0 ? (
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-              style={{ width: '100%' }}
-            >
+            <motion.div variants={staggerContainer} initial="hidden" animate="visible" style={{ width: '100%' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 2rem, 2rem)', width: '100%' }}>
-                {categoryKeys.map((category: string) => {
+                {categoryKeys.map((category) => {
                   const categoryApps = appsByCategory[category];
                   if (!categoryApps || categoryApps.length === 0) return null;
-
                   return (
                     <motion.div key={category} variants={staggerItem} style={{ width: '100%' }}>
-                      <Heading
-                        level={2}
-                        variant="title2"
-                        style={{
-                          marginBottom: isMobile ? '1rem' : '1.5rem',
-                        }}
-                      >
+                      <Heading level={2} variant="title2" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
                         {category}
                       </Heading>
                       {isMobile ? (
-                        // Mobile: Vertical stack
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-                          {categoryApps.map((app: AppItem) => {
-                            const categoryIcon = getAppIcon(app.id);
-                            const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-                            const isInstalled = app.status === 'installed' || app.status === 'approved';
-
-                            return (
-                              <div key={app.id} style={{ width: '100%' }}>
+                          {categoryApps.map((app) => (
+                            <div key={app.id} style={{ width: '100%' }}>
+                              <AppCard
+                                icon={getCategoryIcon(app.category)}
+                                name={app.name}
+                                description={app.description}
+                                category={category}
+                                subdomain={app.subdomain}
+                                status={app.status === 'installed' || app.status === 'approved' ? 'installed' : 'available'}
+                                variant="marketplace"
+                                imageUrl={app.screenshot}
+                                href={`/apps/${app.subdomain}`}
+                                onClick={() => handleViewDetails(app.subdomain)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', paddingBottom: '1rem' }}
+                          className="scrollable-container"
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', width: 'max-content', minWidth: '100%' }}>
+                            {categoryApps.map((app) => (
+                              <div key={app.id} style={{ flexShrink: 0, width: '280px', maxWidth: '280px' }}>
                                 <AppCard
-                                  icon={categoryIcon}
+                                  icon={getCategoryIcon(app.category)}
                                   name={app.name}
                                   description={app.description}
                                   category={category}
                                   subdomain={app.subdomain}
-                                  status={isInstalled ? 'installed' : 'available'}
+                                  status={app.status === 'installed' || app.status === 'approved' ? 'installed' : 'available'}
                                   variant="marketplace"
-                                  imageUrl={mockApp?.screenshot}
+                                  imageUrl={app.screenshot}
                                   href={`/apps/${app.subdomain}`}
                                   onClick={() => handleViewDetails(app.subdomain)}
                                 />
                               </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        // Desktop: Horizontal scroll
-                        <div
-                          style={{
-                            width: '100%',
-                            overflowX: 'auto',
-                            overflowY: 'hidden',
-                            WebkitOverflowScrolling: 'touch',
-                            paddingBottom: '1rem',
-                          }}
-                          className="scrollable-container"
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'row',
-                              gap: '1rem',
-                              width: 'max-content',
-                              minWidth: '100%',
-                            }}
-                          >
-                            {categoryApps.map((app: AppItem) => {
-                              const categoryIcon = getAppIcon(app.id);
-                              const mockApp = mockApps.find((m: AppItem) => m.id === app.id);
-                              const isInstalled = app.status === 'installed' || app.status === 'approved';
-
-                              return (
-                                <div
-                                  key={app.id}
-                                  style={{
-                                    flexShrink: 0,
-                                    width: '280px',
-                                    maxWidth: '280px',
-                                  }}
-                                >
-                                  <AppCard
-                                    icon={categoryIcon}
-                                    name={app.name}
-                                    description={app.description}
-                                    category={category}
-                                    subdomain={app.subdomain}
-                                    status={isInstalled ? 'installed' : 'available'}
-                                    variant="marketplace"
-                                    imageUrl={mockApp?.screenshot}
-                                    href={`/apps/${app.subdomain}`}
-                                    onClick={() => handleViewDetails(app.subdomain)}
-                                  />
-                                </div>
-                              );
-                            })}
+                            ))}
                           </div>
                         </div>
                       )}
@@ -519,7 +368,7 @@ export default function AppsPage() {
               title={searchQuery || selectedCategory !== 'All' ? 'No apps found' : 'No apps available'}
               description={
                 searchQuery || selectedCategory !== 'All'
-                  ? `No apps match your filters. Try adjusting your search or category.`
+                  ? 'No apps match your filters. Try adjusting your search or category.'
                   : 'There are no apps available in the marketplace at this time. Check back later!'
               }
             />
@@ -528,16 +377,9 @@ export default function AppsPage() {
       </Container>
 
       <style jsx>{`
-        .scrollable-container::-webkit-scrollbar {
-          height: 8px;
-        }
-        .scrollable-container::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .scrollable-container::-webkit-scrollbar-thumb {
-          background: var(--border);
-          border-radius: 4px;
-        }
+        .scrollable-container::-webkit-scrollbar { height: 8px; }
+        .scrollable-container::-webkit-scrollbar-track { background: transparent; }
+        .scrollable-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
       `}</style>
     </motion.div>
   );

@@ -108,76 +108,160 @@ export const designTokens = {
     },
   },
 
-  // Colors - Figma Design System Tokens
+  // Colors — VCI Design System
   colors: {
-    // Brand/Accent - ONLY for wordmark SVG, never use in UI elements
-    brand: {
-      accent: '#FF2000', // Wordmark SVG only - DO NOT use for buttons, links, or UI
+    // ── Primary — VCI Blue ──────────────────────────────────────────────────
+    // All interactive elements: buttons, CTAs, links, focus rings
+    primary: {
+      base:     '#3C83F5',
+      // MUI compat aliases
+      main:     '#3C83F5',
+      light:    '#5A9AFF',
+      dark:     '#2B6BE8',
+      contrastText: '#ffffff',
+      disabled: 'rgba(60, 131, 245, 0.38)',
+      // Opacity scale
+      alpha: {
+        faint:    'rgba(60, 131, 245, 0.02)',
+        dim:      'rgba(60, 131, 245, 0.07)',
+        soft:     'rgba(60, 131, 245, 0.12)',
+        medium:   'rgba(60, 131, 245, 0.19)',
+        hover:    'rgba(60, 131, 245, 0.30)',
+        active:   'rgba(60, 131, 245, 0.40)',
+        focus:    'rgba(60, 131, 245, 0.12)',
+        selected: 'rgba(60, 131, 245, 0.16)',
+      },
     },
-    // Action colors - Primary interactive elements (VCI brand blue)
-    action: {
-      primary: '#3C83F5', // Primary CTAs, buttons, links, interactive elements
-      highlight: '#BFFF00', // Very rare - special emphasis, use sparingly
+
+    // ── Accent — Pomegranate ────────────────────────────────────────────────
+    // Promotional badges, kill-list tags, special emphasis
+    accent: {
+      base:     '#E43A15',
+      main:     '#E43A15',
+      light:    '#f0775c',
+      dark:     '#a32a0f',
+      hover:    '#f04a22',
+      active:   '#c93210',
+      disabled: 'rgba(228, 58, 21, 0.38)',
+      // Shade scale
+      50:  '#fdece8',
+      100: '#f8c5b9',
+      200: '#f49e8a',
+      300: '#f0775c',
+      400: '#eb502d',
+      500: '#e43a15',
+      600: '#a32a0f',
+      700: '#751e0b',
+      800: '#461207',
+      900: '#170602',
+      // Opacity scale
+      alpha: {
+        faint:    'rgba(228, 58, 21, 0.02)',
+        dim:      'rgba(228, 58, 21, 0.07)',
+        soft:     'rgba(228, 58, 21, 0.12)',
+        medium:   'rgba(228, 58, 21, 0.19)',
+        hover:    'rgba(228, 58, 21, 0.30)',
+        active:   'rgba(228, 58, 21, 0.40)',
+        focus:    'rgba(228, 58, 21, 0.12)',
+        selected: 'rgba(228, 58, 21, 0.16)',
+      },
     },
-    // Primary opacity scale (matches CSS tokens in globals.css)
-    primaryAlpha: {
-      faint: 'rgba(60, 131, 245, 0.02)',
-      dim: 'rgba(60, 131, 245, 0.07)',
-      soft: 'rgba(60, 131, 245, 0.15)',
-      medium: 'rgba(60, 131, 245, 0.19)',
-      hover: 'rgba(60, 131, 245, 0.30)',
+
+    // ── Secondary — Cinnabar ────────────────────────────────────────────────
+    // Secondary highlights, warm alerts, complementary accent elements
+    secondary: {
+      base:     '#E65245',
+      main:     '#E65245',
+      light:    '#eb6255',
+      dark:     '#9d2115',
+      hover:    '#eb6255',
+      active:   '#d04037',
+      disabled: 'rgba(230, 82, 69, 0.38)',
+      // Shade scale
+      50:  '#fceae9',
+      100: '#f6c1bc',
+      200: '#f0978f',
+      300: '#ea6d62',
+      400: '#e34435',
+      500: '#e65245',
+      600: '#9d2115',
+      700: '#70170f',
+      800: '#430e09',
+      900: '#160503',
+      // Opacity scale
+      alpha: {
+        faint:    'rgba(230, 82, 69, 0.02)',
+        dim:      'rgba(230, 82, 69, 0.07)',
+        soft:     'rgba(230, 82, 69, 0.12)',
+        medium:   'rgba(230, 82, 69, 0.19)',
+        hover:    'rgba(230, 82, 69, 0.30)',
+        active:   'rgba(230, 82, 69, 0.40)',
+        focus:    'rgba(230, 82, 69, 0.12)',
+        selected: 'rgba(230, 82, 69, 0.16)',
+      },
     },
-    // Surface colors - Background surfaces
+
+    // ── Surface ─────────────────────────────────────────────────────────────
     surface: {
-      base: '#121212', // Primary background
-      elevated: '#1E1E1E', // Card backgrounds, modals
-      subtle: '#1A1A1A', // Input fields, secondary cards
-      border: '#333333', // Card borders, dividers
+      base:     '#121212', // Page background
+      elevated: '#1E1E1E', // Cards, modals
+      subtle:   '#1A1A1A', // Input fields, secondary cards
+      border:   '#333333', // Dividers, card outlines
     },
-    // Text colors
+
+    // ── Text ────────────────────────────────────────────────────────────────
     text: {
-      primary: '#FFFFFF', // Headlines, primary content
-      secondary: '#B0B0B0', // Body text, descriptions
-      muted: '#525252', // Disabled states, placeholders
+      primary:   '#FFFFFF',
+      secondary: '#B0B0B0',
+      muted:     '#525252',
     },
-    // Semantic colors
+
+    // ── Semantic ────────────────────────────────────────────────────────────
     success: {
-      main: '#22C55E', // Positive states, confirmations
+      main:  '#22C55E',
+      alpha: {
+        soft:   'rgba(34, 197, 94, 0.12)',
+        medium: 'rgba(34, 197, 94, 0.19)',
+      },
     },
     warning: {
-      main: '#F59E0B', // Warnings, attention
+      main:  '#F59E0B',
+      alpha: {
+        soft:   'rgba(245, 158, 11, 0.12)',
+        medium: 'rgba(245, 158, 11, 0.19)',
+      },
     },
     error: {
-      main: '#EF4444', // Errors, destructive actions
+      main:  '#EF4444',
+      alpha: {
+        soft:   'rgba(239, 68, 68, 0.12)',
+        medium: 'rgba(239, 68, 68, 0.19)',
+      },
     },
-    // Rebel / landing accent — aligned to VCI primary
-    rebel: {
-      accent: '#3C83F5', // VCI primary (replaces orange)
-      accentHover: '#5A9AFF', // Hover state
-      secondaryAccent: '#00F5D4', // Optional digital/tech highlight
-      red: '#FF2E2E', // Premium CTAs, brand highlights (legacy)
-    },
-    // Legacy MUI compatibility (map to new tokens)
-    primary: {
-      main: '#3C83F5', // Maps to Action/Primary (VCI blue)
-      light: '#5A9AFF',
-      dark: '#2B6BE8',
-      contrastText: '#ffffff',
-    },
-    accent: {
-      main: '#FF2000', // Maps to Brand/Accent (wordmark only)
-      light: '#FF4D33',
-      dark: '#CC1A00',
-    },
-    secondary: {
-      main: '#B0B0B0', // Maps to Text/Secondary
-      light: '#C7C7C7',
-      dark: '#7F7F7F',
-    },
+
+    // ── MUI background compat ───────────────────────────────────────────────
     background: {
-      default: '#121212', // Maps to Surface/Base
-      paper: '#1E1E1E', // Maps to Surface/Elevated
-      elevated: '#1A1A1A', // Maps to Surface/Subtle
+      default:  '#121212',
+      paper:    '#1E1E1E',
+      elevated: '#1A1A1A',
+    },
+
+    // ── Legacy aliases (do not use in new code) ─────────────────────────────
+    /** @deprecated Use colors.primary.main */
+    action: {
+      primary: '#3C83F5',
+    },
+    /** @deprecated Use colors.primary.alpha */
+    primaryAlpha: {
+      faint:    'rgba(60, 131, 245, 0.02)',
+      dim:      'rgba(60, 131, 245, 0.07)',
+      soft:     'rgba(60, 131, 245, 0.12)',
+      medium:   'rgba(60, 131, 245, 0.19)',
+      hover:    'rgba(60, 131, 245, 0.30)',
+    },
+    /** @deprecated Use colors.accent or colors.secondary */
+    rebel: {
+      red: '#E43A15', // Pomegranate accent
     },
   },
 

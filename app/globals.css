@@ -40,8 +40,36 @@
   --primary-soft: rgba(60, 131, 245, 0.15);
   --primary-medium: rgba(60, 131, 245, 0.19);
   --primary-hover: rgba(60, 131, 245, 0.30);
+  --primary-active: rgba(60, 131, 245, 0.40);
+  --primary-selected: rgba(60, 131, 245, 0.16);
   --surface-overlay-dim: rgba(18, 18, 18, 0.40);
   --border-pattern: rgba(51, 51, 51, 0.38);
+
+  /* ── Brand Accent — Pomegranate ── */
+  /* Used for: deal badges, promotional elements, kill-list tags */
+  --brand-accent:              #E43A15;
+  --brand-accent-hover:        #f04a22;
+  --brand-accent-active:       #c93210;
+  --brand-accent-faint:        rgba(228, 58, 21, 0.02);
+  --brand-accent-dim:          rgba(228, 58, 21, 0.07);
+  --brand-accent-soft:         rgba(228, 58, 21, 0.12);
+  --brand-accent-medium:       rgba(228, 58, 21, 0.19);
+  --brand-accent-hover-alpha:  rgba(228, 58, 21, 0.30);
+  --brand-accent-active-alpha: rgba(228, 58, 21, 0.40);
+  --brand-accent-selected:     rgba(228, 58, 21, 0.16);
+
+  /* ── Brand Secondary — Cinnabar ── */
+  /* Used for: secondary highlights, warm complementary elements */
+  --brand-secondary:              #E65245;
+  --brand-secondary-hover:        #eb6255;
+  --brand-secondary-active:       #d04037;
+  --brand-secondary-faint:        rgba(230, 82, 69, 0.02);
+  --brand-secondary-dim:          rgba(230, 82, 69, 0.07);
+  --brand-secondary-soft:         rgba(230, 82, 69, 0.12);
+  --brand-secondary-medium:       rgba(230, 82, 69, 0.19);
+  --brand-secondary-hover-alpha:  rgba(230, 82, 69, 0.30);
+  --brand-secondary-active-alpha: rgba(230, 82, 69, 0.40);
+  --brand-secondary-selected:     rgba(230, 82, 69, 0.16);
   /* Shadow tokens */
   --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-elevated: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -188,8 +216,19 @@
   --color-primary-soft: var(--primary-soft);
   --color-primary-medium: var(--primary-medium);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-selected: var(--primary-selected);
   --color-surface-overlay-dim: var(--surface-overlay-dim);
   --color-border-pattern: var(--border-pattern);
+  /* Brand accent — Tailwind utilities: bg-brand-accent, text-brand-accent, border-brand-accent, etc. */
+  --color-brand-accent:         var(--brand-accent);
+  --color-brand-accent-soft:    var(--brand-accent-soft);
+  --color-brand-accent-medium:  var(--brand-accent-medium);
+  --color-brand-accent-dim:     var(--brand-accent-dim);
+  /* Brand secondary — Tailwind utilities: bg-brand-secondary, text-brand-secondary, etc. */
+  --color-brand-secondary:        var(--brand-secondary);
+  --color-brand-secondary-soft:   var(--brand-secondary-soft);
+  --color-brand-secondary-medium: var(--brand-secondary-medium);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);

@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import type { DealProduct } from "./types";
+import { AppLogo } from "@/components/marketplace/AppLogo";
 
 interface DealIdentityProps {
   deal?: DealProduct;
@@ -14,14 +15,13 @@ export function DealIdentity({ deal }: DealIdentityProps) {
 
   return (
     <div className="flex items-start gap-4 md:gap-5">
-      <div
-        className="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-[12px] flex items-center justify-center"
-        style={{ background: "linear-gradient(135deg, var(--primary), var(--info))" }}
-      >
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="md:w-10 md:h-10">
-          <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
+      <AppLogo
+        name={title}
+        imageUrl={deal?.image_url}
+        size={64}
+        borderRadius={12}
+        className="md:w-20 md:h-20"
+      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="font-heading text-[25px] md:text-[32px] leading-[1.2] text-foreground" style={{ fontWeight: 700 }}>{title}</h1>

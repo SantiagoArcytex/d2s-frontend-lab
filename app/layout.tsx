@@ -63,11 +63,13 @@ export default function RootLayout({
             <AuthProvider>
               <NavbarProvider>
                 <Navbar />
-                <MotionScrollProvider>
-                  <PageTransition>
-                    {children}
-                  </PageTransition>
-                </MotionScrollProvider>
+                <main>
+                  <MotionScrollProvider>
+                    <PageTransition>
+                      {children}
+                    </PageTransition>
+                  </MotionScrollProvider>
+                </main>
               </NavbarProvider>
             </AuthProvider>
           </TRPCProvider>

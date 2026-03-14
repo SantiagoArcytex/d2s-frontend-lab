@@ -39,12 +39,6 @@ const LIQUID_SPRING = {
   restDelta: 0.001,
 };
 
-const NO_SPRING = {
-  mass: 0.1,
-  stiffness: 1000,
-  damping: 50,
-};
-
 // ─── Context ──────────────────────────────────────────────────────────────────
 
 const ScrollContext = createContext<ScrollContextValue | null>(null);
@@ -61,7 +55,7 @@ export function MotionScrollProvider({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
-  const [windowHeight, setWindowHeight] = useState(0);
+  const [, setWindowHeight] = useState(0);
   
   // Track native scroll
   const { scrollYProgress: rawProgress, scrollY: rawY } = useScroll();

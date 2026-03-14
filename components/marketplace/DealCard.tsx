@@ -3,11 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, Heading, Text, Badge, Button } from '@/design-system';
-import {
-  ArrowForward as ArrowForwardIcon,
-  Star as StarIcon,
-} from '@mui/icons-material';
+import { Card, Heading, Text, Button } from '@/design-system';
+import { AppLogo } from './AppLogo';
 
 interface DealCardProps {
   deal: {
@@ -32,8 +29,6 @@ interface DealCardProps {
 }
 
 export function DealCard({ deal }: DealCardProps) {
-  const price = typeof deal.price === 'string' ? parseFloat(deal.price) : deal.price;
-
   // Use icon_url first, then fallback to cover_image_url for the app icon
   const iconUrl = deal.icon_url || deal.cover_image_url;
   
@@ -63,47 +58,13 @@ export function DealCard({ deal }: DealCardProps) {
           }}
         >
           {/* App Icon - Centered at top */}
-          <div
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              backgroundColor: 'var(--card)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
-              position: 'relative',
-              marginBottom: '0.25rem',
-              border: '1px solid var(--border)',
-            }}
-          >
-            {iconUrl ? (
-              <Image
-                src={iconUrl}
-                alt={deal.title}
-                fill
-                style={{ objectFit: 'cover', padding: '12px' }}
-                sizes="80px"
-              />
-            ) : (
-              <div 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  background: 'linear-gradient(135deg, var(--primary), var(--info))',
-                }}
-              >
-                <span style={{ color: 'white', fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
-                  {deal.title ? deal.title.charAt(0).toUpperCase() : 'A'}
-                </span>
-              </div>
-            )}
-          </div>
+          <AppLogo
+            name={deal.title}
+            imageUrl={iconUrl}
+            size={80}
+            borderRadius={20}
+            style={{ marginBottom: '0.25rem' }}
+          />
 
           {/* Title */}
           <Heading

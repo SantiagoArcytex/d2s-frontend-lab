@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Bell, Heart, Share2, LogOut, User, ChevronDown, Shield } from "lucide-react";
 import { VCILogo } from "./VCILogo";
@@ -32,16 +32,15 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
   const { config } = useNavbarContext();
   const { user, signOut, loading: authLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const variant = propVariant || config.variant || "landing";
   const breadcrumb = propBreadcrumb || config.breadcrumb;
 
-  const [scrolled, setScrolled] = useState(false);
+  const [, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-
-  if (config.hidden) return null;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -60,8 +59,12 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // All hooks must be called before any conditional returns (Rules of Hooks)
+  if (config.hidden) return null;
+
   const isLanding = variant === "landing";
-  const showSolid = !isLanding || scrolled;
+  // Always show glass effect — including at the very top of landing pages
+  const showSolid = true;
   const initials = getInitials(user?.email);
 
   const handleSignOut = async () => {
@@ -72,6 +75,7 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
 
   return (
     <nav
+      aria-label="Main navigation"
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
         height: NAVBAR_HEIGHT,
@@ -89,7 +93,12 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
       >
         {/* LEFT: Logo + optional breadcrumb */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 no-underline shrink-0">
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 no-underline shrink-0"
+            aria-label="VCI Home"
+            aria-current={pathname === "/" ? "page" : undefined}
+          >
             <VCILogo size={28} />
           </Link>
 
@@ -103,6 +112,7 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
                     <Link
                       href={crumb.href}
                       className="font-body text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+                      aria-current={pathname === crumb.href ? "page" : undefined}
                     >
                       {crumb.label}
                     </Link>
@@ -147,6 +157,7 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
                 <ChevronDown
                   className="w-3.5 h-3.5 text-muted-foreground hidden sm:block transition-transform duration-200"
                   style={{ transform: userMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                  aria-hidden="true"
                 />
               </button>
 
@@ -191,8 +202,9 @@ export function Navbar({ variant: propVariant, breadcrumb: propBreadcrumb }: Nav
                         href="/dashboard/home"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-body text-foreground hover:bg-white/5 transition-colors no-underline"
+                        aria-current={pathname === "/dashboard/home" ? "page" : undefined}
                       >
-                        <Shield className="w-4 h-4 text-muted-foreground" />
+                        <Shield className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                         Dashboard
                       </Link>
                       <div className="border-t border-border my-1" />

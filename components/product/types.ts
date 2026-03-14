@@ -16,7 +16,10 @@ export interface DealProduct {
   developer_name?: string;
   version?: string;
   updated_at?: string;
+  created_at?: string;
   image_url?: string;
   tags?: string[];
+  kills_list?: string[];
+  features?: string[];
   [key: string]: unknown;
 }

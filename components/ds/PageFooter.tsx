@@ -40,7 +40,17 @@ const FOOTER_COLUMNS = [
 
 export function PageFooter() {
   return (
-    <footer className="bg-secondary" style={{ padding: "48px 24px" }}>
+    <footer
+      style={{
+        position: 'relative',
+        zIndex: 2,
+        padding: '48px 24px 40px',
+        background: 'var(--surface-overlay-dim)',
+        backdropFilter: 'blur(18px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+        borderTop: 'var(--glass-border)',
+      }}
+    >
       <div className="max-w-[1280px] mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {FOOTER_COLUMNS.map((col) => (
@@ -59,8 +69,8 @@ export function PageFooter() {
           ))}
         </div>
 
-        <div className="border-t border-border pt-6">
-          <p className="font-body text-[13px] text-muted-foreground text-center m-0" style={{ fontWeight: 400, lineHeight: 1.4, letterSpacing: "0.01em" }}>
+        <div style={{ borderTop: 'var(--glass-border)', paddingTop: '24px' }}>
+          <p className="font-body text-[13px] text-muted-foreground text-center m-0" style={{ fontWeight: 400, lineHeight: 1.4, letterSpacing: '0.01em' }}>
             &copy; 2026 VCI — Vibe Coding Incubator. All rights reserved.
           </p>
         </div>

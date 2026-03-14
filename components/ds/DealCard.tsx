@@ -9,7 +9,7 @@ const GRADIENTS = [
   "linear-gradient(135deg, var(--primary), var(--info))",
   "linear-gradient(135deg, var(--warning), var(--gold))",
   "linear-gradient(135deg, var(--violet), var(--primary))",
-  "linear-gradient(135deg, var(--destructive), var(--warning))",
+  "linear-gradient(135deg, var(--brand-accent), var(--brand-secondary))",
   "linear-gradient(135deg, var(--success), var(--primary))",
 ];
 

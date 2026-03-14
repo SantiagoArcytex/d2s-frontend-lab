@@ -49,8 +49,11 @@ function mapDealToProduct(deal: Record<string, unknown>): DealProduct {
     developer_name: deal.developer_name as string,
     version: deal.version as string,
     updated_at: deal.updated_at as string,
+    created_at: deal.created_at as string,
     image_url: deal.cover_image_url as string,
     tags: deal.tags as string[],
+    kills_list: Array.isArray(deal.kills_list) ? (deal.kills_list as string[]) : undefined,
+    features: Array.isArray(deal.features) ? (deal.features as string[]) : undefined,
   };
 }
 
@@ -77,6 +80,16 @@ export default function DealDetailPage() {
 
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: reviews, refetch: refetchReviews } = trpc.marketplace.reviews.useQuery({ deal_id: dealId, limit: 10 });
+
+  // Other deals by the same developer — used in DeveloperSection "More from …" carousel
+  // @ts-expect-error - trpc router types may not be fully synced yet
+  const { data: allDeals } = trpc.deal.list.useQuery({ limit: 50 }, { enabled: !!deal });
+  const otherDeveloperDeals = React.useMemo(() => {
+    if (!allDeals || !deal?.developer_name) return [];
+    return (allDeals as Record<string, unknown>[])
+      .filter((d) => d.developer_name === deal.developer_name && d.id !== dealId)
+      .slice(0, 8);
+  }, [allDeals, deal, dealId]);
 
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: userPurchase } = trpc.marketplace.getUserPurchaseForDeal.useQuery(
@@ -351,7 +364,8 @@ export default function DealDetailPage() {
             <KillsSection deal={dealProduct} />
             <PricingTable deal={dealProduct} />
             <DealInfoSection deal={dealProduct} />
-            <DeveloperSection deal={dealProduct} />
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <DeveloperSection deal={dealProduct} otherDeals={otherDeveloperDeals as any} />
             <InteractionSection deal={dealProduct} reviewsNode={reviewsNode} />
           </div>
 

@@ -13,5 +13,6 @@ export { TestimonialCard } from "./TestimonialCard";
 export { FAQItem } from "./FAQItem";
 
 export { DealCard } from "./DealCard";
+export { Pagination } from "./Pagination";
 export { Navbar } from "./Navbar";
 export { PageFooter } from "./PageFooter";

@@ -87,14 +87,16 @@ export function Button({
           style={baseStyle}
           {...(rest as React.ComponentProps<typeof motion.button>)}
         >
-          {icon || children}
+          {icon && <span aria-hidden="true">{icon}</span>}
+          {!icon && children}
         </motion.button>
       );
     }
 
     return (
       <button className={`shrink-0 transition-colors cursor-pointer font-body ${className}`} style={baseStyle} {...rest}>
-        {icon || children}
+        {icon && <span aria-hidden="true">{icon}</span>}
+        {!icon && children}
       </button>
     );
   }
@@ -130,18 +132,18 @@ export function Button({
         style={baseStyle}
         {...(rest as React.ComponentProps<typeof motion.button>)}
       >
-        {leadingIcon}
+        {leadingIcon && <span aria-hidden="true">{leadingIcon}</span>}
         {children}
-        {trailingIcon}
+        {trailingIcon && <span aria-hidden="true">{trailingIcon}</span>}
       </motion.button>
     );
   }
 
   return (
     <button className={`font-body cursor-pointer ${className}`} style={baseStyle} {...rest}>
-      {leadingIcon}
+      {leadingIcon && <span aria-hidden="true">{leadingIcon}</span>}
       {children}
-      {trailingIcon}
+      {trailingIcon && <span aria-hidden="true">{trailingIcon}</span>}
     </button>
   );
 }

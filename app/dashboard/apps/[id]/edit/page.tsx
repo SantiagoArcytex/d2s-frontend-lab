@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc/client';
 import { Heading, Text, Container, Card, Button, Alert } from '@/design-system';
@@ -18,6 +18,7 @@ export default function EditAppPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<{ name?: string }>({});
+  const [prevAppId, setPrevAppId] = useState<string | null>(null);
 
   // @ts-expect-error - trpc router types may not be fully synced yet
   const { data: app, isLoading, error } = trpc.app.get.useQuery(
@@ -25,21 +26,19 @@ export default function EditAppPage() {
     { enabled: !!appId }
   );
 
+  // Sync state from fetched data in render to avoid cascading renders and lint errors
+  if (app && app.id !== prevAppId) {
+    setPrevAppId(app.id);
+    setName(app.name || '');
+    setDescription(app.description || '');
+  }
+
   // @ts-expect-error - trpc router types may not be fully synced yet
   const updateApp = trpc.app.update.useMutation({
     onSuccess: () => {
       router.push('/dashboard/apps');
     },
   });
-
-  // Populate form when app data loads
-  useEffect(() => {
-    if (app) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(app.name || '');
-      setDescription(app.description || '');
-    }
-  }, [app]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

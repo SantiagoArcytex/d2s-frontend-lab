@@ -1,13 +1,10 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Card, Heading, Text, Badge, Button } from '@/design-system';
-import {
-  ArrowForward as ArrowForwardIcon,
-  Star as StarIcon,
-} from '@mui/icons-material';
+import { Card, Heading, Text } from '@/design-system';
+import { ChevronRight } from 'lucide-react';
+import { AppLogo } from './AppLogo';
 
 interface DealCardProps {
   deal: {
@@ -24,273 +21,111 @@ interface DealCardProps {
     tags?: string[];
     featured?: boolean;
     purchase_count?: number;
-    deal_type?: string; // Deprecated, but may still exist
+    deal_type?: string;
   };
 }
 
 export function LandingDealCard({ deal }: DealCardProps) {
-  const price = typeof deal.price === 'string' ? parseFloat(deal.price) : deal.price;
-  const originalPrice = deal.original_price
-    ? (typeof deal.original_price === 'string' ? parseFloat(deal.original_price) : deal.original_price)
-    : null;
-  const discount = originalPrice && originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
-
-  // Determine payment type tag
-  const getPaymentTag = () => {
-    if (deal.payment_model === 'one_time') {
-      return { label: 'One-Time Payment', variant: 'success' as const };
-    }
-    if (deal.payment_model === 'subscription') {
-      const interval = deal.subscription_interval === 'annual' ? 'Annual' : 'Monthly';
-      return { label: `${interval} Subscription`, variant: 'primary' as const };
-    }
-    return null;
-  };
-
-  const paymentTag = getPaymentTag();
-
+  // --- DYNAMIC DATA INJECTION POINTS ---
+  const name = deal.title; /* INJECT: name */
+  const shortDescription = deal.description || 'No description available'; /* INJECT: shortDescription */
+  
+  // Use icon_url as primary if available, otherwise cover_image_url
+  const logoUrl = deal.cover_image_url || ''; /* INJECT: logoUrl */
+  
+  // Mock primary color for the gradient background
+  // In a real scenario, this would dynamically map to a string like 'var(--primary-active)' or another system token
+  /* INJECT: primaryColor */
+  const primaryColor = 'var(--primary-active)';
+  
   return (
-    <Link href={`/marketplace/${deal.id}`} style={{ textDecoration: 'none', color: 'inherit', height: '100%', display: 'flex' }}>
+    <Link href={`/marketplace/${deal.id}`} style={{ textDecoration: 'none', color: 'inherit', height: '100%', display: 'block' }}>
       <Card
         variant="elevated"
         style={{ 
           height: '100%', 
+          minHeight: '440px',
+          maxHeight: '540px',
           display: 'flex', 
           flexDirection: 'column', 
           width: '100%',
-          border: '1px solid var(--warning)', // Differentiation: Orange border
-          boxShadow: '0 0 12px rgba(245, 158, 11, 0.2)',
+          // Background gradient: primaryColor fading into dark theme background
+          background: `radial-gradient(circle at top left, ${primaryColor} 0%, var(--card) 70%)`,
+          border: '1px solid var(--border)',
+          padding: '1.5rem',
+          gap: '1rem',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-          }}
-        >
-          {/* Image Section */}
-          {deal.cover_image_url && (
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '240px',
-                overflow: 'hidden',
-                backgroundColor: 'var(--card)',
-              }}
-            >
-              <Image
-                src={deal.cover_image_url}
-                alt={deal.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  objectFit: 'cover',
-                }}
-                loading="lazy"
-              />
-              {/* Overlay badges */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  right: '12px',
-                  display: 'flex',
-                  gap: '0.5rem',
-                  flexWrap: 'wrap',
-                  zIndex: 1,
-                }}
-              >
-                {deal.featured && (
-                  <Badge variant="warning" size="sm">
-                    <StarIcon style={{ fontSize: '14px', marginRight: '4px' }} />
-                    Featured
-                  </Badge>
-                )}
-                {discount > 0 && (
-                  <Badge variant="error" size="sm">
-                    {discount}% OFF
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
+        {/* Header row: Logo + Name + CTA */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+          {/* Logo */}
+          <AppLogo
+            name={name}
+            imageUrl={logoUrl}
+            size={40}
+            borderRadius={10}
+          />
 
-          {/* Content Section */}
-          <div
+          {/* App Name */}
+          <Heading
+            level={3}
             style={{
-              padding: '1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
+              margin: 0,
+              fontSize: '1.125rem',
+              fontWeight: 500,
+              lineHeight: 1.3,
+              color: 'var(--foreground)',
               flex: 1,
-              gap: '1rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
-            {/* Category and Payment Model Tags - Always render for consistency */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.5rem',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                minHeight: '28px', // Reserve space for badges
-              }}
-            >
-              {deal.category && (
-                <Badge variant="default" size="sm">
-                  {deal.category}
-                </Badge>
-              )}
-              {paymentTag ? (
-                <div style={{ fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                  <Badge variant={paymentTag.variant} size="sm">
-                    {paymentTag.label}
-                  </Badge>
-                </div>
-              ) : (
-                <div style={{ color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                  <Badge variant="default" size="sm">
-                    Payment TBD
-                  </Badge>
-                </div>
-              )}
-            </div>
+            {name}
+          </Heading>
 
-            {/* Title */}
-            <Heading
-              level={3}
-              variant="headline"
-              style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                lineHeight: 1.3,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                minHeight: '3.25rem', // Reserve space for 2 lines
-              }}
-            >
-              {deal.title}
-            </Heading>
-
-            {/* Description - Always render for consistency */}
-            <Text
-              variant="body"
-              style={{
-                color: deal.description ? 'var(--muted-foreground)' : 'var(--text-muted)',
-                fontSize: '0.875rem',
-                lineHeight: 1.5,
-                display: deal.description ? '-webkit-box' : 'block',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                flex: 1,
-                margin: 0,
-                minHeight: '2.625rem', // Reserve space for 2 lines of text
-              }}
-            >
-              {deal.description || 'No description available'}
-            </Text>
-
-            {/* Price Section */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '0.75rem',
-                flexWrap: 'wrap',
-                marginTop: 'auto',
-                paddingTop: '0.5rem',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '0.5rem',
-                }}
-              >
-                <Text
-                  variant="body"
-                  style={{
-                    fontSize: '1.75rem',
-                    fontWeight: 700,
-                    color: 'var(--primary)',
-                    margin: 0,
-                  }}
-                >
-                  ${price.toFixed(2)}
-                </Text>
-                {deal.currency && deal.currency !== 'USD' && (
-                  <Text
-                    variant="caption1"
-                    style={{
-                      color: 'var(--muted-foreground)',
-                      fontSize: '0.75rem',
-                    }}
-                  >
-                    {deal.currency}
-                  </Text>
-                )}
-              </div>
-              {originalPrice && originalPrice > price && (
-                <Text
-                  variant="body"
-                  style={{
-                    fontSize: '0.875rem',
-                    textDecoration: 'line-through',
-                    color: 'var(--muted-foreground)',
-                    opacity: 0.5,
-                    margin: 0,
-                  }}
-                >
-                  ${originalPrice.toFixed(2)}
-                </Text>
-              )}
-              {/* Always show purchase count for consistency */}
-              <Text
-                variant="caption1"
-                style={{
-                  color: 'var(--muted-foreground)',
-                  fontSize: '0.75rem',
-                  marginLeft: 'auto',
-                }}
-              >
-                {deal.purchase_count || 0} {(deal.purchase_count || 0) === 1 ? 'purchase' : 'purchases'}
-              </Text>
-            </div>
-
-            {/* CTA Button */}
-            <Button
-              variant="primary"
-              fullWidth
-              style={{
-                marginTop: '0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                background: 'var(--warning)', // Match the border
-                borderColor: 'var(--warning)',
-              }}
-              onClick={(e) => {
-                // Let the Link handle navigation, just prevent default button behavior
-                e.stopPropagation();
-              }}
-            >
-              View Deal
-              <ArrowForwardIcon style={{ fontSize: '16px' }} />
-            </Button>
+          {/* CTA/Arrow Button */}
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-hover)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'var(--card)',
+              color: 'var(--foreground)',
+              flexShrink: 0,
+              transition: 'background-color 0.2s',
+            }}
+          >
+            <ChevronRight size={16} />
           </div>
+        </div>
+
+        {/* Description */}
+        <Text
+          variant="body"
+          style={{
+            color: 'var(--foreground)',
+            fontSize: '0.95rem',
+            lineHeight: 1.5,
+            margin: '0.5rem 0 0 0',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {shortDescription}
+        </Text>
+        
+        {/* Placeholder for the large abstract graphic/image (mimicking the reference) */}
+        <div className="mt-auto flex justify-center items-end" style={{ flex: 1, minHeight: '160px' }}>
+             {/* If we had specific card graphic components they would go here. For now the dynamic gradient acts as the graphic. */}
         </div>
       </Card>
     </Link>
